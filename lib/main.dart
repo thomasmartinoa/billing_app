@@ -1,22 +1,25 @@
+import 'package:billing_app/screens/screen_setup.dart';
 import 'package:flutter/material.dart';
-import 'screens/screen_setup.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+// ------------ App root ------------
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF17F1C5);
+
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // hides the red "DEBUG" banner
       title: 'Billing App',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF050608),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
+          seedColor: primary,
           brightness: Brightness.dark,
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -32,13 +35,12 @@ class MainApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.blue),
+            borderSide: BorderSide(color: primary),
           ),
           labelStyle: const TextStyle(fontSize: 13),
         ),
       ),
-      initialRoute: '/setup',
-      routes: {'/setup': (context) => const ScreenSetup()},
+      home: const ScreenSetup(), // start app on your setup page
     );
   }
 }
