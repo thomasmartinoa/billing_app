@@ -153,7 +153,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
               ),
             ),
 
-            // bottom bar container
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -165,7 +164,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: _step == 1
-                  // Step 1: only Continue
                   ? SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -179,7 +177,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
                         child: const Text("Continue"),
                       ),
                     )
-                  // Step 2 & 3: Back + Continue
                   : Row(
                       children: [
                         Expanded(
@@ -230,8 +227,9 @@ class _ScreenSetupState extends State<ScreenSetup> {
     }
   }
 
-  // ---------- STEP 1 ----------
   Widget _buildStep1() {
+    const primary = Color(0xFF17F1C5);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -246,48 +244,55 @@ class _ScreenSetupState extends State<ScreenSetup> {
         ),
         const SizedBox(height: 12),
 
-        // all buttons same size
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _shopTypes.map((type) {
-            final bool selected = _selectedShopType == type;
-            return SizedBox(
-              width: 110,
-              height: 90,
-              child: GestureDetector(
-                onTap: () => setState(() => _selectedShopType = type),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? const Color(0xFF0E3A34)
-                        : const Color(0xFF1B1E22),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: selected
-                          ? const Color(0xFF17F1C5)
-                          : const Color(0xFF252A30),
-                      width: selected ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      type,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.maxWidth;
+            const int columns = 3;
+            const double spacing = 8;
+
+            final double totalSpacing = spacing * (columns - 1);
+            final double itemWidth = (width - totalSpacing) / columns;
+
+            return Wrap(
+              spacing: spacing,
+              runSpacing: 8,
+              alignment: WrapAlignment.start,
+              children: _shopTypes.map((type) {
+                final bool selected = _selectedShopType == type;
+                return SizedBox(
+                  width: itemWidth,
+                  height: 90,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedShopType = type),
+                    child: Container(
+                      decoration: BoxDecoration(
                         color: selected
-                            ? const Color(0xFF17F1C5)
-                            : const Color(0xFFD5D8DD),
+                            ? const Color(0xFF0E3A34)
+                            : const Color(0xFF1B1E22),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: selected ? primary : const Color(0xFF252A30),
+                          width: selected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          type,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selected ? primary : const Color(0xFFD5D8DD),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
 
         const SizedBox(height: 20),
@@ -303,41 +308,65 @@ class _ScreenSetupState extends State<ScreenSetup> {
             color: const Color(0xFF141618),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Wrap(
-            spacing: 8,
-            children: _icons.map((icon) {
-              final selected = _selectedIcon == icon;
-              return GestureDetector(
-                onTap: () => setState(() => _selectedIcon = icon),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B1E22),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: selected
-                          ? const Color(0xFF17F1C5)
-                          : const Color(0xFF252A30),
-                      width: selected ? 1.5 : 1,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double width = constraints.maxWidth;
+              const int iconsPerRow = 6;
+              const double iconSpacing = 8;
+              final double totalIconSpacing = iconSpacing * (iconsPerRow - 1);
+              final double iconButtonSize =
+                  (width - (totalIconSpacing)) / iconsPerRow;
+
+              final List<IconData> moreIcons = [
+                ..._icons,
+                Icons.fastfood,
+                Icons.local_mall,
+                Icons.computer,
+                Icons.medical_services,
+                Icons.spa,
+                Icons.coffee,
+                Icons.icecream,
+                Icons.local_grocery_store,
+                Icons.local_shipping,
+                Icons.dry_cleaning,
+              ];
+
+              return Wrap(
+                spacing: iconSpacing,
+                runSpacing: 8,
+                alignment: WrapAlignment.start,
+                children: moreIcons.map((icon) {
+                  final selected = _selectedIcon == icon;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedIcon = icon),
+                    child: Container(
+                      width: iconButtonSize,
+                      height: iconButtonSize,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1B1E22),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selected ? primary : const Color(0xFF252A30),
+                          width: selected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: iconButtonSize * 0.45,
+                        color: selected ? primary : const Color(0xFFD5D8DD),
+                      ),
                     ),
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: selected
-                        ? const Color(0xFF17F1C5)
-                        : const Color(0xFFD5D8DD),
-                  ),
-                ),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           ),
         ),
       ],
     );
   }
 
-  // ---------- STEP 2 ----------
   Widget _buildStep2() {
     const primary = Color(0xFF17F1C5);
 
@@ -416,7 +445,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
     );
   }
 
-  // ---------- STEP 3 ----------
   Widget _buildStep3() {
     const primary = Color(0xFF17F1C5);
 
@@ -436,7 +464,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const Text("Currency", style: TextStyle(fontSize: 13)),
         const SizedBox(height: 4),
 
-        // currency with icon
         DropdownButtonFormField<String>(
           value: _currency,
           decoration: const InputDecoration(
@@ -479,7 +506,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
         ),
         const SizedBox(height: 12),
 
-        // include tax in price card with icon
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -540,7 +566,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
   }
 }
 
-// ------------ Step indicator widget ------------
 class _StepIndicator extends StatelessWidget {
   final int currentStep;
   const _StepIndicator({required this.currentStep});
