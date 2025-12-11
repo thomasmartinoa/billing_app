@@ -39,9 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: DashboardCard(
-                      icon: Icons.account_balance_wallet,
-                      value: "₹0",
-                      title: "Outstanding",
+                      icon: Icons.people,
+                      value: "0",
+                      title: "Customers",
                     ),
                   ),
                   SizedBox(width: 12),
@@ -49,7 +49,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: DashboardCard(
                       icon: Icons.inventory_2_outlined,
                       value: "0",
-                      title: "Low Stock products",
+                      title: "Products",
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: DashboardCard(
+                      icon: Icons.shopping_cart,
+                      value: "0",
+                      title: "Sales",
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: DashboardCard(
+                      icon: Icons.warning_amber_rounded,
+                      value: "0",
+                      title: "Low Stock",
                     ),
                   ),
                 ],
@@ -71,13 +93,31 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Expanded(
-                      child: QuickButton(icon: Icons.shopping_cart, title: "New Sale")),
+                      child: QuickButton(
+                        icon: Icons.shopping_cart,
+                        title: "New Sale",
+                        onTap: () {
+                          // Navigate to New Sale screen
+                        },
+                      )),
                   SizedBox(width: 12),
                   Expanded(
-                      child: QuickButton(icon: Icons.add_box, title: "Add Product")),
+                      child: QuickButton(
+                        icon: Icons.add_box,
+                        title: "Add Product",
+                        onTap: () {
+                          // Navigate to Add Product screen
+                        },
+                      )),
                   SizedBox(width: 12),
                   Expanded(
-                      child: QuickButton(icon: Icons.person_add, title: "Add Customer")),
+                      child: QuickButton(
+                        icon: Icons.person_add,
+                        title: "Add Customer",
+                        onTap: () {
+                          // Navigate to Add Customer screen
+                        },
+                      )),
                 ],
               ),
 
@@ -186,15 +226,22 @@ class DashboardCard extends StatelessWidget {
             child: Icon(icon, color: Color(0xFF00C59E)),
           ),
           SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(value,
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text(title, style: TextStyle(color: Colors.white54)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(value,
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(height: 4),
+                Text(
+                  title,
+                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ],
+            ),
           )
         ],
       ),
@@ -205,25 +252,42 @@ class DashboardCard extends StatelessWidget {
 class QuickButton extends StatelessWidget {
   final IconData icon;
   final String title;
+  final VoidCallback onTap;
 
-  QuickButton({required this.icon, required this.title});
+  const QuickButton({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: const Color(0x14181818),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Color(0xFF00C59E)),
-          SizedBox(width: 8),
-          Text(title, style: TextStyle(color: Colors.white70)),
-        ],
+        child: Container(
+          height: 80,
+          decoration: BoxDecoration(
+            color: const Color(0x14181818),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: const Color(0xFF00C59E), size: 28),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
