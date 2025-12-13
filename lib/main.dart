@@ -1,4 +1,6 @@
 import 'package:billing_app/screens/screen_setup.dart';
+import 'package:billing_app/screens/welcome.dart';
+import 'package:billing_app/screens/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
           labelStyle: const TextStyle(fontSize: 13),
         ),
       ),
-      home: const ScreenSetup(), // start app on your setup page
+      home: const WelcomePage(),
     );
   }
 }
