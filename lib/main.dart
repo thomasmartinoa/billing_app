@@ -1,13 +1,10 @@
-import 'package:billing_app/screens/screen_setup.dart';
 import 'package:billing_app/screens/welcome.dart';
-import 'package:billing_app/screens/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-// ------------ App root ------------
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -16,7 +13,7 @@ class MyApp extends StatelessWidget {
     const primary = Color(0xFF17F1C5);
 
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // hides the red "DEBUG" banner
+      debugShowCheckedModeBanner: false,
       title: 'Billing App',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF050608),
