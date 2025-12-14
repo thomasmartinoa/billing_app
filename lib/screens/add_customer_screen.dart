@@ -179,10 +179,3 @@ class AddCustomerScreen extends StatelessWidget {
   }
 }
 
-// --- TEMPORARY TEST CODE (Delete before committing) ---
-void main() {
-  runApp(const MaterialApp(
-    home: AddCustomerScreen(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
