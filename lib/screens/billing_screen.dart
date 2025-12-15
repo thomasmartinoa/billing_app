@@ -95,32 +95,6 @@ class _BillingScreenState extends State<BillingScreen>
         icon: const Icon(Icons.add),
         label: const Text('New Invoice'),
       ),
-
-      // BOTTOM NAV
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        selectedItemColor: const Color(0xFF00C59E),
-        unselectedItemColor: Colors.white54,
-        backgroundColor: const Color(0xFF07100F),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
-            label: 'Billing',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Customers',
-          ),
-        ],
-      ),
     );
   }
 }
