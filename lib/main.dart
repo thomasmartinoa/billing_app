@@ -1,4 +1,6 @@
+import 'package:billing_app/screens/billing_screen.dart';
 import 'package:flutter/material.dart';
+
 
 void main() {
   runApp(const MainApp());
@@ -9,12 +11,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(), // optional but recommended for your UI
+      home: const BillingScreen(),
     );
   }
 }
