@@ -46,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
 
     if (mounted) Navigator.of(context).pop();
 
-    // Navigate to setup (simulate successful sign-in)
     if (mounted) {
       Navigator.pushReplacement(
         context,
@@ -210,23 +209,33 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _email = TextEditingController();
   final _pass = TextEditingController();
+  final _confirm = TextEditingController();
+  String? _confirmError;
 
   @override
   void dispose() {
     _email.dispose();
     _pass.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
   void _createAccount() {
-    if (_email.text.trim().isEmpty || _pass.text.isEmpty) {
+    if (_email.text.trim().isEmpty ||
+        _pass.text.isEmpty ||
+        _confirm.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
+    if (_pass.text != _confirm.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
 
-    // Simulate account creation then go to setup
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const ScreenSetup()),
@@ -266,14 +275,42 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 12),
                       TextField(
                         controller: _email,
+                        onChanged: (_) => setState(() {}),
                         decoration: const InputDecoration(labelText: 'Email'),
                       ),
                       const SizedBox(height: 10),
                       TextField(
                         controller: _pass,
                         obscureText: true,
+                        onChanged: (_) {
+                          setState(() {
+                            _confirmError = _confirm.text.isEmpty
+                                ? null
+                                : (_pass.text == _confirm.text
+                                      ? null
+                                      : 'Passwords do not match');
+                          });
+                        },
                         decoration: const InputDecoration(
                           labelText: 'Password',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _confirm,
+                        obscureText: true,
+                        onChanged: (_) {
+                          setState(() {
+                            _confirmError = _confirm.text.isEmpty
+                                ? null
+                                : (_pass.text == _confirm.text
+                                      ? null
+                                      : 'Passwords do not match');
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          errorText: _confirmError,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -283,7 +320,13 @@ class _SignupPageState extends State<SignupPage> {
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: _createAccount,
+                        onPressed:
+                            (_email.text.trim().isNotEmpty &&
+                                _pass.text.isNotEmpty &&
+                                _confirm.text.isNotEmpty &&
+                                _pass.text == _confirm.text)
+                            ? _createAccount
+                            : null,
                         child: const Text('Create account'),
                       ),
                     ],
