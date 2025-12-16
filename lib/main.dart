@@ -1,8 +1,8 @@
+import 'package:billing_app/screens/welcome.dart';
 import 'package:flutter/material.dart';
-import 'screens/create_invoice_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -10,13 +10,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF17F1C5);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Invoice Demo',
+      title: 'Billing App',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Color(0xFF0B0E0F),
+        scaffoldBackgroundColor: const Color(0xFF050608),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primary,
+          brightness: Brightness.dark,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF1B1E22),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF252A30)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF252A30)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: primary),
+          ),
+          labelStyle: const TextStyle(fontSize: 13),
+        ),
       ),
-      home: CreateInvoiceScreen(),   // 👈 Opens your invoice screen
+      home: const WelcomePage(),
     );
   }
 }
