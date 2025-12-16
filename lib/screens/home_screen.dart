@@ -95,9 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                       child: QuickButton(
                         icon: Icons.shopping_cart,
-                        title: "New Sale",
+                        title: "New Invoice",
                         onTap: () {
-                          // Navigate to New Sale screen
+                          // Navigate to New Invoice screen
                         },
                       )),
                   SizedBox(width: 12),
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
-        label: Text("New Sale", style: TextStyle(color: Colors.black)),
+        label: Text("New Invoice", style: TextStyle(color: Colors.black)),
         icon: Icon(Icons.add, color: Colors.black),
       ),
 
