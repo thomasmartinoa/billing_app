@@ -8,174 +8,284 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
-  // Toggle states
-  bool isStockAvailable = true;
-  bool isTaxEnabled = false;
-  bool isDiscountEnabled = false;
+  bool isTrackInventory = true;
+  String selectedUnit = 'pcs';
+
+  // --- Design Colors ---
+  final Color backgroundColor = const Color(0xFF000000);
+  final Color surfaceColor = const Color(0xFF1F1F1F);
+  final Color accentColor = const Color(0xFF00E676);
+  final Color textWhite = Colors.white;
+  final Color textGray = const Color(0xFF757575);
 
   @override
   Widget build(BuildContext context) {
-    // Design Colors
-    const Color backgroundColor = Colors.black;
-    const Color surfaceColor = Color(0xFF1F1F1F);
-    const Color accentColor = Color(0xFF00E676);
-    const Color textWhite = Colors.white;
-    const Color textGray = Colors.grey;
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textWhite),
-          onPressed: () {
-            // TODO: Handle back navigation
-          },
+          icon: Icon(Icons.arrow_back, color: accentColor),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Add Product",
           style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Basic Information", style: TextStyle(color: textGray, fontSize: 12)),
-            const SizedBox(height: 10),
-
-            // --- Product Name ---
-            _buildTextField(label: "Product Name", hint: "Enter product name"),
+            // --- 1. Basic Information ---
+            _buildSectionHeader("Basic Information"),
             const SizedBox(height: 16),
-
-            // --- Category Dropdown ---
+            _buildTextField(icon: Icons.inventory_2, hint: "Product Name *"),
+            const SizedBox(height: 16),
             _buildTextField(
-              label: "Category", 
-              hint: "Select Category", 
-              icon: Icons.keyboard_arrow_down
+              icon: Icons.description, 
+              hint: "Description", 
+              maxLines: 3
             ),
             const SizedBox(height: 16),
+            _buildSelectorField(
+              icon: Icons.category,
+              hint: "No Category",
+              onTap: () {
+                // TODO: Show category selector
+              },
+            ),
+            const SizedBox(height: 30),
 
-            // --- Price Row (Selling & Cost) ---
-            // UPDATED: Now restricting input to Numbers only
+            // --- 2. Pricing ---
+            _buildSectionHeader("Pricing"),
+            const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildTextField(
-                  label: "Selling Price", 
-                  hint: "₹ 0.00",
-                  inputType: const TextInputType.numberWithOptions(decimal: true)
-                )),
+                Expanded(
+                  child: _buildTextField(
+                    icon: Icons.attach_money, 
+                    hint: "Selling Price *",
+                    inputType: TextInputType.number
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildTextField(
-                  label: "Cost Price", 
-                  hint: "₹ 0.00",
-                  inputType: const TextInputType.numberWithOptions(decimal: true)
-                )),
+                Expanded(
+                  child: _buildTextField(
+                    icon: Icons.money_off, 
+                    hint: "Cost Price",
+                    inputType: TextInputType.number
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 30),
 
-            const Divider(color: surfaceColor, thickness: 1),
+            // --- 3. Inventory ---
+            _buildSectionHeader("Inventory"),
             const SizedBox(height: 16),
-
-            // --- Toggles Section ---
-            const Text("Settings", style: TextStyle(color: textGray, fontSize: 12)),
-            const SizedBox(height: 10),
-
-            _buildSwitchTile("Stock Available", isStockAvailable, (val) {
-              setState(() => isStockAvailable = val);
-            }),
-            
-            _buildSwitchTile("Apply Tax", isTaxEnabled, (val) {
-              setState(() => isTaxEnabled = val);
-            }),
-
-             _buildSwitchTile("Apply Discount", isDiscountEnabled, (val) {
-              setState(() => isDiscountEnabled = val);
-            }),
-
-            const SizedBox(height: 40),
-
-            // --- Save Button ---
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Save logic
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  "Add Product",
-                  style: TextStyle(
-                    color: Colors.black, 
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16
-                  ),
-                ),
-              ),
+            _buildToggleTile(
+              title: "Track Inventory",
+              subtitle: "Monitor stock levels",
+              icon: Icons.inventory,
+              value: isTrackInventory,
+              onChanged: (val) => setState(() => isTrackInventory = val),
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    icon: Icons.numbers, 
+                    hint: "0",
+                    label: "Current Stock",
+                    inputType: TextInputType.number
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSelectorField(
+                    hint: selectedUnit,
+                    label: "Unit",
+                    showDropdownIcon: true,
+                    onTap: () {
+                      // TODO: Show unit selector
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              icon: Icons.warning_amber, 
+              hint: "Low Stock Alert",
+              inputType: TextInputType.number
+            ),
+            const SizedBox(height: 30),
+
+            // --- 4. Identification (Optional) ---
+            _buildSectionHeader("Identification (Optional)"),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(icon: Icons.qr_code, hint: "SKU"),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(icon: Icons.barcode_reader, hint: "Barcode"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  // --- UPDATED HELPER WIDGET ---
-  Widget _buildTextField({
-    required String label, 
-    required String hint, 
-    IconData? icon,
-    TextInputType inputType = TextInputType.text // Added default type
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  // --- Helper: Section Header with Vertical Bar ---
+  Widget _buildSectionHeader(String title) {
+    return Row(
       children: [
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
-        const SizedBox(height: 8),
-        TextField(
-          style: const TextStyle(color: Colors.white),
-          keyboardType: inputType, // <--- Using the new input type here
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFF1F1F1F),
-            hintText: hint,
-            hintStyle: const TextStyle(color: Colors.grey),
-            suffixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        Container(
+          height: 20,
+          width: 4,
+          decoration: BoxDecoration(
+            color: accentColor,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            color: accentColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
     );
   }
 
-  // Helper widget for switches
-  Widget _buildSwitchTile(String title, bool value, Function(bool) onChanged) {
+  // --- Helper: Standard Text Field ---
+  Widget _buildTextField({
+    required IconData icon,
+    required String hint,
+    String? label,
+    TextInputType inputType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(label, style: TextStyle(color: textGray, fontSize: 12)),
+          const SizedBox(height: 8),
+        ],
+        Container(
+          decoration: BoxDecoration(
+            color: surfaceColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: TextField(
+            style: TextStyle(color: textWhite),
+            keyboardType: inputType,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(color: textGray),
+              prefixIcon: Icon(icon, color: textGray),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(20),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- Helper: Selector Field (like Dropdown) ---
+  Widget _buildSelectorField({
+    IconData? icon,
+    required String hint,
+    String? label,
+    required VoidCallback onTap,
+    bool showDropdownIcon = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(label, style: TextStyle(color: textGray, fontSize: 12)),
+          const SizedBox(height: 8),
+        ],
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, color: textGray),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Text(
+                    hint,
+                    style: TextStyle(color: textWhite),
+                  ),
+                ),
+                Icon(
+                  showDropdownIcon ? Icons.arrow_drop_down : Icons.arrow_forward_ios,
+                  color: textGray,
+                  size: showDropdownIcon ? 24 : 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- Helper: Toggle Switch Tile ---
+  Widget _buildToggleTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F1F),
-        borderRadius: BorderRadius.circular(12),
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(15),
       ),
       child: SwitchListTile(
-        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
         value: value,
         onChanged: onChanged,
-        activeColor: const Color(0xFF00E676),
-        contentPadding: EdgeInsets.zero,
+        activeColor: accentColor,
+        secondary: Icon(icon, color: textGray),
+        title: Text(title, style: TextStyle(color: textWhite, fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: TextStyle(color: textGray)),
       ),
     );
   }
 }
 
+// --- TEMPORARY TEST CODE (Delete before committing) ---
+void main() {
+  runApp(const MaterialApp(
+    home: AddProductScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
