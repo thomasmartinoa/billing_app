@@ -145,10 +145,4 @@ class CustomerListScreen extends StatelessWidget {
   }
 }
 
-// --- TEMPORARY TEST CODE (Delete before committing) ---
-void main() {
-  runApp(const MaterialApp(
-    home: CustomerListScreen(), // <--- I changed this for you
-    debugShowCheckedModeBanner: false, 
-  ));
-}
+
