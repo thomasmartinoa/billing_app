@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/invoice_model.dart';
+import 'package:billing_app/screens/create_invoice_screen.dart';
+import 'package:billing_app/screens/invoice_receipt_screen.dart';
+import 'package:intl/intl.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
@@ -10,6 +15,9 @@ class BillingScreen extends StatefulWidget {
 class _BillingScreenState extends State<BillingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _firestoreService = FirestoreService();
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -20,6 +28,7 @@ class _BillingScreenState extends State<BillingScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -52,18 +61,22 @@ class _BillingScreenState extends State<BillingScreen>
                 color: const Color(0x14181818),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.search, color: Colors.white24),
-                  SizedBox(width: 8),
+                  const Icon(Icons.search, color: Colors.white24),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
-                      decoration: InputDecoration(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() => _searchQuery = value.toLowerCase());
+                      },
+                      decoration: const InputDecoration(
                         hintText: 'Search invoices...',
                         hintStyle: TextStyle(color: Colors.white24),
                         border: InputBorder.none,
                       ),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -75,10 +88,10 @@ class _BillingScreenState extends State<BillingScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                _EmptyBillingState(),
-                _EmptyBillingState(),
-                _EmptyBillingState(),
+              children: [
+                _buildInvoiceList(null), // All
+                _buildInvoiceList(InvoiceStatus.pending),
+                _buildInvoiceList(InvoiceStatus.paid),
               ],
             ),
           ),
@@ -88,12 +101,184 @@ class _BillingScreenState extends State<BillingScreen>
       // FLOATING BUTTON
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to CreateInvoiceScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+          );
         },
         backgroundColor: const Color(0xFF00C59E),
         foregroundColor: Colors.black,
         icon: const Icon(Icons.add),
         label: const Text('New Invoice'),
+      ),
+    );
+  }
+
+  Widget _buildInvoiceList(InvoiceStatus? status) {
+    Stream<List<InvoiceModel>> stream;
+    if (status == null) {
+      stream = _firestoreService.streamInvoices();
+    } else {
+      stream = _firestoreService.streamInvoicesByStatus(status);
+    }
+
+    return StreamBuilder<List<InvoiceModel>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF00C59E)),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final invoices = snapshot.data ?? [];
+        final filteredInvoices = invoices.where((inv) {
+          return inv.invoiceNumber.toLowerCase().contains(_searchQuery) ||
+              (inv.customerName?.toLowerCase().contains(_searchQuery) ?? false);
+        }).toList();
+
+        if (invoices.isEmpty) {
+          return const _EmptyBillingState();
+        }
+
+        if (filteredInvoices.isEmpty) {
+          return Center(
+            child: Text(
+              'No invoices matching "$_searchQuery"',
+              style: const TextStyle(color: Colors.white54),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: filteredInvoices.length,
+          itemBuilder: (context, index) {
+            final invoice = filteredInvoices[index];
+            return _buildInvoiceCard(invoice);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildInvoiceCard(InvoiceModel invoice) {
+    final dateFormat = DateFormat('dd MMM yyyy');
+    
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => InvoiceReceiptScreen(invoice: invoice),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0x14181818),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFF12332D).withOpacity(0.6),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: invoice.status == InvoiceStatus.paid
+                    ? const Color(0xFF0E5A4A)
+                    : const Color(0xFF5A4A0E),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.receipt_long,
+                color: invoice.status == InvoiceStatus.paid
+                    ? const Color(0xFF00C59E)
+                    : Colors.orange,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    invoice.invoiceNumber,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    invoice.customerName ?? 'Walk-in Customer',
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    dateFormat.format(invoice.createdAt),
+                    style: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '₹${invoice.total.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: Color(0xFF00C59E),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: invoice.status == InvoiceStatus.paid
+                        ? Colors.green.withOpacity(0.2)
+                        : Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    invoice.status == InvoiceStatus.paid ? 'PAID' : 'PENDING',
+                    style: TextStyle(
+                      color: invoice.status == InvoiceStatus.paid
+                          ? Colors.green
+                          : Colors.orange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -146,7 +331,10 @@ class _EmptyBillingState extends StatelessWidget {
 
           ElevatedButton.icon(
             onPressed: () {
-              // TODO: Navigate to CreateInvoiceScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+              );
             },
             icon: const Icon(Icons.add),
             label: const Text('Create Invoice'),

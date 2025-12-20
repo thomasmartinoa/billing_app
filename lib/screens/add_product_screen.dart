@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/product_model.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -10,6 +12,20 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   bool isTrackInventory = true;
   String selectedUnit = 'pcs';
+  bool _isLoading = false;
+
+  final _firestoreService = FirestoreService();
+
+  // Controllers
+  final _nameCtrl = TextEditingController();
+  final _descriptionCtrl = TextEditingController();
+  final _categoryCtrl = TextEditingController();
+  final _sellingPriceCtrl = TextEditingController();
+  final _costPriceCtrl = TextEditingController();
+  final _stockCtrl = TextEditingController(text: '0');
+  final _lowStockAlertCtrl = TextEditingController();
+  final _skuCtrl = TextEditingController();
+  final _barcodeCtrl = TextEditingController();
 
   // --- Design Colors ---
   final Color backgroundColor = const Color(0xFF000000);
@@ -17,6 +33,82 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final Color accentColor = const Color(0xFF00E676);
   final Color textWhite = Colors.white;
   final Color textGray = const Color(0xFF757575);
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _descriptionCtrl.dispose();
+    _categoryCtrl.dispose();
+    _sellingPriceCtrl.dispose();
+    _costPriceCtrl.dispose();
+    _stockCtrl.dispose();
+    _lowStockAlertCtrl.dispose();
+    _skuCtrl.dispose();
+    _barcodeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveProduct() async {
+    // Validate required fields
+    if (_nameCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter product name')),
+      );
+      return;
+    }
+    if (_sellingPriceCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter selling price')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final product = ProductModel(
+        name: _nameCtrl.text.trim(),
+        description: _descriptionCtrl.text.trim().isEmpty
+            ? null
+            : _descriptionCtrl.text.trim(),
+        category: _categoryCtrl.text.trim().isEmpty
+            ? null
+            : _categoryCtrl.text.trim(),
+        sellingPrice: double.tryParse(_sellingPriceCtrl.text) ?? 0,
+        costPrice: _costPriceCtrl.text.trim().isEmpty
+            ? null
+            : double.tryParse(_costPriceCtrl.text),
+        trackInventory: isTrackInventory,
+        currentStock: int.tryParse(_stockCtrl.text) ?? 0,
+        unit: selectedUnit,
+        lowStockAlert: _lowStockAlertCtrl.text.trim().isEmpty
+            ? null
+            : int.tryParse(_lowStockAlertCtrl.text),
+        sku: _skuCtrl.text.trim().isEmpty ? null : _skuCtrl.text.trim(),
+        barcode:
+            _barcodeCtrl.text.trim().isEmpty ? null : _barcodeCtrl.text.trim(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await _firestoreService.addProduct(product);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product added successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding product: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +134,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
             // --- 1. Basic Information ---
             _buildSectionHeader("Basic Information"),
             const SizedBox(height: 16),
-            _buildTextField(icon: Icons.inventory_2, hint: "Product Name *"),
-            const SizedBox(height: 16),
             _buildTextField(
-              icon: Icons.description, 
-              hint: "Description", 
-              maxLines: 3
+              controller: _nameCtrl,
+              icon: Icons.inventory_2,
+              hint: "Product Name *",
             ),
             const SizedBox(height: 16),
-            _buildSelectorField(
+            _buildTextField(
+              controller: _descriptionCtrl,
+              icon: Icons.description, 
+              hint: "Description", 
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _categoryCtrl,
               icon: Icons.category,
-              hint: "No Category",
-              onTap: () {
-                // TODO: Show category selector
-              },
+              hint: "Category",
             ),
             const SizedBox(height: 30),
 
@@ -66,17 +161,19 @@ class _AddProductScreenState extends State<AddProductScreen> {
               children: [
                 Expanded(
                   child: _buildTextField(
+                    controller: _sellingPriceCtrl,
                     icon: Icons.attach_money, 
                     hint: "Selling Price *",
-                    inputType: TextInputType.number
+                    inputType: TextInputType.number,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildTextField(
+                    controller: _costPriceCtrl,
                     icon: Icons.money_off, 
                     hint: "Cost Price",
-                    inputType: TextInputType.number
+                    inputType: TextInputType.number,
                   ),
                 ),
               ],
@@ -98,10 +195,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
               children: [
                 Expanded(
                   child: _buildTextField(
+                    controller: _stockCtrl,
                     icon: Icons.numbers, 
                     hint: "0",
                     label: "Current Stock",
-                    inputType: TextInputType.number
+                    inputType: TextInputType.number,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -110,18 +208,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     hint: selectedUnit,
                     label: "Unit",
                     showDropdownIcon: true,
-                    onTap: () {
-                      // TODO: Show unit selector
-                    },
+                    onTap: () => _showUnitPicker(),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             _buildTextField(
+              controller: _lowStockAlertCtrl,
               icon: Icons.warning_amber, 
               hint: "Low Stock Alert",
-              inputType: TextInputType.number
+              inputType: TextInputType.number,
             ),
             const SizedBox(height: 30),
 
@@ -131,18 +228,94 @@ class _AddProductScreenState extends State<AddProductScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(icon: Icons.qr_code, hint: "SKU"),
+                  child: _buildTextField(
+                    controller: _skuCtrl,
+                    icon: Icons.qr_code,
+                    hint: "SKU",
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildTextField(icon: Icons.barcode_reader, hint: "Barcode"),
+                  child: _buildTextField(
+                    controller: _barcodeCtrl,
+                    icon: Icons.barcode_reader,
+                    hint: "Barcode",
+                  ),
                 ),
               ],
+            ),
+            const SizedBox(height: 30),
+
+            // --- 5. Save Button ---
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton.icon(
+                onPressed: _isLoading ? null : _saveProduct,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 5,
+                  shadowColor: accentColor.withOpacity(0.4),
+                ),
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.black,
+                        ),
+                      )
+                    : const Icon(Icons.save, color: Colors.black),
+                label: Text(
+                  _isLoading ? "Saving..." : "Save Product",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 40),
           ],
         ),
       ),
+    );
+  }
+
+  void _showUnitPicker() {
+    final units = ['pcs', 'kg', 'g', 'l', 'ml', 'box', 'pack', 'dozen', 'm', 'cm'];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: surfaceColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: units.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(
+                units[index],
+                style: TextStyle(color: textWhite),
+              ),
+              trailing: selectedUnit == units[index]
+                  ? Icon(Icons.check, color: accentColor)
+                  : null,
+              onTap: () {
+                setState(() => selectedUnit = units[index]);
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -173,6 +346,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   // --- Helper: Standard Text Field ---
   Widget _buildTextField({
+    TextEditingController? controller,
     required IconData icon,
     required String hint,
     String? label,
@@ -192,6 +366,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: TextField(
+            controller: controller,
             style: TextStyle(color: textWhite),
             keyboardType: inputType,
             maxLines: maxLines,
@@ -280,12 +455,4 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
-}
-
-// --- TEMPORARY TEST CODE (Delete before committing) ---
-void main() {
-  runApp(const MaterialApp(
-    home: AddProductScreen(),
-    debugShowCheckedModeBanner: false,
-  ));
 }

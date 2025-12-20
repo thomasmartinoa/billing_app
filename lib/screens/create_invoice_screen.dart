@@ -1,6 +1,12 @@
 // lib/create_invoice_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/product_model.dart';
+import 'package:billing_app/models/customer_model.dart';
+import 'package:billing_app/models/invoice_model.dart';
+import 'package:billing_app/models/user_model.dart';
+import 'package:billing_app/screens/invoice_receipt_screen.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
   @override
@@ -8,12 +14,13 @@ class CreateInvoiceScreen extends StatefulWidget {
 }
 
 class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
-  // Mock product model
-  final List<Product> products = [
-    Product(id: 'p1', name: 'testp1', price: 1000),
-    Product(id: 'p2', name: 'p2', price: 20),
-    Product(id: 'p3', name: 'p3', price: 50),
-  ];
+  final _firestoreService = FirestoreService();
+  
+  List<ProductModel> products = [];
+  List<CustomerModel> customers = [];
+  UserModel? userData;
+  bool _isLoading = true;
+  bool _isSaving = false;
 
   final TextEditingController searchController = TextEditingController();
   final TextEditingController discountController = TextEditingController(text: '0');
@@ -22,9 +29,40 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   List<CartItem> cart = [];
   String selectedPayment = 'Cash';
   bool markAsPaid = false;
+  CustomerModel? selectedCustomer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final productsData = await _firestoreService.getProducts();
+      final customersData = await _firestoreService.getCustomers();
+      final user = await _firestoreService.getUserData();
+      
+      if (mounted) {
+        setState(() {
+          products = productsData;
+          customers = customersData;
+          userData = user;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading data: $e')),
+        );
+      }
+    }
+  }
 
   // Add product to cart (or increment if exists)
-  void addToCart(Product product) {
+  void addToCart(ProductModel product) {
     final idx = cart.indexWhere((c) => c.product.id == product.id);
     setState(() {
       if (idx >= 0) {
@@ -35,13 +73,15 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     });
   }
 
-  void removeFromCart(String productId) {
+  void removeFromCart(String? productId) {
+    if (productId == null) return;
     setState(() {
       cart.removeWhere((c) => c.product.id == productId);
     });
   }
 
-  void changeQty(String productId, int delta) {
+  void changeQty(String? productId, int delta) {
+    if (productId == null) return;
     final idx = cart.indexWhere((c) => c.product.id == productId);
     if (idx < 0) return;
     setState(() {
@@ -50,23 +90,95 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     });
   }
 
+  double get taxRate => userData?.shopSettings?.taxRate ?? 15.0;
+
   double get subTotal {
     double s = 0;
-    for (final c in cart) s += c.product.price * c.qty;
+    for (final c in cart) s += c.product.sellingPrice * c.qty;
     final discount = double.tryParse(discountController.text) ?? 0;
     s -= discount;
     if (s < 0) s = 0;
     return s;
   }
 
-  double get tax => subTotal * 0.15;
+  double get tax => subTotal * (taxRate / 100);
   double get total => subTotal + tax;
 
   // Filtered product list based on search
-  List<Product> get filteredProducts {
+  List<ProductModel> get filteredProducts {
     final q = searchController.text.trim().toLowerCase();
     if (q.isEmpty) return products;
     return products.where((p) => p.name.toLowerCase().contains(q)).toList();
+  }
+
+  Future<void> _createInvoice() async {
+    if (cart.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add items to cart')),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final invoiceNumber = await _firestoreService.generateInvoiceNumber();
+      
+      final invoice = InvoiceModel(
+        invoiceNumber: invoiceNumber,
+        customerId: selectedCustomer?.id,
+        customerName: selectedCustomer?.name,
+        items: cart.map((c) => InvoiceItem(
+          productId: c.product.id!,
+          productName: c.product.name,
+          price: c.product.sellingPrice,
+          quantity: c.qty,
+          unit: c.product.unit,
+        )).toList(),
+        subtotal: subTotal,
+        discount: double.tryParse(discountController.text) ?? 0,
+        taxRate: taxRate,
+        taxAmount: tax,
+        total: total,
+        paymentMethod: _getPaymentMethod(),
+        status: markAsPaid ? InvoiceStatus.paid : InvoiceStatus.pending,
+        notes: notesController.text.isEmpty ? null : notesController.text,
+        createdAt: DateTime.now(),
+        paidAt: markAsPaid ? DateTime.now() : null,
+      );
+
+      final invoiceId = await _firestoreService.addInvoice(invoice);
+      final savedInvoice = await _firestoreService.getInvoice(invoiceId);
+
+      if (mounted && savedInvoice != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => InvoiceReceiptScreen(invoice: savedInvoice),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating invoice: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  PaymentMethod _getPaymentMethod() {
+    switch (selectedPayment) {
+      case 'Cash': return PaymentMethod.cash;
+      case 'Card': return PaymentMethod.card;
+      case 'UPI': return PaymentMethod.upi;
+      case 'Bank Transfer': return PaymentMethod.bankTransfer;
+      case 'Cheque': return PaymentMethod.cheque;
+      case 'Credit': return PaymentMethod.credit;
+      default: return PaymentMethod.other;
+    }
   }
 
   @override
@@ -80,6 +192,14 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: Text('New Invoice'), leading: BackButton()),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF00C59E))),
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('New Invoice'),
@@ -92,6 +212,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                 discountController.text = '0';
                 selectedPayment = 'Cash';
                 markAsPaid = false;
+                selectedCustomer = null;
               });
             },
             child: Text('Clear', style: TextStyle(color: Color(0xFF00C59E))),
@@ -124,9 +245,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                       ]),
                       SizedBox(height: 12),
                       InkWell(
-                        onTap: () {
-                          // open customer selection (not implemented)
-                        },
+                        onTap: _showCustomerSelection,
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                           decoration: BoxDecoration(
@@ -136,9 +255,19 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.person_add, color: Color(0xFF00C59E)),
+                              Icon(selectedCustomer != null ? Icons.person : Icons.person_add, color: Color(0xFF00C59E)),
                               SizedBox(width: 8),
-                              Text('Select Customer (Optional)', style: TextStyle(color: Color(0xFF00C59E))),
+                              Expanded(
+                                child: Text(
+                                  selectedCustomer?.name ?? 'Select Customer (Optional)',
+                                  style: TextStyle(color: Color(0xFF00C59E)),
+                                ),
+                              ),
+                              if (selectedCustomer != null)
+                                IconButton(
+                                  icon: Icon(Icons.close, color: Colors.white54, size: 18),
+                                  onPressed: () => setState(() => selectedCustomer = null),
+                                ),
                             ],
                           ),
                         ),
@@ -179,43 +308,54 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                 SizedBox(height: 12),
 
                 // Product grid
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: filteredProducts.map((p) {
-                    final inCart = cart.any((c) => c.product.id == p.id);
-                    return GestureDetector(
-                      onTap: () => addToCart(p),
-                      child: Container(
-                        width: 110,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: inCart ? Color(0x0F00C59E) : Color(0x14181818),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: inCart ? Color(0xFF00C59E) : Colors.transparent),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF0E5A4A),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(Icons.inventory_2, color: Color(0xFF00C59E)),
-                            ),
-                            SizedBox(height: 8),
-                            Text(p.name, style: TextStyle(color: Colors.white70, fontSize: 12)),
-                            SizedBox(height: 6),
-                            Text('₹${p.price.toStringAsFixed(0)}', style: TextStyle(color: Color(0xFF00C59E))),
-                          ],
-                        ),
+                if (filteredProducts.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Text(
+                        products.isEmpty ? 'No products yet. Add products first.' : 'No products match your search.',
+                        style: TextStyle(color: Colors.white54),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  )
+                else
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: filteredProducts.map((p) {
+                      final inCart = cart.any((c) => c.product.id == p.id);
+                      return GestureDetector(
+                        onTap: () => addToCart(p),
+                        child: Container(
+                          width: 110,
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: inCart ? Color(0x0F00C59E) : Color(0x14181818),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: inCart ? Color(0xFF00C59E) : Colors.transparent),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF0E5A4A),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.inventory_2, color: Color(0xFF00C59E)),
+                              ),
+                              SizedBox(height: 8),
+                              Text(p.name, style: TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              SizedBox(height: 6),
+                              Text('₹${p.sellingPrice.toStringAsFixed(0)}', style: TextStyle(color: Color(0xFF00C59E))),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
 
                 SizedBox(height: 18),
 
@@ -250,7 +390,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                 children: [
                                   Text(c.product.name, style: TextStyle(color: Colors.white70)),
                                   SizedBox(height: 6),
-                                  Text('₹${c.product.price.toStringAsFixed(2)} × ${c.qty}',
+                                  Text('₹${c.product.sellingPrice.toStringAsFixed(2)} × ${c.qty}',
                                       style: TextStyle(color: Colors.white38, fontSize: 12)),
                                 ],
                               ),
@@ -287,7 +427,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('₹${(c.product.price * c.qty).toStringAsFixed(2)}',
+                                Text('₹${(c.product.sellingPrice * c.qty).toStringAsFixed(2)}',
                                     style: TextStyle(color: Color(0xFF00C59E))),
                                 SizedBox(height: 8),
                                 IconButton(
@@ -437,7 +577,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text('Subtotal', style: TextStyle(color: Colors.white70)),
                         SizedBox(height: 6),
-                        Text('Tax (15.0%)', style: TextStyle(color: Colors.white70)),
+                        Text('Tax (${taxRate.toStringAsFixed(1)}%)', style: TextStyle(color: Colors.white70)),
                       ]),
                       Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                         Text('₹${subTotal.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
@@ -469,31 +609,13 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // create invoice action - here we would call backend / firestore
-                        final invoice = {
-                          'items': cart.map((c) => {'id': c.product.id, 'name': c.product.name, 'qty': c.qty, 'price': c.product.price}).toList(),
-                          'subtotal': subTotal,
-                          'tax': tax,
-                          'total': total,
-                          'payment': selectedPayment,
-                          'markAsPaid': markAsPaid,
-                          'notes': notesController.text,
-                        };
-                        // For demo show confirmation
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text('Invoice Created'),
-                            content: SingleChildScrollView(child: Text(invoice.toString())),
-                            actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.receipt_long),
+                      onPressed: _isSaving ? null : _createInvoice,
+                      icon: _isSaving 
+                          ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                          : Icon(Icons.receipt_long),
                       label: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
-                        child: Text('Create Invoice', style: TextStyle(fontSize: 16)),
+                        child: Text(_isSaving ? 'Creating...' : 'Create Invoice', style: TextStyle(fontSize: 16)),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF00C59E),
@@ -508,18 +630,62 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
             ),
     );
   }
+
+  void _showCustomerSelection() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Color(0xFF121212),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Select Customer', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              if (customers.isEmpty)
+                Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: Text('No customers yet', style: TextStyle(color: Colors.white54))),
+                )
+              else
+                Container(
+                  constraints: BoxConstraints(maxHeight: 300),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: customers.length,
+                    itemBuilder: (context, index) {
+                      final customer = customers[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Color(0xFF0E5A4A),
+                          child: Text(customer.name[0].toUpperCase(), style: TextStyle(color: Color(0xFF00C59E))),
+                        ),
+                        title: Text(customer.name, style: TextStyle(color: Colors.white)),
+                        subtitle: Text(customer.phone ?? '', style: TextStyle(color: Colors.white54)),
+                        onTap: () {
+                          setState(() => selectedCustomer = customer);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
-// Simple model classes
-class Product {
-  final String id;
-  final String name;
-  final double price;
-  Product({required this.id, required this.name, required this.price});
-}
-
+// Cart item class using ProductModel
 class CartItem {
-  final Product product;
+  final ProductModel product;
   int qty;
   CartItem({required this.product, this.qty = 1});
 }

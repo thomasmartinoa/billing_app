@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/user_model.dart';
+import 'package:billing_app/screens/home_screen.dart';
 
 class ScreenSetup extends StatefulWidget {
   const ScreenSetup({super.key});
@@ -9,6 +12,8 @@ class ScreenSetup extends StatefulWidget {
 
 class _ScreenSetupState extends State<ScreenSetup> {
   int _step = 1;
+  bool _isLoading = false;
+  final _firestoreService = FirestoreService();
 
   final List<String> _shopTypes = const [
     "Restaurant",
@@ -88,33 +93,66 @@ class _ScreenSetupState extends State<ScreenSetup> {
     }
   }
 
-  void _completeSetup() {
-    final payload = {
-      "shopType": _selectedShopType,
-      "icon": _selectedIcon.codePoint,
-      "basicInfo": {
-        "name": _nameCtrl.text,
-        "tagline": _taglineCtrl.text,
-        "address": _addressCtrl.text,
-        "phone": _phoneCtrl.text,
-        "email": _emailCtrl.text,
-        "website": _websiteCtrl.text,
-        "gst": _gstCtrl.text,
-      },
-      "businessSettings": {
-        "currency": _currency,
-        "taxRate": _taxRateCtrl.text,
-        "invoicePrefix": _invoicePrefixCtrl.text,
-        "includeTaxInPrice": _includeTaxInPrice,
-        "terms": _termsCtrl.text,
-        "footerNote": _footerCtrl.text,
-      },
-    };
+  void _completeSetup() async {
+    // Validate required fields
+    if (_nameCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your shop name')),
+      );
+      return;
+    }
+    if (_addressCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your shop address')),
+      );
+      return;
+    }
+    if (_phoneCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your phone number')),
+      );
+      return;
+    }
 
-    debugPrint("SHOP SETUP DATA: $payload");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Shop setup complete! (check console)")),
-    );
+    setState(() => _isLoading = true);
+
+    try {
+      final shopSettings = ShopSettings(
+        shopType: _selectedShopType,
+        iconCodePoint: _selectedIcon.codePoint,
+        name: _nameCtrl.text.trim(),
+        tagline: _taglineCtrl.text.trim(),
+        address: _addressCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim(),
+        email: _emailCtrl.text.trim(),
+        website: _websiteCtrl.text.trim(),
+        gstNumber: _gstCtrl.text.trim(),
+        currency: _currency,
+        taxRate: double.tryParse(_taxRateCtrl.text) ?? 18.0,
+        invoicePrefix: _invoicePrefixCtrl.text.trim(),
+        includeTaxInPrice: _includeTaxInPrice,
+        termsAndConditions: _termsCtrl.text.trim(),
+        footerNote: _footerCtrl.text.trim(),
+      );
+
+      await _firestoreService.updateShopSettings(shopSettings);
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving settings: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -167,7 +205,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                   ? SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _goNext,
+                        onPressed: _isLoading ? null : _goNext,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
                           foregroundColor: Colors.black,
@@ -181,7 +219,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: _goBack,
+                            onPressed: _isLoading ? null : _goBack,
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: primary),
                               foregroundColor: primary,
@@ -194,16 +232,25 @@ class _ScreenSetupState extends State<ScreenSetup> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: _goNext,
+                            onPressed: _isLoading ? null : _goNext,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primary,
                               foregroundColor: Colors.black,
                               shape: const StadiumBorder(),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            child: Text(
-                              _step == 3 ? "Complete Setup" : "Continue",
-                            ),
+                            child: _isLoading && _step == 3
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                : Text(
+                                    _step == 3 ? "Complete Setup" : "Continue",
+                                  ),
                           ),
                         ),
                       ],

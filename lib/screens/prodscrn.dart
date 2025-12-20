@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/product_model.dart';
+import 'package:billing_app/screens/add_product_screen.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Define your specific colors here to match the design
-    const Color backgroundColor = Colors.black;
-    const Color surfaceColor = Color(0xFF1F1F1F); // Dark Gray for search bar
-    const Color accentColor = Color(0xFF00E676); // Teal Green
-    const Color textWhite = Colors.white;
-    const Color textGray = Colors.grey;
+  State<ProductListScreen> createState() => _ProductListScreenState();
+}
 
+class _ProductListScreenState extends State<ProductListScreen> {
+  final FirestoreService _firestoreService = FirestoreService();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  // Define your specific colors here to match the design
+  static const Color backgroundColor = Colors.black;
+  static const Color surfaceColor = Color(0xFF1F1F1F);
+  static const Color accentColor = Color(0xFF00E676);
+  static const Color textWhite = Colors.white;
+  static const Color textGray = Colors.grey;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SafeArea(
@@ -33,7 +51,7 @@ class ProductListScreen extends StatelessWidget {
                     ),
                   ),
                   Icon(
-                    Icons.filter_list, // Closest match to the triangle/shapes icon
+                    Icons.filter_list,
                     color: accentColor,
                     size: 28,
                   ),
@@ -43,7 +61,11 @@ class ProductListScreen extends StatelessWidget {
 
               // --- 2. Search Bar ---
               TextField(
+                controller: _searchController,
                 style: const TextStyle(color: textWhite),
+                onChanged: (value) {
+                  setState(() => _searchQuery = value.toLowerCase());
+                },
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: surfaceColor,
@@ -58,79 +80,55 @@ class ProductListScreen extends StatelessWidget {
                 ),
               ),
 
-              // --- 3. Empty State (Centered Content) ---
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Large Circular Icon Background
-                      Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: surfaceColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.inventory_2_outlined, // Box icon
-                            size: 48,
-                            color: accentColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Title
-                      const Text(
-                        "No products yet",
-                        style: TextStyle(
-                          color: textWhite,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      
-                      // Subtitle
-                      const Text(
-                        "Add your first product to get started",
-                        style: TextStyle(
-                          color: textGray,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
-                      // Wide "+ Add Product" Button
-                      SizedBox(
-                        width: 200,
-                        height: 50,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Navigate to Add Product Screen (Branch 4)
-                            print("Navigate to Add Product"); 
-                          },
-                          icon: const Icon(Icons.add, color: Colors.black),
-                          label: const Text(
-                            "Add Product",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: accentColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
+              // --- 3. Product List ---
+              Expanded(
+                child: StreamBuilder<List<ProductModel>>(
+                  stream: _firestoreService.streamProducts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: accentColor),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.red),
                         ),
-                      ),
-                    ],
-                  ),
+                      );
+                    }
+
+                    final products = snapshot.data ?? [];
+                    final filteredProducts = products.where((p) {
+                      return p.name.toLowerCase().contains(_searchQuery) ||
+                          (p.description?.toLowerCase().contains(_searchQuery) ?? false);
+                    }).toList();
+
+                    if (products.isEmpty) {
+                      return _buildEmptyState();
+                    }
+
+                    if (filteredProducts.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No products matching "$_searchQuery"',
+                          style: const TextStyle(color: textGray),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        return _buildProductCard(product);
+                      },
+                    );
+                  },
                 ),
               ),
             ],
@@ -141,19 +139,155 @@ class ProductListScreen extends StatelessWidget {
       // --- 4. Floating Action Button (Bottom Right) ---
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Navigate to Add Product Screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddProductScreen()),
+          );
         },
         backgroundColor: accentColor,
         child: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }
-}
 
-// --- TEMPORARY TEST CODE (Delete before committing) ---
-void main() {
-  runApp(const MaterialApp(
-    home: ProductListScreen(),
-    debugShowCheckedModeBanner: false, // Removes the "Debug" banner
-  ));
+  Widget _buildProductCard(ProductModel product) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: accentColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.inventory_2_outlined,
+              color: accentColor,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    color: textWhite,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '₹${product.sellingPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: accentColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'Stock: ${product.currentStock}',
+                style: TextStyle(
+                  color: product.isLowStock ? Colors.orange : textGray,
+                  fontSize: 12,
+                ),
+              ),
+              if (product.isLowStock)
+                const Text(
+                  'Low Stock!',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 10,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 100,
+            width: 100,
+            decoration: const BoxDecoration(
+              color: surfaceColor,
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.inventory_2_outlined,
+                size: 48,
+                color: accentColor,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "No products yet",
+            style: TextStyle(
+              color: textWhite,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Add your first product to get started",
+            style: TextStyle(
+              color: textGray,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: 200,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddProductScreen()),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.black),
+              label: const Text(
+                "Add Product",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

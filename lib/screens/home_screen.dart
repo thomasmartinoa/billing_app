@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/services/auth_service.dart';
+import 'package:billing_app/screens/prodscrn.dart';
+import 'package:billing_app/screens/add_product_screen.dart';
+import 'package:billing_app/screens/customer_list_screen.dart';
+import 'package:billing_app/screens/add_customer_screen.dart';
+import 'package:billing_app/screens/billing_screen.dart';
+import 'package:billing_app/screens/create_invoice_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -7,28 +15,156 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  final _firestoreService = FirestoreService();
+  final _authService = AuthService();
+
+  Map<String, dynamic> _stats = {
+    'customers': 0,
+    'products': 0,
+    'sales': 0,
+    'lowStock': 0,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await _firestoreService.getDashboardStats();
+      if (mounted) {
+        setState(() => _stats = stats);
+      }
+    } catch (e) {
+      debugPrint('Error loading stats: $e');
+    }
+  }
 
   void _onNavTap(int index) {
     setState(() => _selectedIndex = index);
   }
 
+  Widget _buildCurrentScreen() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildDashboard();
+      case 1:
+        return const ProductListScreen();
+      case 2:
+        return const BillingScreen();
+      case 3:
+        return const CustomerListScreen();
+      default:
+        return _buildDashboard();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Icon(Icons.menu, color: Color(0xFF00C59E)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
-            onPressed: () {},
-          )
+      appBar: _selectedIndex == 0
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.menu, color: Color(0xFF00C59E)),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
+                  onPressed: () {},
+                )
+              ],
+            )
+          : null,
+      drawer: _buildDrawer(),
+      body: _buildCurrentScreen(),
+      floatingActionButton: _selectedIndex == 0 || _selectedIndex == 2
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                ).then((_) => _loadStats());
+              },
+              label: Text("New Invoice", style: TextStyle(color: Colors.black)),
+              icon: Icon(Icons.add, color: Colors.black),
+            )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color(0xFF07100F),
+        selectedItemColor: Color(0xFF00C59E),
+        unselectedItemColor: Colors.white54,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onNavTap,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Dashboard"),
+          BottomNavigationBarItem(icon: Icon(Icons.store), label: "Products"),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Invoices"),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Customers"),
         ],
       ),
+    );
+  }
 
-      body: SafeArea(
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: Color(0xFF0D0D0D),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFF141618),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CircleAvatar(
+                  backgroundColor: Color(0xFF00C59E),
+                  radius: 30,
+                  child: Icon(Icons.store, color: Colors.black, size: 30),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Billing App',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.logout, color: Color(0xFF00C59E)),
+            title: Text('Sign Out', style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              await _authService.signOut();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboard() {
+    return SafeArea(
+      child: RefreshIndicator(
+        onRefresh: _loadStats,
+        color: Color(0xFF00C59E),
         child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: DashboardCard(
                       icon: Icons.people,
-                      value: "0",
+                      value: "${_stats['customers']}",
                       title: "Customers",
                     ),
                   ),
@@ -48,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: DashboardCard(
                       icon: Icons.inventory_2_outlined,
-                      value: "0",
+                      value: "${_stats['products']}",
                       title: "Products",
                     ),
                   ),
@@ -62,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: DashboardCard(
                       icon: Icons.shopping_cart,
-                      value: "0",
+                      value: "${_stats['sales']}",
                       title: "Sales",
                     ),
                   ),
@@ -70,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: DashboardCard(
                       icon: Icons.warning_amber_rounded,
-                      value: "0",
+                      value: "${_stats['lowStock']}",
                       title: "Low Stock",
                     ),
                   ),
@@ -97,7 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.shopping_cart,
                         title: "New Invoice",
                         onTap: () {
-                          // Navigate to New Invoice screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                          ).then((_) => _loadStats());
                         },
                       )),
                   SizedBox(width: 12),
@@ -106,7 +245,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.add_box,
                         title: "Add Product",
                         onTap: () {
-                          // Navigate to Add Product screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AddProductScreen()),
+                          ).then((_) => _loadStats());
                         },
                       )),
                   SizedBox(width: 12),
@@ -115,7 +257,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.person_add,
                         title: "Add Customer",
                         onTap: () {
-                          // Navigate to Add Customer screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
+                          ).then((_) => _loadStats());
                         },
                       )),
                 ],
@@ -133,9 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600),
                   ),
-                  Text(
-                    "View All",
-                    style: TextStyle(color: Color(0xFF00C59E)),
+                  GestureDetector(
+                    onTap: () => _onNavTap(2),
+                    child: Text(
+                      "View All",
+                      style: TextStyle(color: Color(0xFF00C59E)),
+                    ),
                   )
                 ],
               ),
@@ -157,7 +305,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text("No invoices yet", style: TextStyle(color: Colors.white60)),
                     SizedBox(height: 10),
                     TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                        ).then((_) => _loadStats());
+                      },
                       icon: Icon(Icons.add, color: Color(0xFF00C59E)),
                       label: Text("Create First Invoice",
                           style: TextStyle(color: Color(0xFF00C59E))),
@@ -170,26 +323,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: Text("New Invoice", style: TextStyle(color: Colors.black)),
-        icon: Icon(Icons.add, color: Colors.black),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF07100F),
-        selectedItemColor: Color(0xFF00C59E),
-        unselectedItemColor: Colors.white54,
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: "Products"),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Invoices"),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Customers"),
-        ],
       ),
     );
   }

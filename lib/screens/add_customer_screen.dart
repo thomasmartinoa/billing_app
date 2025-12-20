@@ -1,17 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/models/customer_model.dart';
 
-class AddCustomerScreen extends StatelessWidget {
+class AddCustomerScreen extends StatefulWidget {
   const AddCustomerScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // --- Design Colors from Image ---
-    const Color backgroundColor = Color(0xFF000000); // Black background
-    const Color surfaceColor = Color(0xFF1F1F1F);   // Dark field color
-    const Color accentColor = Color(0xFF00E676);    // Teal accent
-    const Color textWhite = Colors.white;
-    const Color textGray = Color(0xFF757575);       // Hint text color
+  State<AddCustomerScreen> createState() => _AddCustomerScreenState();
+}
 
+class _AddCustomerScreenState extends State<AddCustomerScreen> {
+  final _firestoreService = FirestoreService();
+  bool _isLoading = false;
+
+  // Controllers
+  final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _gstCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
+
+  // --- Design Colors from Image ---
+  static const Color backgroundColor = Color(0xFF000000);
+  static const Color surfaceColor = Color(0xFF1F1F1F);
+  static const Color accentColor = Color(0xFF00E676);
+  static const Color textWhite = Colors.white;
+  static const Color textGray = Color(0xFF757575);
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _phoneCtrl.dispose();
+    _emailCtrl.dispose();
+    _addressCtrl.dispose();
+    _gstCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveCustomer() async {
+    if (_nameCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter customer name')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final customer = CustomerModel(
+        name: _nameCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+        email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
+        address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+        gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
+        notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await _firestoreService.addCustomer(customer);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Customer added successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding customer: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -19,9 +89,7 @@ class AddCustomerScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: accentColor),
-          onPressed: () {
-            // TODO: Handle back navigation
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "Add Customer",
@@ -50,7 +118,7 @@ class AddCustomerScreen extends StatelessWidget {
                   ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.question_mark, color: accentColor, size: 40),
+                  child: Icon(Icons.person_add, color: accentColor, size: 40),
                 ),
               ),
             ),
@@ -59,31 +127,54 @@ class AddCustomerScreen extends StatelessWidget {
             // --- 2. Contact Information Section ---
             _buildSectionHeader(accentColor, "Contact Information"),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.person, hint: "Customer Name *", isMandatory: true),
+            _buildTextField(
+              controller: _nameCtrl,
+              icon: Icons.person,
+              hint: "Customer Name *",
+              isMandatory: true,
+            ),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.phone, hint: "Phone Number", inputType: TextInputType.phone),
+            _buildTextField(
+              controller: _phoneCtrl,
+              icon: Icons.phone,
+              hint: "Phone Number",
+              inputType: TextInputType.phone,
+            ),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.email, hint: "Email Address", inputType: TextInputType.emailAddress),
+            _buildTextField(
+              controller: _emailCtrl,
+              icon: Icons.email,
+              hint: "Email Address",
+              inputType: TextInputType.emailAddress,
+            ),
             const SizedBox(height: 30),
 
             // --- 3. Address Section ---
             _buildSectionHeader(accentColor, "Address"),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.location_on, hint: "Address", maxLines: 3),
+            _buildTextField(
+              controller: _addressCtrl,
+              icon: Icons.location_on,
+              hint: "Address",
+              maxLines: 3,
+            ),
             const SizedBox(height: 30),
 
             // --- 4. Business Information Section ---
             _buildSectionHeader(accentColor, "Business Information"),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.receipt, hint: "GST Number"),
+            _buildTextField(
+              controller: _gstCtrl,
+              icon: Icons.receipt,
+              hint: "GST Number",
+            ),
             const SizedBox(height: 16),
-            _buildTextField(surfaceColor, textGray, accentColor, 
-              icon: Icons.note, hint: "Notes", maxLines: 3),
+            _buildTextField(
+              controller: _notesCtrl,
+              icon: Icons.note,
+              hint: "Notes",
+              maxLines: 3,
+            ),
             const SizedBox(height: 40),
 
             // --- 5. Bottom Add Button ---
@@ -91,9 +182,7 @@ class AddCustomerScreen extends StatelessWidget {
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Save logic
-                },
+                onPressed: _isLoading ? null : _saveCustomer,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,
                   foregroundColor: Colors.black,
@@ -103,10 +192,19 @@ class AddCustomerScreen extends StatelessWidget {
                   elevation: 5,
                   shadowColor: accentColor.withOpacity(0.4),
                 ),
-                icon: const Icon(Icons.person_add, color: Colors.black),
-                label: const Text(
-                  "Add Customer",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.black,
+                        ),
+                      )
+                    : const Icon(Icons.person_add, color: Colors.black),
+                label: Text(
+                  _isLoading ? "Saving..." : "Add Customer",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),
@@ -143,7 +241,8 @@ class AddCustomerScreen extends StatelessWidget {
   }
 
   // --- Helper Widget: Custom Text Field ---
-  Widget _buildTextField(Color surfaceColor, Color hintColor, Color accentColor, {
+  Widget _buildTextField({
+    TextEditingController? controller,
     required IconData icon,
     required String hint,
     TextInputType inputType = TextInputType.text,
@@ -156,22 +255,23 @@ class AddCustomerScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
       ),
       child: TextField(
+        controller: controller,
         style: const TextStyle(color: Colors.white),
         keyboardType: inputType,
         maxLines: maxLines,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: hintColor),
-          prefixIcon: Icon(icon, color: hintColor),
+          hintStyle: const TextStyle(color: textGray),
+          prefixIcon: Icon(icon, color: textGray),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: Colors.transparent),
+            borderSide: const BorderSide(color: Colors.transparent),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(color: accentColor, width: 1.5),
+            borderSide: const BorderSide(color: accentColor, width: 1.5),
           ),
         ),
       ),

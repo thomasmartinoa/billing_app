@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:billing_app/screens/screen_setup.dart';
+import 'package:billing_app/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +11,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -19,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _tryLogin() {
+  void _tryLogin() async {
     final email = _emailCtrl.text.trim();
     final pass = _passCtrl.text;
     if (email.isEmpty || pass.isEmpty) {
@@ -29,28 +31,41 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ScreenSetup()),
-    );
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.signInWithEmail(email, pass);
+      // Navigation is handled by AuthWrapper in main.dart
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _googleSignIn() async {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
+    setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (mounted) Navigator.of(context).pop();
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ScreenSetup()),
-      );
+    try {
+      final result = await _authService.signInWithGoogle();
+      if (result == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google sign-in cancelled')),
+        );
+      }
+      // Navigation is handled by AuthWrapper in main.dart
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Google sign-in failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -117,8 +132,17 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        onPressed: _tryLogin,
-                        child: const Text('Login'),
+                        onPressed: _isLoading ? null : _tryLogin,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : const Text('Login'),
                       ),
 
                       const SizedBox(height: 12),
@@ -147,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             side: const BorderSide(color: Colors.white70),
                           ),
-                          onPressed: _googleSignIn,
+                          onPressed: _isLoading ? null : _googleSignIn,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -177,12 +201,14 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(color: Colors.white70),
                           ),
                           TextButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const SignupPage(),
-                              ),
-                            ),
+                            onPressed: _isLoading
+                                ? null
+                                : () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const SignupPage(),
+                                      ),
+                                    ),
                             child: const Text('Sign up'),
                           ),
                         ],
@@ -210,7 +236,9 @@ class _SignupPageState extends State<SignupPage> {
   final _email = TextEditingController();
   final _pass = TextEditingController();
   final _confirm = TextEditingController();
+  final _authService = AuthService();
   String? _confirmError;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -220,7 +248,7 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  void _createAccount() {
+  void _createAccount() async {
     if (_email.text.trim().isEmpty ||
         _pass.text.isEmpty ||
         _confirm.text.isEmpty) {
@@ -236,10 +264,20 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ScreenSetup()),
-    );
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.createAccountWithEmail(_email.text.trim(), _pass.text);
+      // Navigation is handled by AuthWrapper in main.dart
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -320,14 +358,24 @@ class _SignupPageState extends State<SignupPage> {
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed:
-                            (_email.text.trim().isNotEmpty &&
-                                _pass.text.isNotEmpty &&
-                                _confirm.text.isNotEmpty &&
-                                _pass.text == _confirm.text)
-                            ? _createAccount
-                            : null,
-                        child: const Text('Create account'),
+                        onPressed: _isLoading
+                            ? null
+                            : (_email.text.trim().isNotEmpty &&
+                                    _pass.text.isNotEmpty &&
+                                    _confirm.text.isNotEmpty &&
+                                    _pass.text == _confirm.text)
+                                ? _createAccount
+                                : null,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.black,
+                                ),
+                              )
+                            : const Text('Create account'),
                       ),
                     ],
                   ),
