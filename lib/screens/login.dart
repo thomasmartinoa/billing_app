@@ -35,7 +35,10 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await _authService.signInWithEmail(email, pass);
-      // Navigation is handled by AuthWrapper in main.dart
+      // Pop back to AuthWrapper which will rebuild with the new auth state
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,8 +59,10 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Google sign-in cancelled')),
         );
+      } else if (result != null && mounted) {
+        // Pop back to AuthWrapper which will rebuild with the new auth state
+        Navigator.of(context).pop();
       }
-      // Navigation is handled by AuthWrapper in main.dart
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -268,7 +273,10 @@ class _SignupPageState extends State<SignupPage> {
 
     try {
       await _authService.createAccountWithEmail(_email.text.trim(), _pass.text);
-      // Navigation is handled by AuthWrapper in main.dart
+      // Pop all routes and go back to AuthWrapper which will rebuild with the new auth state
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
