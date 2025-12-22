@@ -47,8 +47,11 @@ class AuthService {
   // Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
+      // Sign out first to ensure clean state
+      await _googleSignIn.signOut();
+      
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      if (googleUser == null) return null; // User cancelled
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -71,8 +74,11 @@ class AuthService {
       }
 
       return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
     } catch (e) {
-      rethrow;
+      // Re-throw with more context
+      throw Exception('Google sign-in failed: ${e.toString()}');
     }
   }
 
@@ -115,8 +121,19 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    try {
+      // Sign out from Google if signed in
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.disconnect();
+        await _googleSignIn.signOut();
+      }
+      // Sign out from Firebase
+      await _auth.signOut();
+    } catch (e) {
+      // Ensure Firebase sign out happens even if Google sign out fails
+      await _auth.signOut();
+      rethrow;
+    }
   }
 
   // Handle auth exceptions

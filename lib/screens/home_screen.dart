@@ -150,7 +150,33 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: Icon(Icons.logout, color: Color(0xFF00C59E)),
             title: Text('Sign Out', style: TextStyle(color: Colors.white)),
             onTap: () async {
-              await _authService.signOut();
+              // Close drawer first
+              Navigator.of(context).pop();
+              
+              // Show loading dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: CircularProgressIndicator(color: Color(0xFF00C59E)),
+                ),
+              );
+              
+              try {
+                await _authService.signOut();
+                // Pop loading dialog
+                if (mounted) Navigator.of(context).pop();
+                // The AuthWrapper will automatically navigate to WelcomePage
+              } catch (e) {
+                // Pop loading dialog
+                if (mounted) Navigator.of(context).pop();
+                // Show error
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Sign out failed: $e')),
+                  );
+                }
+              }
             },
           ),
         ],

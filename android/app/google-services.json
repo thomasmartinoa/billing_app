@@ -12,7 +12,20 @@
           "package_name": "com.example.billing_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1067478327362-brpqp637poca1d7lokdpj09is3a78jq2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.billing_app",
+            "certificate_hash": "51aeb64f6390464111e88f2443b136a26e4bd3a9"
+          }
+        },
+        {
+          "client_id": "1067478327362-0p8jcilr2egnoed8i5psceh32dnsil0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB5qJysFenn1xxi7pppthSAOKe0_cbLyNU"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067478327362-0p8jcilr2egnoed8i5psceh32dnsil0t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1067478327362-rr5c2tgrc6oq9q2hjt3bs03sb4kmajo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.billingApp"
+              }
+            }
+          ]
         }
       }
     }
