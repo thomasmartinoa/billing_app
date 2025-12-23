@@ -214,10 +214,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-            _buildTextField(
-              controller: _categoryCtrl,
+            _buildSelectorField(
               icon: Icons.category,
-              hint: "Category",
+              hint: _categoryCtrl.text.isEmpty ? "Select Category" : _categoryCtrl.text,
+              label: "Category",
+              onTap: _showCategoryPicker,
+              showDropdownIcon: true,
             ),
             const SizedBox(height: 30),
 
@@ -354,6 +356,86 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
       ),
     );
+  }
+
+  void _showCategoryPicker() async {
+    try {
+      final categories = await _firestoreService.getCategories();
+      
+      if (!mounted) return;
+      
+      if (categories.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No categories available. Add categories from Products screen.'),
+          ),
+        );
+        return;
+      }
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: surfaceColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Select Category',
+                  style: TextStyle(
+                    color: textWhite,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    final isSelected = _categoryCtrl.text == category;
+                    return ListTile(
+                      title: Text(
+                        category,
+                        style: TextStyle(color: textWhite),
+                      ),
+                      trailing: isSelected
+                          ? Icon(Icons.check, color: accentColor)
+                          : null,
+                      onTap: () {
+                        setState(() => _categoryCtrl.text = category);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.clear, color: Colors.red),
+                title: Text('Clear Selection', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  setState(() => _categoryCtrl.text = '');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading categories: $e')),
+        );
+      }
+    }
   }
 
   void _showUnitPicker() {

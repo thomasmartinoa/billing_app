@@ -3,6 +3,7 @@ import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/screens/add_product_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
+import 'package:billing_app/screens/manage_categories_dialog.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -15,6 +16,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _selectedCategory; // null means "All"
 
   // Define your specific colors here to match the design
   static const Color backgroundColor = Color(0xFF050608);
@@ -52,10 +54,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Icon(
-                    Icons.filter_list,
-                    color: accentColor,
-                    size: 28,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.category,
+                      color: accentColor,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const ManageCategoriesDialog(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -92,7 +102,77 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
               const SizedBox(height: 16),
 
-              // --- 3. Product List ---
+              // --- 3. Category Filter Chips ---
+              StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _firestoreService.streamCategories(),
+                builder: (context, snapshot) {
+                  final categories = snapshot.data ?? [];
+                  
+                  return SizedBox(
+                    height: 45,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        // "All" chip
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: const Text('All'),
+                            labelStyle: TextStyle(
+                              color: _selectedCategory == null ? Colors.black : textWhite,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            selected: _selectedCategory == null,
+                            selectedColor: accentColor,
+                            backgroundColor: surfaceColor,
+                            checkmarkColor: Colors.black,
+                            side: BorderSide(
+                              color: _selectedCategory == null ? accentColor : borderColor,
+                            ),
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedCategory = null;
+                              });
+                            },
+                          ),
+                        ),
+                        // Category chips
+                        ...categories.map((category) {
+                          final categoryName = category['name'] as String;
+                          final isSelected = _selectedCategory == categoryName;
+                          
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(categoryName),
+                              labelStyle: TextStyle(
+                                color: isSelected ? Colors.black : textWhite,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              selected: isSelected,
+                              selectedColor: accentColor,
+                              backgroundColor: surfaceColor,
+                              checkmarkColor: Colors.black,
+                              side: BorderSide(
+                                color: isSelected ? accentColor : borderColor,
+                              ),
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedCategory = selected ? categoryName : null;
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              
+              const SizedBox(height: 16),
+
+              // --- 4. Product List ---
               Expanded(
                 child: StreamBuilder<List<ProductModel>>(
                   stream: _firestoreService.streamProducts(),
@@ -114,8 +194,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
                     final products = snapshot.data ?? [];
                     final filteredProducts = products.where((p) {
-                      return p.name.toLowerCase().contains(_searchQuery) ||
+                      // Filter by search query
+                      final matchesSearch = p.name.toLowerCase().contains(_searchQuery) ||
                           (p.description?.toLowerCase().contains(_searchQuery) ?? false);
+                      
+                      // Filter by category
+                      final matchesCategory = _selectedCategory == null || 
+                          p.category == _selectedCategory;
+                      
+                      return matchesSearch && matchesCategory;
                     }).toList();
 
                     if (products.isEmpty) {
@@ -146,7 +233,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         ),
       ),
 
-      // --- 4. Floating Action Button (Bottom Right) ---
+      // --- 5. Floating Action Button (Bottom Right) ---
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(

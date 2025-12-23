@@ -317,4 +317,43 @@ class FirestoreService {
       'lowStock': lowStockCount,
     };
   }
+
+  // ==================== CATEGORY METHODS ====================
+
+  /// Get categories collection reference
+  CollectionReference<Map<String, dynamic>> get _categoriesCollection {
+    if (_userId == null) throw Exception('User not authenticated');
+    return _userDoc.collection('categories');
+  }
+
+  /// Add category
+  Future<void> addCategory(String categoryName) async {
+    await _categoriesCollection.add({
+      'name': categoryName,
+      'createdAt': Timestamp.now(),
+    });
+  }
+
+  /// Get all categories
+  Future<List<String>> getCategories() async {
+    final snapshot = await _categoriesCollection.orderBy('name').get();
+    return snapshot.docs.map((doc) => doc.data()['name'] as String).toList();
+  }
+
+  /// Stream categories
+  Stream<List<Map<String, dynamic>>> streamCategories() {
+    return _categoriesCollection.orderBy('name').snapshots().map(
+          (snapshot) => snapshot.docs
+              .map((doc) => {
+                    'id': doc.id,
+                    'name': doc.data()['name'] as String,
+                  })
+              .toList(),
+        );
+  }
+
+  /// Delete category
+  Future<void> deleteCategory(String categoryId) async {
+    await _categoriesCollection.doc(categoryId).delete();
+  }
 }
