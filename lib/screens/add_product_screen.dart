@@ -375,7 +375,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       showModalBottomSheet(
         context: context,
-        backgroundColor: surfaceColor,
+        backgroundColor: const Color(0xFF1A1A1A),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -442,7 +442,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final units = ['pcs', 'kg', 'g', 'l', 'ml', 'box', 'pack', 'dozen', 'm', 'cm'];
     showModalBottomSheet(
       context: context,
-      backgroundColor: surfaceColor,
+      backgroundColor: const Color(0xFF1A1A1A),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
