@@ -12,6 +12,7 @@ import 'package:billing_app/screens/create_invoice_screen.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/screens/settings_screen.dart';
 import 'package:billing_app/screens/about_screen.dart';
+import 'package:billing_app/screens/notifications_screen.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ShopSettings? _shopSettings;
   List<InvoiceModel> _recentInvoices = [];
   bool _isLoadingData = true;
+  int _notificationCount = 0;
 
   @override
   void initState() {
@@ -46,12 +48,20 @@ class _HomeScreenState extends State<HomeScreen> {
       final stats = await _firestoreService.getDashboardStats();
       final userData = await _firestoreService.getUserData();
       final invoices = await _firestoreService.getInvoices();
+      final products = await _firestoreService.getProducts();
+      
+      // Calculate notifications
+      final lowStockCount = products.where((p) => p.isLowStock).length;
+      final unpaidInvoicesCount = invoices.where((inv) => 
+        inv.status == InvoiceStatus.pending
+      ).length;
       
       if (mounted) {
         setState(() {
           _stats = stats;
           _shopSettings = userData?.shopSettings;
           _recentInvoices = invoices.take(5).toList(); // Get latest 5 invoices
+          _notificationCount = lowStockCount + unpaidInvoicesCount;
           _isLoadingData = false;
         });
       }
@@ -96,10 +106,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               actions: [
-                IconButton(
-                  icon: Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
-                  onPressed: () {},
-                )
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => NotificationsScreen()),
+                        ).then((_) => _loadStats());
+                      },
+                    ),
+                    if (_notificationCount > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            _notificationCount > 99 ? '99+' : _notificationCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             )
           : null,
