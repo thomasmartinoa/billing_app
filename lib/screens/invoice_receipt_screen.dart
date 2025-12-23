@@ -90,7 +90,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'Invoice ${_invoice.invoiceNumber}',
-        text: 'Please find attached invoice ${_invoice.invoiceNumber} for ₹${_invoice.total.toStringAsFixed(2)}',
+        text: 'Please find attached invoice ${_invoice.invoiceNumber} for Rs.${_invoice.total.toStringAsFixed(2)}',
       );
       
       if (mounted) {
@@ -157,6 +157,67 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     } finally {
       if (mounted) setState(() => _isPdfLoading = false);
     }
+  }
+
+  void _showPrintOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Choose Print Format',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _printA4Invoice();
+              },
+              icon: const Icon(Icons.description),
+              label: const Text('Print A4 Invoice'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF00C59E),
+                side: const BorderSide(color: Color(0xFF00C59E)),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _printThermalReceipt();
+              },
+              icon: const Icon(Icons.receipt),
+              label: const Text('Print Thermal Receipt (58mm)'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00C59E),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -380,20 +441,27 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _isPdfLoading ? null : _printA4Invoice,
-                icon: _isPdfLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                      )
-                    : const Icon(Icons.print),
-                label: Text(_isPdfLoading ? 'Printing...' : 'Print'),
+              child: ElevatedButton(
+                onPressed: _isPdfLoading ? null : _showPrintOptions,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00C59E),
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isPdfLoading)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      )
+                    else
+                      const Icon(Icons.print),
+                    const SizedBox(width: 8),
+                    Text(_isPdfLoading ? 'Printing...' : 'Print'),
+                  ],
                 ),
               ),
             ),

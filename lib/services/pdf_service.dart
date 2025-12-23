@@ -161,7 +161,7 @@ class PdfService {
                         fontSize: 9,
                       ),
                       _buildTableCell(
-                        '₹${item.price.toStringAsFixed(2)}',
+                        'Rs.${item.price.toStringAsFixed(2)}',
                         align: pw.TextAlign.right,
                         fontSize: 9,
                       ),
@@ -171,7 +171,7 @@ class PdfService {
                         fontSize: 9,
                       ),
                       _buildTableCell(
-                        '₹${item.total.toStringAsFixed(2)}',
+                        'Rs.${item.total.toStringAsFixed(2)}',
                         align: pw.TextAlign.right,
                         fontSize: 9,
                       ),
@@ -190,17 +190,17 @@ class PdfService {
                     width: 250,
                     child: pw.Column(
                       children: [
-                        _buildTotalRow('Subtotal', '₹${invoice.subtotal.toStringAsFixed(2)}'),
+                        _buildTotalRow('Subtotal', 'Rs.${invoice.subtotal.toStringAsFixed(2)}'),
                         if (invoice.discount > 0)
-                          _buildTotalRow('Discount', '-₹${invoice.discount.toStringAsFixed(2)}'),
+                          _buildTotalRow('Discount', '-Rs.${invoice.discount.toStringAsFixed(2)}'),
                         _buildTotalRow(
                           'Tax (${invoice.taxRate.toStringAsFixed(1)}%)',
-                          '₹${invoice.taxAmount.toStringAsFixed(2)}',
+                          'Rs.${invoice.taxAmount.toStringAsFixed(2)}',
                         ),
                         pw.Divider(thickness: 1),
                         _buildTotalRow(
                           'TOTAL',
-                          '₹${invoice.total.toStringAsFixed(2)}',
+                          'Rs.${invoice.total.toStringAsFixed(2)}',
                           isBold: true,
                           fontSize: 14,
                         ),
@@ -398,11 +398,11 @@ class PdfService {
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text(
-                          '${item.quantity} ${item.unit} × ₹${item.price.toStringAsFixed(2)}',
+                          '${item.quantity} ${item.unit} x Rs.${item.price.toStringAsFixed(2)}',
                           style: const pw.TextStyle(fontSize: 8),
                         ),
                         pw.Text(
-                          '₹${item.total.toStringAsFixed(2)}',
+                          'Rs.${item.total.toStringAsFixed(2)}',
                           style: const pw.TextStyle(fontSize: 9),
                         ),
                       ],
@@ -421,7 +421,7 @@ class PdfService {
                 children: [
                   pw.Text('Subtotal:', style: const pw.TextStyle(fontSize: 8)),
                   pw.Text(
-                    '₹${invoice.subtotal.toStringAsFixed(2)}',
+                    'Rs.${invoice.subtotal.toStringAsFixed(2)}',
                     style: const pw.TextStyle(fontSize: 8),
                   ),
                 ],
@@ -432,7 +432,7 @@ class PdfService {
                   children: [
                     pw.Text('Discount:', style: const pw.TextStyle(fontSize: 8)),
                     pw.Text(
-                      '-₹${invoice.discount.toStringAsFixed(2)}',
+                      '-Rs.${invoice.discount.toStringAsFixed(2)}',
                       style: const pw.TextStyle(fontSize: 8),
                     ),
                   ],
@@ -445,7 +445,7 @@ class PdfService {
                     style: const pw.TextStyle(fontSize: 8),
                   ),
                   pw.Text(
-                    '₹${invoice.taxAmount.toStringAsFixed(2)}',
+                    'Rs.${invoice.taxAmount.toStringAsFixed(2)}',
                     style: const pw.TextStyle(fontSize: 8),
                   ),
                 ],
@@ -462,7 +462,7 @@ class PdfService {
                     ),
                   ),
                   pw.Text(
-                    '₹${invoice.total.toStringAsFixed(2)}',
+                    'Rs.${invoice.total.toStringAsFixed(2)}',
                     style: pw.TextStyle(
                       fontSize: 11,
                       fontWeight: pw.FontWeight.bold,
