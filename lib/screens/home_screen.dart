@@ -17,6 +17,8 @@ import 'package:billing_app/screens/notifications_screen.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+  
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -117,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
               elevation: 0,
               leading: Builder(
                 builder: (context) => IconButton(
-                  icon: Icon(Icons.menu, color: Color(0xFF00C59E)),
+                  icon: const Icon(Icons.menu, color: Color(0xFF00C59E)),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
@@ -127,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Stack(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
+                      icon: const Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -177,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               backgroundColor: Color(0xFF00C59E),
               label: Text("New Invoice", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              icon: Icon(Icons.add, color: Colors.black),
+              icon: const Icon(Icons.add, color: Colors.black),
             )
           : null,
       bottomNavigationBar: Container(
@@ -256,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isSelected ? Color(0xFF00C59E) : Colors.white54,
               size: isSelected ? 26 : 24,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
@@ -281,8 +283,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         title: Row(
           children: [
-            Icon(Icons.exit_to_app, color: Color(0xFF00C59E)),
-            SizedBox(width: 12),
+            const Icon(Icons.exit_to_app, color: Color(0xFF00C59E)),
+            const SizedBox(width: 12),
             Text(
               'Exit App',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -356,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     size: 35,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   _shopSettings?.name ?? 'Billing App',
                   style: TextStyle(
@@ -368,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (_shopSettings?.tagline != null && _shopSettings!.tagline.isNotEmpty) ...[
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     _shopSettings!.tagline,
                     style: TextStyle(
@@ -452,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -556,11 +558,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                             if (_shopSettings!.phone.isNotEmpty) ...[
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Icon(Icons.phone, size: 12, color: Color(0xFF00C59E)),
-                                  SizedBox(width: 4),
+                                  const Icon(Icons.phone, size: 12, color: Color(0xFF00C59E)),
+                                  const SizedBox(width: 4),
                                   Text(
                                     _shopSettings!.phone,
                                     style: TextStyle(
@@ -577,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
 
               // TOP CARDS
@@ -711,10 +713,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Column(
                         children: [
-                          Icon(Icons.receipt_long, color: Colors.white24, size: 45),
-                          SizedBox(height: 10),
+                          const Icon(Icons.receipt_long, color: Colors.white24, size: 45),
+                          const SizedBox(height: 10),
                           Text("No invoices yet", style: TextStyle(color: Colors.white60)),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           TextButton.icon(
                             onPressed: () {
                               Navigator.push(
@@ -722,7 +724,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
                               ).then((_) => _loadStats());
                             },
-                            icon: Icon(Icons.add, color: Color(0xFF00C59E)),
+                            icon: const Icon(Icons.add, color: Color(0xFF00C59E)),
                             label: Text("Create First Invoice",
                                 style: TextStyle(color: Color(0xFF00C59E))),
                           ),
@@ -735,7 +737,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       }).toList(),
                     ),
 
-              SizedBox(height: 80),
+              const SizedBox(height: 80),
             ],
           ),
         ),

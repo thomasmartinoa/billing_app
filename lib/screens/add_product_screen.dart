@@ -418,8 +418,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.clear, color: Colors.red),
-                title: Text('Clear Selection', style: TextStyle(color: Colors.red)),
+                leading: const Icon(Icons.clear, color: Colors.red),
+                title: const Text('Clear Selection', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   setState(() => _categoryCtrl.text = '');
                   Navigator.pop(context);

@@ -6,6 +6,11 @@ import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 
 class FirestoreService {
+  // Singleton pattern - ensures only one instance exists
+  static final FirestoreService _instance = FirestoreService._internal();
+  factory FirestoreService() => _instance;
+  FirestoreService._internal();
+  
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

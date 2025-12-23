@@ -349,8 +349,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit, color: accentColor, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.edit, color: accentColor, size: 20),
+                    const SizedBox(width: 12),
                     Text('Edit', style: TextStyle(color: textWhite)),
                   ],
                 ),
@@ -359,8 +359,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 value: 'update_stock',
                 child: Row(
                   children: [
-                    Icon(Icons.inventory, color: accentColor, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.inventory, color: accentColor, size: 20),
+                    const SizedBox(width: 12),
                     Text('Update Stock', style: TextStyle(color: textWhite)),
                   ],
                 ),
@@ -369,8 +369,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: Colors.red, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.delete, color: Colors.red, size: 20),
+                    const SizedBox(width: 12),
                     Text('Delete', style: TextStyle(color: Colors.red)),
                   ],
                 ),
@@ -433,7 +433,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.inventory_2_outlined, color: accentColor),
+                  const Icon(Icons.inventory_2_outlined, color: accentColor),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(

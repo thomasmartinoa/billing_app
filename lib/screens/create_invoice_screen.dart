@@ -9,6 +9,8 @@ import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
+  const CreateInvoiceScreen({super.key});
+  
   @override
   _CreateInvoiceScreenState createState() => _CreateInvoiceScreenState();
 }
@@ -144,7 +146,9 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
 
   double get subTotal {
     double s = 0;
-    for (final c in cart) s += c.product.sellingPrice * c.qty;
+    for (final c in cart) {
+      s += c.product.sellingPrice * c.qty;
+    }
     final discount = double.tryParse(discountController.text) ?? 0;
     s -= discount;
     if (s < 0) s = 0;
@@ -258,15 +262,15 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text('New Invoice'), leading: BackButton()),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF00C59E))),
+        appBar: AppBar(title: const Text('New Invoice'), leading: const BackButton()),
+        body: const Center(child: CircularProgressIndicator(color: Color(0xFF00C59E))),
       );
     }
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Invoice'),
-        leading: BackButton(),
+        title: const Text('New Invoice'),
+        leading:const BackButton(),
         actions: [
           TextButton(
             onPressed: () {
@@ -278,7 +282,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                 selectedCustomer = null;
               });
             },
-            child: Text('Clear', style: TextStyle(color: Color(0xFF00C59E))),
+            child: const Text('Clear', style: TextStyle(color: Color(0xFF00C59E))),
           )
         ],
       ),
@@ -292,43 +296,43 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
               children: [
                 // Customer card
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Color(0xFF0E5A4A).withValues(alpha: 0.8)),
-                    color: Color(0x14181818),
+                    border: Border.all(color: const Color(0xFF0E5A4A).withValues(alpha: 0.8)),
+                    color: const Color(0x14181818),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
+                      const Row(children: [
                         Icon(Icons.person, color: Color(0xFF00C59E)),
                         SizedBox(width: 8),
                         Text('Customer', style: TextStyle(color: Colors.white70)),
                       ]),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       InkWell(
                         onTap: _showCustomerSelection,
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Color(0xFF0E5A4A).withValues(alpha: 0.5)),
+                            border: Border.all(color: const Color(0xFF0E5A4A).withValues(alpha: 0.5)),
                             color: Colors.transparent,
                           ),
                           child: Row(
                             children: [
-                              Icon(selectedCustomer != null ? Icons.person : Icons.person_add, color: Color(0xFF00C59E)),
-                              SizedBox(width: 8),
+                              Icon(selectedCustomer != null ? Icons.person : Icons.person_add, color: const Color(0xFF00C59E)),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   selectedCustomer?.name ?? 'Select Customer (Optional)',
-                                  style: TextStyle(color: Color(0xFF00C59E)),
+                                  style: const TextStyle(color: Color(0xFF00C59E)),
                                 ),
                               ),
                               if (selectedCustomer != null)
                                 IconButton(
-                                  icon: Icon(Icons.close, color: Colors.white54, size: 18),
+                                  icon: const Icon(Icons.close, color: Colors.white54, size: 18),
                                   onPressed: () => setState(() => selectedCustomer = null),
                                 ),
                             ],
@@ -339,24 +343,24 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Search
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Color(0x14181818),
+                    color: const Color(0x14181818),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.search, color: Colors.white24),
-                      SizedBox(width: 8),
+                      const Icon(Icons.search, color: Colors.white24),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: searchController,
-                          style: TextStyle(color: Colors.white70),
-                          decoration: InputDecoration(
+                          style: const TextStyle(color: Colors.white70),
+                          decoration: const InputDecoration(
                             hintText: 'Search products...',
                             border: InputBorder.none,
                             hintStyle: TextStyle(color: Colors.white24),
@@ -368,16 +372,16 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 // Product grid
                 if (filteredProducts.isEmpty)
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32),
+                      padding: const EdgeInsets.all(32),
                       child: Text(
                         products.isEmpty ? 'No products yet. Add products first.' : 'No products match your search.',
-                        style: TextStyle(color: Colors.white54),
+                        style: const TextStyle(color: Colors.white54),
                       ),
                     ),
                   )
@@ -391,11 +395,11 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                         onTap: () => addToCart(p),
                         child: Container(
                           width: 110,
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: inCart ? Color(0x0F00C59E) : Color(0x14181818),
+                            color: inCart ? const Color(0x0F00C59E) : const Color(0x14181818),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: inCart ? Color(0xFF00C59E) : Colors.transparent),
+                            border: Border.all(color: inCart ? const Color(0xFF00C59E) : Colors.transparent),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -404,15 +408,15 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF0E5A4A),
+                                  color: const Color(0xFF0E5A4A),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Icon(Icons.inventory_2, color: Color(0xFF00C59E)),
+                                child: const Icon(Icons.inventory_2, color: Color(0xFF00C59E)),
                               ),
-                              SizedBox(height: 8),
-                              Text(p.name, style: TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
-                              SizedBox(height: 6),
-                              Text('₹${p.sellingPrice.toStringAsFixed(0)}', style: TextStyle(color: Color(0xFF00C59E))),
+                              const  SizedBox(height: 8),
+                              Text(p.name, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              const SizedBox(height: 6),
+                              Text('₹${p.sellingPrice.toStringAsFixed(0)}', style: const TextStyle(color: Color(0xFF00C59E))),
                             ],
                           ),
                         ),
@@ -420,29 +424,29 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     }).toList(),
                   ),
 
-                SizedBox(height: 18),
+                const SizedBox(height: 18),
 
                 // Cart header - only show when items in cart
                 if (cart.isNotEmpty) ...[
                   Row(
                     children: [
-                      Icon(Icons.shopping_cart, color: Color(0xFF00C59E)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.shopping_cart, color: Color(0xFF00C59E)),
+                      const SizedBox(width: 8),
                       Text('Cart (${cart.fold<int>(0, (sum, c) => sum + c.qty)} items)',
-                          style: TextStyle(color: Colors.white70)),
+                          style: const TextStyle(color: Colors.white70)),
                     ],
                   ),
 
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // Cart items list
                   Column(
                     children: cart.map((c) {
                       return Container(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        padding: EdgeInsets.all(12),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Color(0x14181818),
+                          color: const Color(0x14181818),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -451,50 +455,50 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(c.product.name, style: TextStyle(color: Colors.white70)),
-                                  SizedBox(height: 6),
+                                  Text(c.product.name, style: const TextStyle(color: Colors.white70)),
+                                  const SizedBox(height: 6),
                                   Text('₹${c.product.sellingPrice.toStringAsFixed(2)} × ${c.qty}',
-                                      style: TextStyle(color: Colors.white38, fontSize: 12)),
+                                      style: const TextStyle(color: Colors.white38, fontSize: 12)),
                                 ],
                               ),
                             ),
                             // Quantity controls
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Color(0x33181818),
+                                color: const Color(0x33181818),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
                                   IconButton(
                                     padding: EdgeInsets.zero,
-                                    constraints: BoxConstraints(),
-                                    icon: Icon(Icons.remove, color: Colors.white54),
+                                    constraints: const BoxConstraints(),
+                                    icon: const Icon(Icons.remove, color: Colors.white54),
                                     onPressed: () => changeQty(c.product.id, -1),
                                   ),
-                                  SizedBox(width: 8),
-                                  Text('${c.qty}', style: TextStyle(color: Colors.white)),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
+                                  Text('${c.qty}', style: const TextStyle(color: Colors.white)),
+                                  const SizedBox(width: 8),
                                   IconButton(
                                     padding: EdgeInsets.zero,
-                                    constraints: BoxConstraints(),
-                                    icon: Icon(Icons.add, color: Colors.white54),
+                                    constraints: const BoxConstraints(),
+                                    icon: const Icon(Icons.add, color: Colors.white54),
                                     onPressed: () => changeQty(c.product.id, 1),
                                   ),
                                 ],
                               ),
                             ),
 
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text('₹${(c.product.sellingPrice * c.qty).toStringAsFixed(2)}',
-                                    style: TextStyle(color: Color(0xFF00C59E))),
-                                SizedBox(height: 8),
+                                    style: const TextStyle(color: Color(0xFF00C59E))),
+                                const SizedBox(height: 8),
                                 IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.redAccent),
+                                  icon: const Icon(Icons.delete, color: Colors.redAccent),
                                   onPressed: () => removeFromCart(c.product.id),
                                 ),
                               ],
@@ -505,34 +509,34 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     }).toList(),
                   ),
 
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // Discount row
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Color(0x14181818),
+                      color: const Color(0x14181818),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.local_offer, color: Color(0xFF00C59E)),
-                        SizedBox(width: 12),
-                        Expanded(child: Text('Discount', style: TextStyle(color: Colors.white70))),
-                        SizedBox(width: 12),
+                        const Icon(Icons.local_offer, color: Color(0xFF00C59E)),
+                        const SizedBox(width: 12),
+                        const Expanded(child: Text('Discount', style: TextStyle(color: Colors.white70))),
+                        const SizedBox(width: 12),
                         Container(
                           width: 110,
-                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
-                            color: Color(0x11181818),
+                            color: const Color(0x11181818),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: TextField(
                             controller: discountController,
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                            style: TextStyle(color: Colors.white70),
-                            decoration: InputDecoration(
+                            style: const TextStyle(color: Colors.white70),
+                            decoration: const InputDecoration(
                               prefixText: '₹ ',
                               prefixStyle: TextStyle(color: Colors.white70),
                               border: InputBorder.none,
@@ -544,11 +548,11 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     ),
                   ),
 
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
                   // Payment method chips
-                  Text('Payment Method', style: TextStyle(color: Colors.white70)),
-                  SizedBox(height: 8),
+                  const Text('Payment Method', style: TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -557,55 +561,55 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                               label: Text(m),
                               selected: selectedPayment == m,
                               onSelected: (_) => setState(() => selectedPayment = m),
-                              selectedColor: Color(0xFF0B8E73),
-                              backgroundColor: Color(0x14181818),
+                              selectedColor: const Color(0xFF0B8E73),
+                              backgroundColor: const Color(0x14181818),
                               labelStyle: TextStyle(color: selectedPayment == m ? Colors.white : Colors.white70),
                             ))
                         .toList(),
                   ),
 
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
                   // Mark as Paid
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Color(0x14181818),
+                      color: const Color(0x14181818),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.credit_card, color: Color(0xFF00C59E)),
-                        SizedBox(width: 12),
-                        Expanded(child: Text('Mark as Paid', style: TextStyle(color: Colors.white70))),
+                        const Icon(Icons.credit_card, color: Color(0xFF00C59E)),
+                        const SizedBox(width: 12),
+                        const Expanded(child: Text('Mark as Paid', style: TextStyle(color: Colors.white70))),
                         Switch(
                           value: markAsPaid,
                           onChanged: (v) => setState(() => markAsPaid = v),
-                          activeColor: Color(0xFF00C59E),
+                          activeThumbColor: const Color(0xFF00C59E),
                         )
                       ],
                     ),
                   ),
 
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
                   // Notes
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Color(0x14181818),
+                      color: const Color(0x14181818),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.note, color: Color(0xFF00C59E)),
-                        SizedBox(width: 12),
+                        const Icon(Icons.note, color: Color(0xFF00C59E)),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
                             controller: notesController,
-                            style: TextStyle(color: Colors.white70),
+                            style: const TextStyle(color: Colors.white70),
                             maxLines: 3,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Notes',
                               hintStyle: TextStyle(color: Colors.white24),
                               border: InputBorder.none,
@@ -617,7 +621,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                   ),
                 ],
 
-                SizedBox(height: 36),
+                const SizedBox(height: 36),
               ],
             ),
           ),
@@ -629,17 +633,18 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           ? null
           : Container(
               decoration: BoxDecoration(
-                color: Color(0xFF141618),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                color: const Color(0xFF141618),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.3),
                     blurRadius: 10,
-                    offset: Offset(0, -5),
+                    offset: const Offset(0, -5),
                   ),
                 ],
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -648,35 +653,35 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('Subtotal', style: TextStyle(color: Colors.white70)),
-                        SizedBox(height: 6),
-                        Text('Tax (${taxRate.toStringAsFixed(1)}%)', style: TextStyle(color: Colors.white70)),
+                        const Text('Subtotal', style: TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 6),
+                        Text('Tax (${taxRate.toStringAsFixed(1)}%)', style: const TextStyle(color: Colors.white70)),
                       ]),
                       Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                        Text('₹${subTotal.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
-                        SizedBox(height: 6),
-                        Text('₹${tax.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
+                        Text('₹${subTotal.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
+                        const SizedBox(height: 6),
+                        Text('₹${tax.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
                       ]),
                     ],
                   ),
 
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
-                  Divider(color: Colors.white12, thickness: 1),
+                  const Divider(color: Colors.white12, thickness: 1),
 
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // total row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
+                      const Text('Total', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
                       Text('₹${total.toStringAsFixed(2)}',
-                          style: TextStyle(color: Color(0xFF00C59E), fontWeight: FontWeight.bold, fontSize: 18)),
+                          style: const TextStyle(color: Color(0xFF00C59E), fontWeight: FontWeight.bold, fontSize: 18)),
                     ],
                   ),
 
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // button
                   SizedBox(
@@ -684,20 +689,20 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _isSaving ? null : _createInvoice,
                       icon: _isSaving 
-                          ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                          : Icon(Icons.receipt_long),
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                          : const Icon(Icons.receipt_long),
                       label: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
-                        child: Text(_isSaving ? 'Creating...' : 'Create Invoice', style: TextStyle(fontSize: 16)),
+                        child: Text(_isSaving ? 'Creating...' : 'Create Invoice', style: const TextStyle(fontSize: 16)),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF00C59E),
+                        backgroundColor: const Color(0xFF00C59E),
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -707,27 +712,27 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
   void _showCustomerSelection() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Color(0xFF121212),
-      shape: RoundedRectangleBorder(
+      backgroundColor: const Color(0xFF121212),
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Customer', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
+              const Text('Select Customer', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
               if (customers.isEmpty)
-                Padding(
+                const Padding(
                   padding: EdgeInsets.all(32),
                   child: Center(child: Text('No customers yet', style: TextStyle(color: Colors.white54))),
                 )
               else
                 Container(
-                  constraints: BoxConstraints(maxHeight: 300),
+                  constraints: const BoxConstraints(maxHeight: 300),
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: customers.length,
@@ -735,11 +740,11 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                       final customer = customers[index];
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: Color(0xFF0E5A4A),
-                          child: Text(customer.name[0].toUpperCase(), style: TextStyle(color: Color(0xFF00C59E))),
+                          backgroundColor: const Color(0xFF0E5A4A),
+                          child: Text(customer.name[0].toUpperCase(), style: const TextStyle(color: Color(0xFF00C59E))),
                         ),
-                        title: Text(customer.name, style: TextStyle(color: Colors.white)),
-                        subtitle: Text(customer.phone ?? '', style: TextStyle(color: Colors.white54)),
+                        title: Text(customer.name, style: const TextStyle(color: Colors.white)),
+                        subtitle: Text(customer.phone ?? '', style: const TextStyle(color: Colors.white54)),
                         onTap: () {
                           setState(() => selectedCustomer = customer);
                           Navigator.pop(context);

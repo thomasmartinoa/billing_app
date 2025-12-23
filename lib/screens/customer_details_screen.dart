@@ -208,8 +208,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         child: const Center(
                           child: Column(
                             children: [
-                              Icon(Icons.receipt_long, color: textGray, size: 48),
-                              SizedBox(height: 12),
+                              const Icon(Icons.receipt_long, color: textGray, size: 48),
+                              const SizedBox(height: 12),
                               Text(
                                 'No purchase history',
                                 style: TextStyle(color: textGray),

@@ -83,7 +83,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               
               // Sort Section
               Text(
@@ -132,9 +132,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 },
               ),
               
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Divider(color: borderColor),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               
               // Filter Section
               Text(
@@ -145,7 +145,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               _buildFilterOption(
                 title: 'All Customers',
                 value: 'all',
@@ -207,7 +207,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -518,8 +518,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit, color: accentColor, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.edit, color: accentColor, size: 20),
+                      const SizedBox(width: 12),
                       Text('Edit', style: TextStyle(color: textWhite)),
                     ],
                   ),
@@ -528,8 +528,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   value: 'view_history',
                   child: Row(
                     children: [
-                      Icon(Icons.history, color: accentColor, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.history, color: accentColor, size: 20),
+                      const SizedBox(width: 12),
                       Text('View History', style: TextStyle(color: textWhite)),
                     ],
                   ),
@@ -538,8 +538,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete, color: Colors.red, size: 20),
-                      SizedBox(width: 12),
+                      const Icon(Icons.delete, color: Colors.red, size: 20),
+                      const SizedBox(width: 12),
                       Text('Delete', style: TextStyle(color: Colors.red)),
                     ],
                   ),
