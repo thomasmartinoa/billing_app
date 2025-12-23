@@ -28,9 +28,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _barcodeCtrl = TextEditingController();
 
   // --- Design Colors ---
-  final Color backgroundColor = const Color(0xFF000000);
-  final Color surfaceColor = const Color(0xFF1F1F1F);
-  final Color accentColor = const Color(0xFF00E676);
+  final Color backgroundColor = const Color(0xFF050608);
+  final Color surfaceColor = const Color(0x14181818);
+  final Color accentColor = const Color(0xFF00C59E);
+  final Color borderColor = const Color(0xFF12332D);
   final Color textWhite = Colors.white;
   final Color textGray = const Color(0xFF757575);
 
@@ -364,6 +365,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           decoration: BoxDecoration(
             color: surfaceColor,
             borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: borderColor.withOpacity(0.6)),
           ),
           child: TextField(
             controller: controller,
@@ -405,6 +407,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             decoration: BoxDecoration(
               color: surfaceColor,
               borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: borderColor.withOpacity(0.6)),
             ),
             child: Row(
               children: [
@@ -444,6 +447,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: borderColor.withOpacity(0.6)),
       ),
       child: SwitchListTile(
         value: value,

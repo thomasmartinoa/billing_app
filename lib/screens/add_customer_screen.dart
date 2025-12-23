@@ -22,9 +22,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   final _notesCtrl = TextEditingController();
 
   // --- Design Colors from Image ---
-  static const Color backgroundColor = Color(0xFF000000);
-  static const Color surfaceColor = Color(0xFF1F1F1F);
-  static const Color accentColor = Color(0xFF00E676);
+  static const Color backgroundColor = Color(0xFF050608);
+  static const Color surfaceColor = Color(0x14181818);
+  static const Color accentColor = Color(0xFF00C59E);
+  static const Color borderColor = Color(0xFF12332D);
   static const Color textWhite = Colors.white;
   static const Color textGray = Color(0xFF757575);
 
@@ -253,6 +254,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: borderColor.withOpacity(0.6)),
       ),
       child: TextField(
         controller: controller,
@@ -271,7 +273,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: accentColor, width: 1.5),
+            borderSide: const BorderSide(color: accentColor, width: 2),
           ),
         ),
       ),

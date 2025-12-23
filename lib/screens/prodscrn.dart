@@ -16,9 +16,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   String _searchQuery = '';
 
   // Define your specific colors here to match the design
-  static const Color backgroundColor = Colors.black;
-  static const Color surfaceColor = Color(0xFF1F1F1F);
-  static const Color accentColor = Color(0xFF00E676);
+  static const Color backgroundColor = Color(0xFF050608);
+  static const Color surfaceColor = Color(0x14181818);
+  static const Color accentColor = Color(0xFF00C59E);
+  static const Color borderColor = Color(0xFF12332D);
   static const Color textWhite = Colors.white;
   static const Color textGray = Colors.grey;
 
@@ -74,7 +75,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   prefixIcon: const Icon(Icons.search, color: accentColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: accentColor),
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -157,6 +166,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor.withOpacity(0.6)),
       ),
       child: Row(
         children: [
@@ -229,9 +239,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
           Container(
             height: 100,
             width: 100,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: surfaceColor,
               shape: BoxShape.circle,
+              border: Border.all(color: borderColor.withOpacity(0.6)),
             ),
             child: const Center(
               child: Icon(
