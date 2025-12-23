@@ -147,7 +147,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       ),
       
       // --- Floating Action Button ---
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
@@ -155,7 +155,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           );
         },
         backgroundColor: accentColor,
-        child: const Icon(Icons.add, color: Colors.black),
+        icon: const Icon(Icons.add, color: Colors.black),
+        label: const Text(
+          'Add Customer',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

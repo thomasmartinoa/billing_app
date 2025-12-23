@@ -146,7 +146,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
 
       // --- 4. Floating Action Button (Bottom Right) ---
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
@@ -154,7 +154,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
           );
         },
         backgroundColor: accentColor,
-        child: const Icon(Icons.add, color: Colors.black),
+        icon: const Icon(Icons.add, color: Colors.black),
+        label: const Text(
+          'Add Product',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

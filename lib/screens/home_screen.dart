@@ -94,7 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
                 ).then((_) => _loadStats());
               },
-              label: Text("New Invoice", style: TextStyle(color: Colors.black)),
+              backgroundColor: Color(0xFF00C59E),
+              label: Text("New Invoice", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               icon: Icon(Icons.add, color: Colors.black),
             )
           : null,
