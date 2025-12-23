@@ -230,6 +230,230 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
             ],
           ),
+          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: textGray),
+            color: const Color(0xFF1F1F1F),
+            onSelected: (value) {
+              switch (value) {
+                case 'edit':
+                  _editProduct(product);
+                  break;
+                case 'update_stock':
+                  _showUpdateStockDialog(product);
+                  break;
+                case 'delete':
+                  _deleteProduct(product);
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: accentColor, size: 20),
+                    SizedBox(width: 12),
+                    Text('Edit', style: TextStyle(color: textWhite)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'update_stock',
+                child: Row(
+                  children: [
+                    Icon(Icons.inventory, color: accentColor, size: 20),
+                    SizedBox(width: 12),
+                    Text('Update Stock', style: TextStyle(color: textWhite)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red, size: 20),
+                    SizedBox(width: 12),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editProduct(ProductModel product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddProductScreen(product: product),
+      ),
+    );
+  }
+
+  void _showUpdateStockDialog(ProductModel product) {
+    final stockController = TextEditingController(
+      text: product.currentStock.toString(),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1F1F1F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Column(
+          children: [
+            Text(
+              'Update Stock - ${product.name}',
+              style: const TextStyle(color: textWhite, fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Current: ${product.currentStock} ${product.unit}',
+              style: const TextStyle(color: textGray, fontSize: 14),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'New Quantity',
+              style: TextStyle(color: textGray, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor.withOpacity(0.6)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.inventory_2_outlined, color: accentColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: stockController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: textWhite, fontSize: 18),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: '0',
+                        hintStyle: TextStyle(color: textGray),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: textGray),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newStock = int.tryParse(stockController.text);
+              if (newStock == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter valid quantity')),
+                );
+                return;
+              }
+
+              try {
+                await _firestoreService.updateProductStock(
+                  product.id!,
+                  newStock,
+                );
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Stock updated successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: accentColor,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteProduct(ProductModel product) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1F1F1F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Delete Product',
+          style: TextStyle(color: textWhite),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${product.name}"? This action cannot be undone.',
+          style: const TextStyle(color: textGray),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: textGray),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _firestoreService.deleteProduct(product.id!);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Product deleted successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );

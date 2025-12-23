@@ -3,7 +3,9 @@ import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/product_model.dart';
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+  final ProductModel? product;
+  
+  const AddProductScreen({super.key, this.product});
 
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
@@ -34,6 +36,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final Color borderColor = const Color(0xFF12332D);
   final Color textWhite = Colors.white;
   final Color textGray = const Color(0xFF757575);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.product != null) {
+      _loadProductData();
+    }
+  }
+
+  void _loadProductData() {
+    final product = widget.product!;
+    _nameCtrl.text = product.name;
+    _descriptionCtrl.text = product.description ?? '';
+    _categoryCtrl.text = product.category ?? '';
+    _sellingPriceCtrl.text = product.sellingPrice.toString();
+    _costPriceCtrl.text = product.costPrice?.toString() ?? '';
+    _stockCtrl.text = product.currentStock.toString();
+    _lowStockAlertCtrl.text = product.lowStockAlert?.toString() ?? '';
+    _skuCtrl.text = product.sku ?? '';
+    _barcodeCtrl.text = product.barcode ?? '';
+    isTrackInventory = product.trackInventory;
+    selectedUnit = product.unit;
+  }
 
   @override
   void dispose() {
@@ -67,38 +92,79 @@ class _AddProductScreenState extends State<AddProductScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final product = ProductModel(
-        name: _nameCtrl.text.trim(),
-        description: _descriptionCtrl.text.trim().isEmpty
-            ? null
-            : _descriptionCtrl.text.trim(),
-        category: _categoryCtrl.text.trim().isEmpty
-            ? null
-            : _categoryCtrl.text.trim(),
-        sellingPrice: double.tryParse(_sellingPriceCtrl.text) ?? 0,
-        costPrice: _costPriceCtrl.text.trim().isEmpty
-            ? null
-            : double.tryParse(_costPriceCtrl.text),
-        trackInventory: isTrackInventory,
-        currentStock: int.tryParse(_stockCtrl.text) ?? 0,
-        unit: selectedUnit,
-        lowStockAlert: _lowStockAlertCtrl.text.trim().isEmpty
-            ? null
-            : int.tryParse(_lowStockAlertCtrl.text),
-        sku: _skuCtrl.text.trim().isEmpty ? null : _skuCtrl.text.trim(),
-        barcode:
-            _barcodeCtrl.text.trim().isEmpty ? null : _barcodeCtrl.text.trim(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await _firestoreService.addProduct(product);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product added successfully!')),
+      if (widget.product != null) {
+        // Update existing product
+        final updatedProduct = ProductModel(
+          id: widget.product!.id,
+          name: _nameCtrl.text.trim(),
+          description: _descriptionCtrl.text.trim().isEmpty
+              ? null
+              : _descriptionCtrl.text.trim(),
+          category: _categoryCtrl.text.trim().isEmpty
+              ? null
+              : _categoryCtrl.text.trim(),
+          sellingPrice: double.tryParse(_sellingPriceCtrl.text) ?? 0,
+          costPrice: _costPriceCtrl.text.trim().isEmpty
+              ? null
+              : double.tryParse(_costPriceCtrl.text),
+          trackInventory: isTrackInventory,
+          currentStock: int.tryParse(_stockCtrl.text) ?? 0,
+          unit: selectedUnit,
+          lowStockAlert: _lowStockAlertCtrl.text.trim().isEmpty
+              ? null
+              : int.tryParse(_lowStockAlertCtrl.text),
+          sku: _skuCtrl.text.trim().isEmpty ? null : _skuCtrl.text.trim(),
+          barcode: _barcodeCtrl.text.trim().isEmpty
+              ? null
+              : _barcodeCtrl.text.trim(),
+          createdAt: widget.product!.createdAt,
+          updatedAt: DateTime.now(),
         );
-        Navigator.pop(context);
+
+        await _firestoreService.updateProduct(updatedProduct);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product updated successfully!')),
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        // Add new product
+        final product = ProductModel(
+          name: _nameCtrl.text.trim(),
+          description: _descriptionCtrl.text.trim().isEmpty
+              ? null
+              : _descriptionCtrl.text.trim(),
+          category: _categoryCtrl.text.trim().isEmpty
+              ? null
+              : _categoryCtrl.text.trim(),
+          sellingPrice: double.tryParse(_sellingPriceCtrl.text) ?? 0,
+          costPrice: _costPriceCtrl.text.trim().isEmpty
+              ? null
+              : double.tryParse(_costPriceCtrl.text),
+          trackInventory: isTrackInventory,
+          currentStock: int.tryParse(_stockCtrl.text) ?? 0,
+          unit: selectedUnit,
+          lowStockAlert: _lowStockAlertCtrl.text.trim().isEmpty
+              ? null
+              : int.tryParse(_lowStockAlertCtrl.text),
+          sku: _skuCtrl.text.trim().isEmpty ? null : _skuCtrl.text.trim(),
+          barcode: _barcodeCtrl.text.trim().isEmpty
+              ? null
+              : _barcodeCtrl.text.trim(),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        await _firestoreService.addProduct(product);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product added successfully!')),
+          );
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -123,7 +189,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Add Product",
+          widget.product != null ? "Edit Product" : "Add Product",
           style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
         ),
       ),
@@ -273,7 +339,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       )
                     : const Icon(Icons.save, color: Colors.black),
                 label: Text(
-                  _isLoading ? "Saving..." : "Save Product",
+                  _isLoading 
+                      ? "Saving..." 
+                      : (widget.product != null ? "Update Product" : "Save Product"),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
