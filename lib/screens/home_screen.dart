@@ -350,13 +350,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 2,
                     ),
                   ),
-                  child: Icon(
-                    _shopSettings != null 
-                        ? IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons')
-                        : Icons.store,
-                    color: Color(0xFF00C59E),
-                    size: 35,
-                  ),
+                  child: _shopSettings != null 
+                      ? Icon(
+                          IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          color: Color(0xFF00C59E),
+                          size: 35,
+                        )
+                      : const Icon(
+                          Icons.store,
+                          color: Color(0xFF00C59E),
+                          size: 35,
+                        ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -528,11 +532,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Color(0xFF00C59E).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
-                          color: Color(0xFF00C59E),
-                          size: 32,
-                        ),
+                        child: _shopSettings != null
+                            ? Icon(
+                                IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                                color: Color(0xFF00C59E),
+                                size: 32,
+                              )
+                            : const Icon(
+                                Icons.store,
+                                color: Color(0xFF00C59E),
+                                size: 32,
+                              ),
                       ),
                       SizedBox(width: 16),
                       Expanded(
