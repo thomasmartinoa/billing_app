@@ -38,16 +38,24 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Color(0xFF1A1A1A),
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        builder: (context, setModalState) => DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) => SingleChildScrollView(
+            controller: scrollController,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,7 +208,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 ),
               ),
               SizedBox(height: 10),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

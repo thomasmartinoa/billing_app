@@ -223,7 +223,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 120),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, cart.isEmpty ? 16 : 220),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -565,7 +565,17 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       bottomSheet: cart.isEmpty
           ? null
           : Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              decoration: BoxDecoration(
+                color: Color(0xFF141618),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: Offset(0, -5),
+                  ),
+                ],
+              ),
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
