@@ -63,7 +63,33 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
 
   // Add product to cart (or increment if exists)
   void addToCart(ProductModel product) {
+    // Check if product tracks inventory
+    if (!product.trackInventory) {
+      final idx = cart.indexWhere((c) => c.product.id == product.id);
+      setState(() {
+        if (idx >= 0) {
+          cart[idx].qty += 1;
+        } else {
+          cart.add(CartItem(product: product, qty: 1));
+        }
+      });
+      return;
+    }
+    
+    // Check available stock
     final idx = cart.indexWhere((c) => c.product.id == product.id);
+    final currentQtyInCart = idx >= 0 ? cart[idx].qty : 0;
+    
+    if (currentQtyInCart >= product.currentStock) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cannot add more. Only ${product.currentStock} ${product.unit} available in stock'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     setState(() {
       if (idx >= 0) {
         cart[idx].qty += 1;
@@ -84,8 +110,32 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     if (productId == null) return;
     final idx = cart.indexWhere((c) => c.product.id == productId);
     if (idx < 0) return;
+    
+    final cartItem = cart[idx];
+    final newQty = cartItem.qty + delta;
+    
+    // If decreasing, just allow it
+    if (delta < 0) {
+      setState(() {
+        cart[idx].qty = newQty;
+        if (cart[idx].qty <= 0) cart.removeAt(idx);
+      });
+      return;
+    }
+    
+    // If increasing, check stock availability
+    if (cartItem.product.trackInventory && newQty > cartItem.product.currentStock) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cannot add more. Only ${cartItem.product.currentStock} ${cartItem.product.unit} available in stock'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     setState(() {
-      cart[idx].qty += delta;
+      cart[idx].qty = newQty;
       if (cart[idx].qty <= 0) cart.removeAt(idx);
     });
   }
@@ -117,6 +167,19 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         const SnackBar(content: Text('Please add items to cart')),
       );
       return;
+    }
+    
+    // Validate stock availability before creating invoice
+    for (final cartItem in cart) {
+      if (cartItem.product.trackInventory && cartItem.qty > cartItem.product.currentStock) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Insufficient stock for ${cartItem.product.name}. Only ${cartItem.product.currentStock} available.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
 
     setState(() => _isSaving = true);
