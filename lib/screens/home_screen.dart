@@ -10,6 +10,8 @@ import 'package:billing_app/screens/add_customer_screen.dart';
 import 'package:billing_app/screens/billing_screen.dart';
 import 'package:billing_app/screens/create_invoice_screen.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
+import 'package:billing_app/screens/settings_screen.dart';
+import 'package:billing_app/screens/about_screen.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -136,37 +138,103 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: Color(0xFF0D0D0D),
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          DrawerHeader(
+          // Drawer Header - Dark Theme
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
             decoration: BoxDecoration(
-              color: Color(0xFF141618),
+              color: Color(0xFF0A0A0A),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CircleAvatar(
-                  backgroundColor: Color(0xFF00C59E),
-                  radius: 30,
-                  child: Icon(Icons.store, color: Colors.black, size: 30),
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF141618),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Color(0xFF00C59E).withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Icon(
+                    _shopSettings != null 
+                        ? IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons')
+                        : Icons.store,
+                    color: Color(0xFF00C59E),
+                    size: 35,
+                  ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 16),
                 Text(
-                  'Billing App',
+                  _shopSettings?.name ?? 'Billing App',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (_shopSettings?.tagline != null && _shopSettings!.tagline.isNotEmpty) ...[
+                  SizedBox(height: 4),
+                  Text(
+                    _shopSettings!.tagline,
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Menu Items
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _buildDrawerItem(
+                  icon: Icons.settings,
+                  title: 'Settings',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => SettingsScreen()),
+                    ).then((_) => _loadStats());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.info,
+                  title: 'About',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => AboutScreen()),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.logout, color: Color(0xFF00C59E)),
-            title: Text('Sign Out', style: TextStyle(color: Colors.white)),
+          // Sign Out at Bottom
+          Divider(
+            color: Color(0xFF12332D),
+            thickness: 1,
+            height: 1,
+          ),
+          _buildDrawerItem(
+            icon: Icons.logout,
+            title: 'Sign Out',
+            isDestructive: true,
             onTap: () async {
               // Close drawer first
               Navigator.of(context).pop();
@@ -197,8 +265,48 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
           ),
+          SizedBox(height: 8),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: isDestructive 
+              ? Colors.red.withOpacity(0.1) 
+              : Color(0xFF00C59E).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: isDestructive ? Colors.red : Color(0xFF00C59E),
+          size: 20,
+        ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDestructive ? Colors.red : Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      hoverColor: Color(0xFF00C59E).withOpacity(0.05),
     );
   }
 
