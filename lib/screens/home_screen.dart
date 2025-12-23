@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/services/auth_service.dart';
 import 'package:billing_app/models/user_model.dart';
@@ -92,7 +93,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        
+        // If not on dashboard, go to dashboard
+        if (_selectedIndex != 0) {
+          setState(() => _selectedIndex = 0);
+          return;
+        }
+        
+        // If on dashboard, show exit confirmation
+        final shouldExit = await _showExitDialog();
+        if (shouldExit == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
       appBar: _selectedIndex == 0
           ? AppBar(
               backgroundColor: Colors.transparent,
@@ -162,18 +180,143 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.add, color: Colors.black),
             )
           : null,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF07100F),
-        selectedItemColor: Color(0xFF00C59E),
-        unselectedItemColor: Colors.white54,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: "Products"),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Invoices"),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Customers"),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF0A0A0A),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 20,
+              offset: Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(
+                  icon: Icons.grid_view_rounded,
+                  label: "Dashboard",
+                  index: 0,
+                ),
+                _buildNavItem(
+                  icon: Icons.inventory_2_rounded,
+                  label: "Products",
+                  index: 1,
+                ),
+                _buildNavItem(
+                  icon: Icons.receipt_long_rounded,
+                  label: "Invoices",
+                  index: 2,
+                ),
+                _buildNavItem(
+                  icon: Icons.people_rounded,
+                  label: "Customers",
+                  index: 3,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
+    final isSelected = _selectedIndex == index;
+    
+    return GestureDetector(
+      onTap: () => _onNavTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 16 : 12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? Color(0xFF00C59E).withOpacity(0.15)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Color(0xFF00C59E) : Colors.white54,
+              size: isSelected ? 26 : 24,
+            ),
+            SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Color(0xFF00C59E) : Colors.white54,
+                fontSize: isSelected ? 12 : 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _showExitDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.exit_to_app, color: Color(0xFF00C59E)),
+            SizedBox(width: 12),
+            Text(
+              'Exit App',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to exit the application?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              SystemNavigator.pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF00C59E),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Exit',
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );
