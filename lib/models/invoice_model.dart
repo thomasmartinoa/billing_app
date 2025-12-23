@@ -132,9 +132,16 @@ class InvoiceModel {
         orElse: () => InvoiceStatus.pending,
       ),
       notes: map['notes'],
-      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      paidAt: (map['paidAt'] as Timestamp?)?.toDate(),
+      createdAt: _parseDateTime(map['createdAt']) ?? DateTime.now(),
+      paidAt: _parseDateTime(map['paidAt']),
     );
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 
   InvoiceModel copyWith({

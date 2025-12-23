@@ -255,11 +255,15 @@ class FirestoreService {
   Stream<List<InvoiceModel>> streamInvoicesByStatus(InvoiceStatus status) {
     return _invoicesCollection
         .where('status', isEqualTo: status.name)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => InvoiceModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map((snapshot) {
+          final invoices = snapshot.docs
+              .map((doc) => InvoiceModel.fromMap(doc.data(), doc.id))
+              .toList();
+          // Sort in memory to avoid index requirement
+          invoices.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return invoices;
+        });
   }
 
   /// Get all invoices (one-time)
