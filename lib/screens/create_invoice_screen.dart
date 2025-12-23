@@ -621,7 +621,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                   ),
                 ],
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -691,18 +691,16 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                       icon: _isSaving 
                           ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                           : const Icon(Icons.receipt_long),
-                      label: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14.0),
-                        child: Text(_isSaving ? 'Creating...' : 'Create Invoice', style: const TextStyle(fontSize: 16)),
-                      ),
+                      label: Text(_isSaving ? 'Creating...' : 'Create Invoice', style: const TextStyle(fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00C59E),
                         foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 15),
                 ],
               ),
             ),

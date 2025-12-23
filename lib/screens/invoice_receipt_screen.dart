@@ -397,7 +397,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
       // BOTTOM ACTION BAR
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 40),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           border: const Border(top: BorderSide(color: Colors.white12)),
