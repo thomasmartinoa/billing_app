@@ -15,6 +15,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  
+  // Sort & Filter options
+  String _sortBy = 'name_asc'; // name_asc, name_desc, date_new, date_old
+  String _filterBy = 'all'; // all, recent_30, recent_60, recent_90
 
   // Design Colors
   static const Color backgroundColor = Color(0xFF050608);
@@ -28,6 +32,221 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Color(0xFF1A1A1A),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Sort & Filter',
+                    style: TextStyle(
+                      color: textWhite,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _sortBy = 'name_asc';
+                        _filterBy = 'all';
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'Reset',
+                      style: TextStyle(color: accentColor),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              
+              // Sort Section
+              Text(
+                'Sort By',
+                style: TextStyle(
+                  color: accentColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 12),
+              _buildFilterOption(
+                title: 'Name (A-Z)',
+                value: 'name_asc',
+                groupValue: _sortBy,
+                onChanged: (value) {
+                  setModalState(() => _sortBy = value!);
+                  setState(() => _sortBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Name (Z-A)',
+                value: 'name_desc',
+                groupValue: _sortBy,
+                onChanged: (value) {
+                  setModalState(() => _sortBy = value!);
+                  setState(() => _sortBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Newest First',
+                value: 'date_new',
+                groupValue: _sortBy,
+                onChanged: (value) {
+                  setModalState(() => _sortBy = value!);
+                  setState(() => _sortBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Oldest First',
+                value: 'date_old',
+                groupValue: _sortBy,
+                onChanged: (value) {
+                  setModalState(() => _sortBy = value!);
+                  setState(() => _sortBy = value!);
+                },
+              ),
+              
+              SizedBox(height: 20),
+              Divider(color: borderColor),
+              SizedBox(height: 20),
+              
+              // Filter Section
+              Text(
+                'Filter By Activity',
+                style: TextStyle(
+                  color: accentColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 12),
+              _buildFilterOption(
+                title: 'All Customers',
+                value: 'all',
+                groupValue: _filterBy,
+                onChanged: (value) {
+                  setModalState(() => _filterBy = value!);
+                  setState(() => _filterBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Active (Last 30 days)',
+                value: 'recent_30',
+                groupValue: _filterBy,
+                onChanged: (value) {
+                  setModalState(() => _filterBy = value!);
+                  setState(() => _filterBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Active (Last 60 days)',
+                value: 'recent_60',
+                groupValue: _filterBy,
+                onChanged: (value) {
+                  setModalState(() => _filterBy = value!);
+                  setState(() => _filterBy = value!);
+                },
+              ),
+              _buildFilterOption(
+                title: 'Active (Last 90 days)',
+                value: 'recent_90',
+                groupValue: _filterBy,
+                onChanged: (value) {
+                  setModalState(() => _filterBy = value!);
+                  setState(() => _filterBy = value!);
+                },
+              ),
+              
+              SizedBox(height: 20),
+              
+              // Apply Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accentColor,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Apply',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterOption({
+    required String title,
+    required String value,
+    required String groupValue,
+    required Function(String?) onChanged,
+  }) {
+    final isSelected = value == groupValue;
+    return InkWell(
+      onTap: () => onChanged(value),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        margin: EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? accentColor.withOpacity(0.1) : surfaceColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? accentColor : borderColor.withOpacity(0.6),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: isSelected ? accentColor : textGray,
+              size: 20,
+            ),
+            SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? accentColor : textWhite,
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -52,10 +271,13 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Icon(
-                    Icons.filter_list,
-                    color: accentColor,
-                    size: 28,
+                  IconButton(
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: accentColor,
+                      size: 28,
+                    ),
+                    onPressed: () => _showFilterBottomSheet(),
                   ),
                 ],
               ),
@@ -113,11 +335,42 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     }
 
                     final customers = snapshot.data ?? [];
-                    final filteredCustomers = customers.where((c) {
+                    
+                    // Apply search filter
+                    var filteredCustomers = customers.where((c) {
                       return c.name.toLowerCase().contains(_searchQuery) ||
                           (c.phone?.toLowerCase().contains(_searchQuery) ?? false) ||
                           (c.email?.toLowerCase().contains(_searchQuery) ?? false);
                     }).toList();
+                    
+                    // Apply date filter
+                    if (_filterBy != 'all') {
+                      final now = DateTime.now();
+                      int daysAgo = 30;
+                      if (_filterBy == 'recent_60') daysAgo = 60;
+                      if (_filterBy == 'recent_90') daysAgo = 90;
+                      
+                      final filterDate = now.subtract(Duration(days: daysAgo));
+                      filteredCustomers = filteredCustomers.where((c) {
+                        return c.updatedAt.isAfter(filterDate);
+                      }).toList();
+                    }
+                    
+                    // Apply sorting
+                    filteredCustomers.sort((a, b) {
+                      switch (_sortBy) {
+                        case 'name_asc':
+                          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                        case 'name_desc':
+                          return b.name.toLowerCase().compareTo(a.name.toLowerCase());
+                        case 'date_new':
+                          return b.createdAt.compareTo(a.createdAt);
+                        case 'date_old':
+                          return a.createdAt.compareTo(b.createdAt);
+                        default:
+                          return 0;
+                      }
+                    });
 
                     if (customers.isEmpty) {
                       return _buildEmptyState();
