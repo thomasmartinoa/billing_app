@@ -3,7 +3,9 @@ import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
 
 class AddCustomerScreen extends StatefulWidget {
-  const AddCustomerScreen({super.key});
+  final CustomerModel? customer;
+  
+  const AddCustomerScreen({super.key, this.customer});
 
   @override
   State<AddCustomerScreen> createState() => _AddCustomerScreenState();
@@ -30,6 +32,24 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   static const Color textGray = Color(0xFF757575);
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.customer != null) {
+      _loadCustomerData();
+    }
+  }
+
+  void _loadCustomerData() {
+    final customer = widget.customer!;
+    _nameCtrl.text = customer.name;
+    _phoneCtrl.text = customer.phone ?? '';
+    _emailCtrl.text = customer.email ?? '';
+    _addressCtrl.text = customer.address ?? '';
+    _gstCtrl.text = customer.gstNumber ?? '';
+    _notesCtrl.text = customer.notes ?? '';
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
@@ -51,24 +71,49 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final customer = CustomerModel(
-        name: _nameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
-        email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-        address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
-        gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
-        notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await _firestoreService.addCustomer(customer);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Customer added successfully!')),
+      if (widget.customer != null) {
+        // Update existing customer
+        final updatedCustomer = CustomerModel(
+          id: widget.customer!.id,
+          name: _nameCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+          email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
+          address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+          gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
+          notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          createdAt: widget.customer!.createdAt,
+          updatedAt: DateTime.now(),
         );
-        Navigator.pop(context);
+
+        await _firestoreService.updateCustomer(updatedCustomer);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Customer updated successfully!')),
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        // Add new customer
+        final customer = CustomerModel(
+          name: _nameCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+          email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
+          address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+          gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
+          notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        await _firestoreService.addCustomer(customer);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Customer added successfully!')),
+          );
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -92,9 +137,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           icon: const Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "Add Customer",
-          style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
+        title: Text(
+          widget.customer != null ? "Edit Customer" : "Add Customer",
+          style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -204,7 +249,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       )
                     : const Icon(Icons.person_add, color: Colors.black),
                 label: Text(
-                  _isLoading ? "Saving..." : "Add Customer",
+                  _isLoading 
+                      ? "Saving..." 
+                      : (widget.customer != null ? "Update Customer" : "Add Customer"),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),

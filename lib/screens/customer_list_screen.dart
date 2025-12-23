@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/screens/add_customer_screen.dart';
+import 'package:billing_app/screens/customer_details_screen.dart';
 
 class CustomerListScreen extends StatefulWidget {
   const CustomerListScreen({super.key});
@@ -165,61 +166,187 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   }
 
   Widget _buildCustomerCard(CustomerModel customer) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor.withOpacity(0.6)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Center(
-              child: Text(
-                customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
-                style: const TextStyle(
-                  color: accentColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CustomerDetailsScreen(customer: customer),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor.withOpacity(0.6)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Center(
+                child: Text(
+                  customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    color: accentColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  customer.name,
-                  style: const TextStyle(
-                    color: textWhite,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (customer.phone != null && customer.phone!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    customer.phone!,
+                    customer.name,
                     style: const TextStyle(
-                      color: textGray,
-                      fontSize: 14,
+                      color: textWhite,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  if (customer.phone != null && customer.phone!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      customer.phone!,
+                      style: const TextStyle(
+                        color: textGray,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: textGray),
+              color: const Color(0xFF1F1F1F),
+              onSelected: (value) {
+                switch (value) {
+                  case 'edit':
+                    _editCustomer(customer);
+                    break;
+                  case 'view_history':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CustomerDetailsScreen(customer: customer),
+                      ),
+                    );
+                    break;
+                  case 'delete':
+                    _deleteCustomer(customer);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: accentColor, size: 20),
+                      SizedBox(width: 12),
+                      Text('Edit', style: TextStyle(color: textWhite)),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'view_history',
+                  child: Row(
+                    children: [
+                      Icon(Icons.history, color: accentColor, size: 20),
+                      SizedBox(width: 12),
+                      Text('View History', style: TextStyle(color: textWhite)),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red, size: 20),
+                      SizedBox(width: 12),
+                      Text('Delete', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _editCustomer(CustomerModel customer) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddCustomerScreen(customer: customer),
+      ),
+    );
+  }
+
+  void _deleteCustomer(CustomerModel customer) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1F1F1F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Delete Customer',
+          style: TextStyle(color: textWhite),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${customer.name}"? This action cannot be undone.',
+          style: const TextStyle(color: textGray),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: textGray),
+            ),
           ),
-          const Icon(Icons.chevron_right, color: textGray),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _firestoreService.deleteCustomer(customer.id!);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Customer deleted successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
