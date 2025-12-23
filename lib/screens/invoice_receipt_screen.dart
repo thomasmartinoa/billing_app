@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/services/pdf_service.dart';
+import 'package:share_plus/share_plus.dart';
 
 class InvoiceReceiptScreen extends StatefulWidget {
   final InvoiceModel invoice;
@@ -18,6 +20,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   ShopSettings? _shopSettings;
   bool _isLoading = true;
   bool _isMarkingPaid = false;
+  bool _isPdfLoading = false;
   late InvoiceModel _invoice;
 
   @override
@@ -71,6 +74,91 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     }
   }
 
+  Future<void> _sharePdf() async {
+    setState(() => _isPdfLoading = true);
+    try {
+      // Generate PDF
+      final pdf = await PdfService.generateInvoicePdf(_invoice, _shopSettings);
+      
+      // Save to file
+      final file = await PdfService.savePdfToFile(
+        pdf,
+        'invoice_${_invoice.invoiceNumber}',
+      );
+      
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'Invoice ${_invoice.invoiceNumber}',
+        text: 'Please find attached invoice ${_invoice.invoiceNumber} for ₹${_invoice.total.toStringAsFixed(2)}',
+      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PDF shared successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error sharing PDF: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPdfLoading = false);
+    }
+  }
+
+  Future<void> _printA4Invoice() async {
+    setState(() => _isPdfLoading = true);
+    try {
+      // Generate A4 PDF
+      final pdf = await PdfService.generateInvoicePdf(_invoice, _shopSettings);
+      
+      // Print using system printer dialog
+      await PdfService.printPdf(pdf);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Printing...')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error printing: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPdfLoading = false);
+    }
+  }
+
+  Future<void> _printThermalReceipt() async {
+    setState(() => _isPdfLoading = true);
+    try {
+      // Generate thermal receipt
+      final pdf = await PdfService.generateThermalReceipt(_invoice, _shopSettings);
+      
+      // Print thermal receipt
+      await PdfService.printThermalReceipt(pdf);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Printing thermal receipt...')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error printing thermal receipt: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPdfLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
@@ -81,21 +169,43 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         title: Text('Invoice ${_invoice.invoiceNumber}'),
         leading: const BackButton(),
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.print),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Print functionality coming soon')),
-              );
+            tooltip: 'Print',
+            onSelected: (value) {
+              if (value == 'a4') {
+                _printA4Invoice();
+              } else if (value == 'thermal') {
+                _printThermalReceipt();
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'a4',
+                child: Row(
+                  children: [
+                    Icon(Icons.description, size: 20),
+                    SizedBox(width: 8),
+                    Text('Print A4'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'thermal',
+                child: Row(
+                  children: [
+                    Icon(Icons.receipt, size: 20),
+                    SizedBox(width: 8),
+                    Text('Print Thermal Receipt'),
+                  ],
+                ),
+              ),
+            ],
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Share functionality coming soon')),
-              );
-            },
+            tooltip: 'Share PDF',
+            onPressed: _sharePdf,
           ),
         ],
       ),
@@ -252,13 +362,15 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
             ],
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Share PDF functionality coming soon')),
-                  );
-                },
-                icon: const Icon(Icons.share),
-                label: const Text('Share PDF'),
+                onPressed: _isPdfLoading ? null : _sharePdf,
+                icon: _isPdfLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.share),
+                label: Text(_isPdfLoading ? 'Generating...' : 'Share PDF'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF00C59E),
                   side: const BorderSide(color: Color(0xFF00C59E)),
@@ -269,13 +381,15 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Print functionality coming soon')),
-                  );
-                },
-                icon: const Icon(Icons.print),
-                label: const Text('Print'),
+                onPressed: _isPdfLoading ? null : _printA4Invoice,
+                icon: _isPdfLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      )
+                    : const Icon(Icons.print),
+                label: Text(_isPdfLoading ? 'Printing...' : 'Print'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00C59E),
                   foregroundColor: Colors.black,
