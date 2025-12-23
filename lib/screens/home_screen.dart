@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/services/auth_service.dart';
+import 'package:billing_app/models/user_model.dart';
+import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/screens/prodscrn.dart';
 import 'package:billing_app/screens/add_product_screen.dart';
 import 'package:billing_app/screens/customer_list_screen.dart';
 import 'package:billing_app/screens/add_customer_screen.dart';
 import 'package:billing_app/screens/billing_screen.dart';
 import 'package:billing_app/screens/create_invoice_screen.dart';
+import 'package:billing_app/screens/invoice_receipt_screen.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -25,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
     'lowStock': 0,
   };
 
+  ShopSettings? _shopSettings;
+  List<InvoiceModel> _recentInvoices = [];
+  bool _isLoadingData = true;
+
   @override
   void initState() {
     super.initState();
@@ -34,11 +42,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadStats() async {
     try {
       final stats = await _firestoreService.getDashboardStats();
+      final userData = await _firestoreService.getUserData();
+      final invoices = await _firestoreService.getInvoices();
+      
       if (mounted) {
-        setState(() => _stats = stats);
+        setState(() {
+          _stats = stats;
+          _shopSettings = userData?.shopSettings;
+          _recentInvoices = invoices.take(5).toList(); // Get latest 5 invoices
+          _isLoadingData = false;
+        });
       }
     } catch (e) {
       debugPrint('Error loading stats: $e');
+      if (mounted) setState(() => _isLoadingData = false);
     }
   }
 
@@ -196,6 +213,77 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // SHOP HEADER
+              if (_shopSettings != null) ...[
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0x14181818),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF12332D).withOpacity(0.6)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF00C59E).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          color: Color(0xFF00C59E),
+                          size: 32,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _shopSettings!.name,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_shopSettings!.tagline.isNotEmpty) ...[
+                              SizedBox(height: 4),
+                              Text(
+                                _shopSettings!.tagline,
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                            if (_shopSettings!.phone.isNotEmpty) ...[
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(Icons.phone, size: 12, color: Color(0xFF00C59E)),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    _shopSettings!.phone,
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+              ],
 
               // TOP CARDS
               Row(
@@ -317,38 +405,150 @@ class _HomeScreenState extends State<HomeScreen> {
 
               SizedBox(height: 12),
 
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 30),
-                decoration: BoxDecoration(
-                  color: const Color(0x14181818),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                      color: const Color(0xFF12332D).withValues(alpha: 0.6)),
-                ),
-                child: Column(
-                  children: [
-                    Icon(Icons.receipt_long, color: Colors.white24, size: 45),
-                    SizedBox(height: 10),
-                    Text("No invoices yet", style: TextStyle(color: Colors.white60)),
-                    SizedBox(height: 10),
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
-                        ).then((_) => _loadStats());
-                      },
-                      icon: Icon(Icons.add, color: Color(0xFF00C59E)),
-                      label: Text("Create First Invoice",
-                          style: TextStyle(color: Color(0xFF00C59E))),
+              _recentInvoices.isEmpty
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(vertical: 30),
+                      decoration: BoxDecoration(
+                        color: const Color(0x14181818),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                            color: const Color(0xFF12332D).withOpacity(0.6)),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.receipt_long, color: Colors.white24, size: 45),
+                          SizedBox(height: 10),
+                          Text("No invoices yet", style: TextStyle(color: Colors.white60)),
+                          SizedBox(height: 10),
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                              ).then((_) => _loadStats());
+                            },
+                            icon: Icon(Icons.add, color: Color(0xFF00C59E)),
+                            label: Text("Create First Invoice",
+                                style: TextStyle(color: Color(0xFF00C59E))),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: _recentInvoices.map((invoice) {
+                        return _buildInvoiceCard(invoice);
+                      }).toList(),
                     ),
-                  ],
-                ),
-              ),
 
               SizedBox(height: 80),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvoiceCard(InvoiceModel invoice) {
+    final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
+    final isPaid = invoice.status == InvoiceStatus.paid;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => InvoiceReceiptScreen(invoice: invoice),
+          ),
+        ).then((_) => _loadStats());
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0x14181818),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFF12332D).withOpacity(0.6)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isPaid 
+                    ? Color(0xFF00C59E).withOpacity(0.1) 
+                    : Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                isPaid ? Icons.check_circle : Icons.pending,
+                color: isPaid ? Color(0xFF00C59E) : Colors.orange,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    invoice.invoiceNumber,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    invoice.customerName ?? 'Walk-in Customer',
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    dateFormat.format(invoice.createdAt),
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '₹${invoice.total.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Color(0xFF00C59E),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isPaid 
+                        ? Color(0xFF00C59E).withOpacity(0.2) 
+                        : Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isPaid ? 'Paid' : 'Pending',
+                    style: TextStyle(
+                      color: isPaid ? Color(0xFF00C59E) : Colors.orange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
