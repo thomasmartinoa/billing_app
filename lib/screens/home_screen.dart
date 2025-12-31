@@ -4,7 +4,7 @@ import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/services/auth_service.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
-import 'package:billing_app/screens/prodscrn.dart';
+import 'package:billing_app/screens/product_list_screen.dart';
 import 'package:billing_app/screens/add_product_screen.dart';
 import 'package:billing_app/screens/customer_list_screen.dart';
 import 'package:billing_app/screens/add_customer_screen.dart';
@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-  
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -37,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ShopSettings? _shopSettings;
   List<InvoiceModel> _recentInvoices = [];
-  bool _isLoadingData = true;
   int _notificationCount = 0;
 
   @override
@@ -52,25 +51,22 @@ class _HomeScreenState extends State<HomeScreen> {
       final userData = await _firestoreService.getUserData();
       final invoices = await _firestoreService.getInvoices();
       final products = await _firestoreService.getProducts();
-      
+
       // Calculate notifications
       final lowStockCount = products.where((p) => p.isLowStock).length;
-      final unpaidInvoicesCount = invoices.where((inv) => 
-        inv.status == InvoiceStatus.pending
-      ).length;
-      
+      final unpaidInvoicesCount =
+          invoices.where((inv) => inv.status == InvoiceStatus.pending).length;
+
       if (mounted) {
         setState(() {
           _stats = stats;
           _shopSettings = userData?.shopSettings;
           _recentInvoices = invoices.take(5).toList(); // Get latest 5 invoices
           _notificationCount = lowStockCount + unpaidInvoicesCount;
-          _isLoadingData = false;
         });
       }
     } catch (e) {
       debugPrint('Error loading stats: $e');
-      if (mounted) setState(() => _isLoadingData = false);
     }
   }
 
@@ -97,15 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        
+
         // If not on dashboard, go to dashboard
         if (_selectedIndex != 0) {
           setState(() => _selectedIndex = 0);
           return;
         }
-        
+
         // If on dashboard, show exit confirmation
         final shouldExit = await _showExitDialog();
         if (shouldExit == true && context.mounted) {
@@ -113,117 +109,123 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-      appBar: _selectedIndex == 0
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu, color: Color(0xFF00C59E)),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
+        appBar: _selectedIndex == 0
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu, color: Color(0xFF00C59E)),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ),
                 ),
-              ),
-              actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_none, color: Color(0xFF00C59E)),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => NotificationsScreen()),
-                        ).then((_) => _loadStats());
-                      },
-                    ),
-                    if (_notificationCount > 0)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            _notificationCount > 99 ? '99+' : _notificationCount.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                actions: [
+                  Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none,
+                            color: Color(0xFF00C59E)),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => NotificationsScreen()),
+                          ).then((_) => _loadStats());
+                        },
+                      ),
+                      if (_notificationCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              _notificationCount > 99
+                                  ? '99+'
+                                  : _notificationCount.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              ],
-            )
-          : null,
-      drawer: _buildDrawer(),
-      body: _buildCurrentScreen(),
-      floatingActionButton: _selectedIndex == 0 || _selectedIndex == 2
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
-                ).then((_) => _loadStats());
-              },
-              backgroundColor: Color(0xFF00C59E),
-              label: Text("New Invoice", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              icon: const Icon(Icons.add, color: Colors.black),
-            )
-          : null,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFF0A0A0A),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  icon: Icons.grid_view_rounded,
-                  label: "Dashboard",
-                  index: 0,
-                ),
-                _buildNavItem(
-                  icon: Icons.inventory_2_rounded,
-                  label: "Products",
-                  index: 1,
-                ),
-                _buildNavItem(
-                  icon: Icons.receipt_long_rounded,
-                  label: "Invoices",
-                  index: 2,
-                ),
-                _buildNavItem(
-                  icon: Icons.people_rounded,
-                  label: "Customers",
-                  index: 3,
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              )
+            : null,
+        drawer: _buildDrawer(),
+        body: _buildCurrentScreen(),
+        floatingActionButton: _selectedIndex == 0 || _selectedIndex == 2
+            ? FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                  ).then((_) => _loadStats());
+                },
+                backgroundColor: Color(0xFF00C59E),
+                label: Text("New Invoice",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold)),
+                icon: const Icon(Icons.add, color: Colors.black),
+              )
+            : null,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Color(0xFF0A0A0A),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(
+                    icon: Icons.grid_view_rounded,
+                    label: "Dashboard",
+                    index: 0,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.inventory_2_rounded,
+                    label: "Products",
+                    index: 1,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.receipt_long_rounded,
+                    label: "Invoices",
+                    index: 2,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.people_rounded,
+                    label: "Customers",
+                    index: 3,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -234,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required int index,
   }) {
     final isSelected = _selectedIndex == index;
-    
+
     return GestureDetector(
       onTap: () => _onNavTap(index),
       behavior: HitTestBehavior.opaque,
@@ -245,8 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? Color(0xFF00C59E).withOpacity(0.15)
+          color: isSelected
+              ? Color(0xFF00C59E).withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -287,7 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 12),
             Text(
               'Exit App',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -316,7 +319,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Text(
               'Exit',
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -346,13 +350,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Color(0xFF141618),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Color(0xFF00C59E).withOpacity(0.3),
+                      color: Color(0xFF00C59E).withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
-                  child: _shopSettings != null 
+                  child: _shopSettings != null
                       ? Icon(
-                          IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          IconData(_shopSettings!.iconCodePoint,
+                              fontFamily: 'MaterialIcons'),
                           color: Color(0xFF00C59E),
                           size: 35,
                         )
@@ -373,7 +378,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (_shopSettings?.tagline != null && _shopSettings!.tagline.isNotEmpty) ...[
+                if (_shopSettings?.tagline != null &&
+                    _shopSettings!.tagline.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     _shopSettings!.tagline,
@@ -431,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () async {
               // Close drawer first
               Navigator.of(context).pop();
-              
+
               // Show loading dialog
               showDialog(
                 context: context,
@@ -440,7 +446,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: CircularProgressIndicator(color: Color(0xFF00C59E)),
                 ),
               );
-              
+
               try {
                 await _authService.signOut();
                 // Pop loading dialog
@@ -475,9 +481,9 @@ class _HomeScreenState extends State<HomeScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: isDestructive 
-              ? Colors.red.withOpacity(0.1) 
-              : Color(0xFF00C59E).withOpacity(0.1),
+          color: isDestructive
+              ? Colors.red.withValues(alpha: 0.1)
+              : Color(0xFF00C59E).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -499,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      hoverColor: Color(0xFF00C59E).withOpacity(0.05),
+      hoverColor: Color(0xFF00C59E).withValues(alpha: 0.05),
     );
   }
 
@@ -521,7 +527,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0x14181818),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF12332D).withOpacity(0.6)),
+                    border: Border.all(
+                        color: const Color(0xFF12332D).withValues(alpha: 0.6)),
                   ),
                   child: Row(
                     children: [
@@ -529,12 +536,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFF00C59E).withOpacity(0.1),
+                          color: Color(0xFF00C59E).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: _shopSettings != null
                             ? Icon(
-                                IconData(_shopSettings!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                                IconData(_shopSettings!.iconCodePoint,
+                                    fontFamily: 'MaterialIcons'),
                                 color: Color(0xFF00C59E),
                                 size: 32,
                               )
@@ -571,7 +579,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.phone, size: 12, color: Color(0xFF00C59E)),
+                                  const Icon(Icons.phone,
+                                      size: 12, color: Color(0xFF00C59E)),
                                   const SizedBox(width: 4),
                                   Text(
                                     _shopSettings!.phone,
@@ -652,39 +661,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                       child: QuickButton(
-                        icon: Icons.shopping_cart,
-                        title: "New Invoice",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
-                          ).then((_) => _loadStats());
-                        },
-                      )),
+                    icon: Icons.shopping_cart,
+                    title: "New Invoice",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => CreateInvoiceScreen()),
+                      ).then((_) => _loadStats());
+                    },
+                  )),
                   SizedBox(width: 12),
                   Expanded(
                       child: QuickButton(
-                        icon: Icons.add_box,
-                        title: "Add Product",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AddProductScreen()),
-                          ).then((_) => _loadStats());
-                        },
-                      )),
+                    icon: Icons.add_box,
+                    title: "Add Product",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const AddProductScreen()),
+                      ).then((_) => _loadStats());
+                    },
+                  )),
                   SizedBox(width: 12),
                   Expanded(
                       child: QuickButton(
-                        icon: Icons.person_add,
-                        title: "Add Customer",
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
-                          ).then((_) => _loadStats());
-                        },
-                      )),
+                    icon: Icons.person_add,
+                    title: "Add Customer",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const AddCustomerScreen()),
+                      ).then((_) => _loadStats());
+                    },
+                  )),
                 ],
               ),
 
@@ -719,22 +731,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: const Color(0x14181818),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFF12332D).withOpacity(0.6)),
+                            color:
+                                const Color(0xFF12332D).withValues(alpha: 0.6)),
                       ),
                       child: Column(
                         children: [
-                          const Icon(Icons.receipt_long, color: Colors.white24, size: 45),
+                          const Icon(Icons.receipt_long,
+                              color: Colors.white24, size: 45),
                           const SizedBox(height: 10),
-                          Text("No invoices yet", style: TextStyle(color: Colors.white60)),
+                          Text("No invoices yet",
+                              style: TextStyle(color: Colors.white60)),
                           const SizedBox(height: 10),
                           TextButton.icon(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
+                                MaterialPageRoute(
+                                    builder: (_) => CreateInvoiceScreen()),
                               ).then((_) => _loadStats());
                             },
-                            icon: const Icon(Icons.add, color: Color(0xFF00C59E)),
+                            icon:
+                                const Icon(Icons.add, color: Color(0xFF00C59E)),
                             label: Text("Create First Invoice",
                                 style: TextStyle(color: Color(0xFF00C59E))),
                           ),
@@ -774,7 +791,8 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: const Color(0x14181818),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF12332D).withOpacity(0.6)),
+          border:
+              Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -782,9 +800,9 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: isPaid 
-                    ? Color(0xFF00C59E).withOpacity(0.1) 
-                    : Colors.orange.withOpacity(0.1),
+                color: isPaid
+                    ? Color(0xFF00C59E).withValues(alpha: 0.1)
+                    : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -839,9 +857,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isPaid 
-                        ? Color(0xFF00C59E).withOpacity(0.2) 
-                        : Colors.orange.withOpacity(0.2),
+                    color: isPaid
+                        ? Color(0xFF00C59E).withValues(alpha: 0.2)
+                        : Colors.orange.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -879,7 +897,8 @@ class DashboardCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0x14181818),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+        border:
+            Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [
@@ -899,7 +918,10 @@ class DashboardCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(value,
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
                 SizedBox(height: 4),
                 Text(
                   title,
@@ -940,7 +962,8 @@ class QuickButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0x14181818),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+            border: Border.all(
+                color: const Color(0xFF12332D).withValues(alpha: 0.6)),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

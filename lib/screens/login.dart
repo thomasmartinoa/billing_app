@@ -112,7 +112,6 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(color: Colors.grey[400]),
                       ),
                       const SizedBox(height: 18),
-
                       TextField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
@@ -127,7 +126,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
-
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
@@ -149,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                               )
                             : const Text('Login'),
                       ),
-
                       const SizedBox(height: 12),
                       Row(
                         children: [
@@ -196,7 +193,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -333,8 +329,8 @@ class _SignupPageState extends State<SignupPage> {
                             _confirmError = _confirm.text.isEmpty
                                 ? null
                                 : (_pass.text == _confirm.text
-                                      ? null
-                                      : 'Passwords do not match');
+                                    ? null
+                                    : 'Passwords do not match');
                           });
                         },
                         decoration: const InputDecoration(
@@ -350,8 +346,8 @@ class _SignupPageState extends State<SignupPage> {
                             _confirmError = _confirm.text.isEmpty
                                 ? null
                                 : (_pass.text == _confirm.text
-                                      ? null
-                                      : 'Passwords do not match');
+                                    ? null
+                                    : 'Passwords do not match');
                           });
                         },
                         decoration: InputDecoration(

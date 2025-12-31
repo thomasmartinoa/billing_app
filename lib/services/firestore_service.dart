@@ -10,7 +10,7 @@ class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
   factory FirestoreService() => _instance;
   FirestoreService._internal();
-  
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -82,10 +82,8 @@ class FirestoreService {
 
   /// Stream all customers
   Stream<List<CustomerModel>> streamCustomers() {
-    return _customersCollection
-        .orderBy('name')
-        .snapshots()
-        .map((snapshot) => snapshot.docs
+    return _customersCollection.orderBy('name').snapshots().map((snapshot) =>
+        snapshot.docs
             .map((doc) => CustomerModel.fromMap(doc.data(), doc.id))
             .toList());
   }
@@ -137,10 +135,8 @@ class FirestoreService {
 
   /// Stream all products
   Stream<List<ProductModel>> streamProducts() {
-    return _productsCollection
-        .orderBy('name')
-        .snapshots()
-        .map((snapshot) => snapshot.docs
+    return _productsCollection.orderBy('name').snapshots().map((snapshot) =>
+        snapshot.docs
             .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
             .toList());
   }
@@ -197,7 +193,8 @@ class FirestoreService {
         snapshot.docs.first.id,
       );
       // Extract number from last invoice
-      final lastNumber = lastInvoice.invoiceNumber.replaceAll(RegExp(r'[^0-9]'), '');
+      final lastNumber =
+          lastInvoice.invoiceNumber.replaceAll(RegExp(r'[^0-9]'), '');
       nextNumber = int.tryParse(lastNumber) ?? 0;
       nextNumber++;
     }
@@ -230,7 +227,8 @@ class FirestoreService {
   }
 
   /// Update invoice fields (partial update)
-  Future<void> updateInvoice(String invoiceId, Map<String, dynamic> data) async {
+  Future<void> updateInvoice(
+      String invoiceId, Map<String, dynamic> data) async {
     await _invoicesCollection.doc(invoiceId).update(data);
   }
 
@@ -262,20 +260,19 @@ class FirestoreService {
         .where('status', isEqualTo: status.name)
         .snapshots()
         .map((snapshot) {
-          final invoices = snapshot.docs
-              .map((doc) => InvoiceModel.fromMap(doc.data(), doc.id))
-              .toList();
-          // Sort in memory to avoid index requirement
-          invoices.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-          return invoices;
-        });
+      final invoices = snapshot.docs
+          .map((doc) => InvoiceModel.fromMap(doc.data(), doc.id))
+          .toList();
+      // Sort in memory to avoid index requirement
+      invoices.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return invoices;
+    });
   }
 
   /// Get all invoices (one-time)
   Future<List<InvoiceModel>> getInvoices() async {
-    final snapshot = await _invoicesCollection
-        .orderBy('createdAt', descending: true)
-        .get();
+    final snapshot =
+        await _invoicesCollection.orderBy('createdAt', descending: true).get();
     return snapshot.docs
         .map((doc) => InvoiceModel.fromMap(doc.data(), doc.id))
         .toList();

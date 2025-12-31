@@ -4,7 +4,6 @@ import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -15,12 +14,11 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final FirestoreService _firestoreService = FirestoreService();
-  
+
   static const Color backgroundColor = Color(0xFF050608);
   static const Color surfaceColor = Color(0x14181818);
   static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  
+
   bool _isLoading = true;
   List<ProductModel> _lowStockProducts = [];
   List<InvoiceModel> _unpaidInvoices = [];
@@ -35,13 +33,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       final products = await _firestoreService.getProducts();
       final invoices = await _firestoreService.getInvoices();
-      
+
       if (mounted) {
         setState(() {
           _lowStockProducts = products.where((p) => p.isLowStock).toList();
-          _unpaidInvoices = invoices.where((inv) => 
-            inv.status == InvoiceStatus.pending
-          ).toList();
+          _unpaidInvoices = invoices
+              .where((inv) => inv.status == InvoiceStatus.pending)
+              .toList();
           _isLoading = false;
         });
       }
@@ -55,7 +53,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  int get totalNotifications => _lowStockProducts.length + _unpaidInvoices.length;
+  int get totalNotifications =>
+      _lowStockProducts.length + _unpaidInvoices.length;
 
   @override
   Widget build(BuildContext context) {
@@ -92,12 +91,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  accentColor.withOpacity(0.2),
-                                  accentColor.withOpacity(0.1),
+                                  accentColor.withValues(alpha: 0.2),
+                                  accentColor.withValues(alpha: 0.1),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: accentColor.withOpacity(0.3)),
+                              border: Border.all(
+                                  color: accentColor.withValues(alpha: 0.3)),
                             ),
                             child: Row(
                               children: [
@@ -105,7 +105,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: accentColor.withOpacity(0.2),
+                                    color: accentColor.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(
@@ -116,7 +116,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '$totalNotifications Alert${totalNotifications != 1 ? 's' : ''}',
@@ -130,7 +131,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       Text(
                                         'Requires your attention',
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.7),
                                           fontSize: 14,
                                         ),
                                       ),
@@ -140,9 +142,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           // Low Stock Section
                           if (_lowStockProducts.isNotEmpty) ...[
                             _buildSectionHeader(
@@ -152,10 +154,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               color: Colors.orange,
                             ),
                             const SizedBox(height: 12),
-                            ..._lowStockProducts.map((product) => _buildLowStockCard(product)),
+                            ..._lowStockProducts
+                                .map((product) => _buildLowStockCard(product)),
                             const SizedBox(height: 24),
                           ],
-                          
+
                           // Unpaid Invoices Section
                           if (_unpaidInvoices.isNotEmpty) ...[
                             _buildSectionHeader(
@@ -165,7 +168,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               color: Colors.red,
                             ),
                             const SizedBox(height: 12),
-                            ..._unpaidInvoices.map((invoice) => _buildUnpaidInvoiceCard(invoice)),
+                            ..._unpaidInvoices.map(
+                                (invoice) => _buildUnpaidInvoiceCard(invoice)),
                           ],
                         ],
                       ),
@@ -186,7 +190,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 18),
@@ -204,9 +208,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.5)),
+            border: Border.all(color: color.withValues(alpha: 0.5)),
           ),
           child: Text(
             count.toString(),
@@ -237,7 +241,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -245,7 +249,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
@@ -305,7 +309,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildUnpaidInvoiceCard(InvoiceModel invoice) {
     final daysOld = DateTime.now().difference(invoice.createdAt).inDays;
-    
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -322,7 +326,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: daysOld > 7 ? Colors.red.withOpacity(0.5) : Colors.orange.withOpacity(0.3),
+            color: daysOld > 7
+                ? Colors.red.withValues(alpha: 0.5)
+                : Colors.orange.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -331,7 +337,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: (daysOld > 7 ? Colors.red : Colors.orange).withOpacity(0.1),
+                color: (daysOld > 7 ? Colors.red : Colors.orange)
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -356,9 +363,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.2),
+                          color: Colors.orange.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -386,7 +394,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Text(
                         '₹${invoice.total.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: daysOld > 7 ? Colors.red.shade300 : Colors.orange.shade300,
+                          color: daysOld > 7
+                              ? Colors.red.shade300
+                              : Colors.orange.shade300,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
@@ -396,7 +406,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Text(
                           '$daysOld day${daysOld != 1 ? 's' : ''} old',
                           style: TextStyle(
-                            color: daysOld > 7 ? Colors.red.shade300 : Colors.grey,
+                            color:
+                                daysOld > 7 ? Colors.red.shade300 : Colors.grey,
                             fontSize: 12,
                           ),
                         ),
@@ -426,7 +437,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -448,7 +459,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Text(
             'All caught up! No alerts at the moment.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

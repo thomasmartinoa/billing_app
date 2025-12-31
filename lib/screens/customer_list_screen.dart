@@ -15,7 +15,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  
+
   // Sort & Filter options
   String _sortBy = 'name_asc'; // name_asc, name_desc, date_new, date_old
   String _filterBy = 'all'; // all, recent_30, recent_60, recent_90
@@ -56,158 +56,158 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Sort & Filter',
+                        style: TextStyle(
+                          color: textWhite,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _sortBy = 'name_asc';
+                            _filterBy = 'all';
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(color: accentColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Sort Section
                   Text(
-                    'Sort & Filter',
+                    'Sort By',
                     style: TextStyle(
-                      color: textWhite,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _sortBy = 'name_asc';
-                        _filterBy = 'all';
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'Reset',
-                      style: TextStyle(color: accentColor),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              
-              // Sort Section
-              Text(
-                'Sort By',
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 12),
-              _buildFilterOption(
-                title: 'Name (A-Z)',
-                value: 'name_asc',
-                groupValue: _sortBy,
-                onChanged: (value) {
-                  setModalState(() => _sortBy = value!);
-                  setState(() => _sortBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Name (Z-A)',
-                value: 'name_desc',
-                groupValue: _sortBy,
-                onChanged: (value) {
-                  setModalState(() => _sortBy = value!);
-                  setState(() => _sortBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Newest First',
-                value: 'date_new',
-                groupValue: _sortBy,
-                onChanged: (value) {
-                  setModalState(() => _sortBy = value!);
-                  setState(() => _sortBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Oldest First',
-                value: 'date_old',
-                groupValue: _sortBy,
-                onChanged: (value) {
-                  setModalState(() => _sortBy = value!);
-                  setState(() => _sortBy = value!);
-                },
-              ),
-              
-              const SizedBox(height: 20),
-              Divider(color: borderColor),
-              const SizedBox(height: 20),
-              
-              // Filter Section
-              Text(
-                'Filter By Activity',
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildFilterOption(
-                title: 'All Customers',
-                value: 'all',
-                groupValue: _filterBy,
-                onChanged: (value) {
-                  setModalState(() => _filterBy = value!);
-                  setState(() => _filterBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Active (Last 30 days)',
-                value: 'recent_30',
-                groupValue: _filterBy,
-                onChanged: (value) {
-                  setModalState(() => _filterBy = value!);
-                  setState(() => _filterBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Active (Last 60 days)',
-                value: 'recent_60',
-                groupValue: _filterBy,
-                onChanged: (value) {
-                  setModalState(() => _filterBy = value!);
-                  setState(() => _filterBy = value!);
-                },
-              ),
-              _buildFilterOption(
-                title: 'Active (Last 90 days)',
-                value: 'recent_90',
-                groupValue: _filterBy,
-                onChanged: (value) {
-                  setModalState(() => _filterBy = value!);
-                  setState(() => _filterBy = value!);
-                },
-              ),
-              
-              SizedBox(height: 20),
-              
-              // Apply Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accentColor,
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Apply',
-                    style: TextStyle(
-                      color: Colors.black,
+                      color: accentColor,
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 10),
+                  SizedBox(height: 12),
+                  _buildFilterOption(
+                    title: 'Name (A-Z)',
+                    value: 'name_asc',
+                    groupValue: _sortBy,
+                    onChanged: (value) {
+                      setModalState(() => _sortBy = value!);
+                      setState(() => _sortBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Name (Z-A)',
+                    value: 'name_desc',
+                    groupValue: _sortBy,
+                    onChanged: (value) {
+                      setModalState(() => _sortBy = value!);
+                      setState(() => _sortBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Newest First',
+                    value: 'date_new',
+                    groupValue: _sortBy,
+                    onChanged: (value) {
+                      setModalState(() => _sortBy = value!);
+                      setState(() => _sortBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Oldest First',
+                    value: 'date_old',
+                    groupValue: _sortBy,
+                    onChanged: (value) {
+                      setModalState(() => _sortBy = value!);
+                      setState(() => _sortBy = value!);
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  Divider(color: borderColor),
+                  const SizedBox(height: 20),
+
+                  // Filter Section
+                  Text(
+                    'Filter By Activity',
+                    style: TextStyle(
+                      color: accentColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFilterOption(
+                    title: 'All Customers',
+                    value: 'all',
+                    groupValue: _filterBy,
+                    onChanged: (value) {
+                      setModalState(() => _filterBy = value!);
+                      setState(() => _filterBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Active (Last 30 days)',
+                    value: 'recent_30',
+                    groupValue: _filterBy,
+                    onChanged: (value) {
+                      setModalState(() => _filterBy = value!);
+                      setState(() => _filterBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Active (Last 60 days)',
+                    value: 'recent_60',
+                    groupValue: _filterBy,
+                    onChanged: (value) {
+                      setModalState(() => _filterBy = value!);
+                      setState(() => _filterBy = value!);
+                    },
+                  ),
+                  _buildFilterOption(
+                    title: 'Active (Last 90 days)',
+                    value: 'recent_90',
+                    groupValue: _filterBy,
+                    onChanged: (value) {
+                      setModalState(() => _filterBy = value!);
+                      setState(() => _filterBy = value!);
+                    },
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // Apply Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -230,17 +230,20 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withOpacity(0.1) : surfaceColor,
+          color: isSelected ? accentColor.withValues(alpha: 0.1) : surfaceColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? accentColor : borderColor.withOpacity(0.6),
+            color:
+                isSelected ? accentColor : borderColor.withValues(alpha: 0.6),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
             Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               color: isSelected ? accentColor : textGray,
               size: 20,
             ),
@@ -308,11 +311,13 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   prefixIcon: const Icon(Icons.search, color: accentColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                    borderSide:
+                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                    borderSide:
+                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -345,34 +350,40 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     }
 
                     final customers = snapshot.data ?? [];
-                    
+
                     // Apply search filter
                     var filteredCustomers = customers.where((c) {
                       return c.name.toLowerCase().contains(_searchQuery) ||
-                          (c.phone?.toLowerCase().contains(_searchQuery) ?? false) ||
-                          (c.email?.toLowerCase().contains(_searchQuery) ?? false);
+                          (c.phone?.toLowerCase().contains(_searchQuery) ??
+                              false) ||
+                          (c.email?.toLowerCase().contains(_searchQuery) ??
+                              false);
                     }).toList();
-                    
+
                     // Apply date filter
                     if (_filterBy != 'all') {
                       final now = DateTime.now();
                       int daysAgo = 30;
                       if (_filterBy == 'recent_60') daysAgo = 60;
                       if (_filterBy == 'recent_90') daysAgo = 90;
-                      
+
                       final filterDate = now.subtract(Duration(days: daysAgo));
                       filteredCustomers = filteredCustomers.where((c) {
                         return c.updatedAt.isAfter(filterDate);
                       }).toList();
                     }
-                    
+
                     // Apply sorting
                     filteredCustomers.sort((a, b) {
                       switch (_sortBy) {
                         case 'name_asc':
-                          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                          return a.name
+                              .toLowerCase()
+                              .compareTo(b.name.toLowerCase());
                         case 'name_desc':
-                          return b.name.toLowerCase().compareTo(a.name.toLowerCase());
+                          return b.name
+                              .toLowerCase()
+                              .compareTo(a.name.toLowerCase());
                         case 'date_new':
                           return b.createdAt.compareTo(a.createdAt);
                         case 'date_old':
@@ -409,7 +420,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           ),
         ),
       ),
-      
+
       // --- Floating Action Button ---
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -444,7 +455,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withOpacity(0.6)),
+          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -452,12 +463,14 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.1),
+                color: accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Center(
                 child: Text(
-                  customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
+                  customer.name.isNotEmpty
+                      ? customer.name[0].toUpperCase()
+                      : '?',
                   style: const TextStyle(
                     color: accentColor,
                     fontSize: 20,
@@ -504,7 +517,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => CustomerDetailsScreen(customer: customer),
+                        builder: (_) =>
+                            CustomerDetailsScreen(customer: customer),
                       ),
                     );
                     break;
@@ -590,7 +604,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 if (mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Customer deleted successfully')),
+                    const SnackBar(
+                        content: Text('Customer deleted successfully')),
                   );
                 }
               } catch (e) {
@@ -626,7 +641,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             decoration: BoxDecoration(
               color: surfaceColor,
               shape: BoxShape.circle,
-              border: Border.all(color: borderColor.withOpacity(0.6)),
+              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
             ),
             child: const Center(
               child: Icon(
@@ -686,5 +701,3 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     );
   }
 }
-
-

@@ -1,6 +1,6 @@
-import 'package:billing_app/screens/welcome.dart';
 import 'package:billing_app/screens/home_screen.dart';
 import 'package:billing_app/screens/screen_setup.dart';
+import 'package:billing_app/screens/welcome.dart';
 import 'package:billing_app/services/auth_service.dart';
 import 'package:billing_app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +10,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp();
-  
+
   // Enable offline persistence for better performance
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
-  
+
   runApp(const MyApp());
 }
 

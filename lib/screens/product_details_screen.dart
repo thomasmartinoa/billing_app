@@ -18,8 +18,8 @@ class ProductDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
-    final profit = product.costPrice != null 
-        ? product.sellingPrice - product.costPrice! 
+    final profit = product.costPrice != null
+        ? product.sellingPrice - product.costPrice!
         : null;
     final profitMargin = profit != null && product.costPrice! > 0
         ? (profit / product.costPrice!) * 100
@@ -63,7 +63,7 @@ class ProductDetailsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor.withOpacity(0.6)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
               ),
               child: Column(
                 children: [
@@ -71,7 +71,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.1),
+                      color: accentColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -90,7 +90,8 @@ class ProductDetailsScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  if (product.description != null && product.description!.isNotEmpty) ...[
+                  if (product.description != null &&
+                      product.description!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
                       product.description!,
@@ -101,12 +102,14 @@ class ProductDetailsScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ],
-                  if (product.category != null && product.category!.isNotEmpty) ...[
+                  if (product.category != null &&
+                      product.category!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.1),
+                        color: accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -156,7 +159,7 @@ class ProductDetailsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor.withOpacity(0.6)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,24 +175,31 @@ class ProductDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildDetailRow('Unit', product.unit),
                   if (product.costPrice != null)
-                    _buildDetailRow('Cost Price', '\u20b9${product.costPrice!.toStringAsFixed(2)}'),
+                    _buildDetailRow('Cost Price',
+                        '\u20b9${product.costPrice!.toStringAsFixed(2)}'),
                   if (profit != null)
-                    _buildDetailRow('Profit per Unit', '\u20b9${profit.toStringAsFixed(2)}', 
-                      valueColor: Colors.green),
+                    _buildDetailRow(
+                        'Profit per Unit', '\u20b9${profit.toStringAsFixed(2)}',
+                        valueColor: Colors.green),
                   if (profitMargin != null)
-                    _buildDetailRow('Profit Margin', '${profitMargin.toStringAsFixed(1)}%',
-                      valueColor: Colors.green),
+                    _buildDetailRow(
+                        'Profit Margin', '${profitMargin.toStringAsFixed(1)}%',
+                        valueColor: Colors.green),
                   if (product.sku != null && product.sku!.isNotEmpty)
                     _buildDetailRow('SKU', product.sku!),
                   if (product.barcode != null && product.barcode!.isNotEmpty)
                     _buildDetailRow('Barcode', product.barcode!),
-                  _buildDetailRow('Track Inventory', product.trackInventory ? 'Yes' : 'No'),
+                  _buildDetailRow(
+                      'Track Inventory', product.trackInventory ? 'Yes' : 'No'),
                   if (product.lowStockAlert != null)
-                    _buildDetailRow('Low Stock Alert', '${product.lowStockAlert} ${product.unit}',
-                      valueColor: product.isLowStock ? Colors.orange : null),
+                    _buildDetailRow('Low Stock Alert',
+                        '${product.lowStockAlert} ${product.unit}',
+                        valueColor: product.isLowStock ? Colors.orange : null),
                   const Divider(color: borderColor, height: 32),
-                  _buildDetailRow('Created', dateFormat.format(product.createdAt)),
-                  _buildDetailRow('Last Updated', dateFormat.format(product.updatedAt)),
+                  _buildDetailRow(
+                      'Created', dateFormat.format(product.createdAt)),
+                  _buildDetailRow(
+                      'Last Updated', dateFormat.format(product.updatedAt)),
                 ],
               ),
             ),
@@ -201,13 +211,15 @@ class ProductDetailsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border:
+                      Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                    const Icon(Icons.warning_amber_rounded,
+                        color: Colors.orange),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
@@ -235,7 +247,7 @@ class ProductDetailsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor.withOpacity(0.6)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
       ),
       child: Column(
         children: [

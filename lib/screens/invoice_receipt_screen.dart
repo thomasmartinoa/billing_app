@@ -8,7 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 class InvoiceReceiptScreen extends StatefulWidget {
   final InvoiceModel invoice;
-  
+
   const InvoiceReceiptScreen({super.key, required this.invoice});
 
   @override
@@ -51,7 +51,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         'status': 'paid',
         'paidAt': DateTime.now().toIso8601String(),
       });
-      
+
       if (mounted) {
         setState(() {
           _invoice = _invoice.copyWith(
@@ -79,20 +79,21 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     try {
       // Generate PDF
       final pdf = await PdfService.generateInvoicePdf(_invoice, _shopSettings);
-      
+
       // Save to file
       final file = await PdfService.savePdfToFile(
         pdf,
         'invoice_${_invoice.invoiceNumber}',
       );
-      
+
       // Share the file
       await Share.shareXFiles(
         [XFile(file.path)],
         subject: 'Invoice ${_invoice.invoiceNumber}',
-        text: 'Please find attached invoice ${_invoice.invoiceNumber} for Rs.${_invoice.total.toStringAsFixed(2)}',
+        text:
+            'Please find attached invoice ${_invoice.invoiceNumber} for Rs.${_invoice.total.toStringAsFixed(2)}',
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('PDF shared successfully')),
@@ -114,10 +115,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     try {
       // Generate A4 PDF
       final pdf = await PdfService.generateInvoicePdf(_invoice, _shopSettings);
-      
+
       // Print using system printer dialog
       await PdfService.printPdf(pdf);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Printing...')),
@@ -138,11 +139,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     setState(() => _isPdfLoading = true);
     try {
       // Generate thermal receipt
-      final pdf = await PdfService.generateThermalReceipt(_invoice, _shopSettings);
-      
+      final pdf =
+          await PdfService.generateThermalReceipt(_invoice, _shopSettings);
+
       // Print thermal receipt
       await PdfService.printThermalReceipt(pdf);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Printing thermal receipt...')),
@@ -224,7 +226,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
     final isPaid = _invoice.status == InvoiceStatus.paid;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Invoice ${_invoice.invoiceNumber}'),
@@ -272,7 +274,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       ),
 
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF00C59E)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF00C59E)))
           : Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -297,12 +300,18 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      if (_shopSettings != null && _shopSettings!.tagline.isNotEmpty)
-                        Text(_shopSettings!.tagline, style: const TextStyle(color: Colors.black54)),
-                      if (_shopSettings != null && _shopSettings!.address.isNotEmpty)
-                        Text(_shopSettings!.address, style: const TextStyle(color: Colors.black54)),
-                      if (_shopSettings != null && _shopSettings!.phone.isNotEmpty)
-                        Text('Tel: ${_shopSettings!.phone}', style: const TextStyle(color: Colors.black54)),
+                      if (_shopSettings != null &&
+                          _shopSettings!.tagline.isNotEmpty)
+                        Text(_shopSettings!.tagline,
+                            style: const TextStyle(color: Colors.black54)),
+                      if (_shopSettings != null &&
+                          _shopSettings!.address.isNotEmpty)
+                        Text(_shopSettings!.address,
+                            style: const TextStyle(color: Colors.black54)),
+                      if (_shopSettings != null &&
+                          _shopSettings!.phone.isNotEmpty)
+                        Text('Tel: ${_shopSettings!.phone}',
+                            style: const TextStyle(color: Colors.black54)),
 
                       const Divider(height: 28),
 
@@ -321,19 +330,23 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
                       // ITEMS
                       ..._invoice.items.map((item) => _itemRow(
-                        name: item.productName,
-                        sub: '₹${item.price.toStringAsFixed(2)} × ${item.quantity} ${item.unit}',
-                        qty: '${item.quantity}',
-                        amount: '₹${item.total.toStringAsFixed(2)}',
-                      )),
+                            name: item.productName,
+                            sub:
+                                '₹${item.price.toStringAsFixed(2)} × ${item.quantity} ${item.unit}',
+                            qty: '${item.quantity}',
+                            amount: '₹${item.total.toStringAsFixed(2)}',
+                          )),
 
                       const Divider(height: 28),
 
                       // TOTALS
-                      _row('Subtotal', '₹${_invoice.subtotal.toStringAsFixed(2)}'),
+                      _row('Subtotal',
+                          '₹${_invoice.subtotal.toStringAsFixed(2)}'),
                       if (_invoice.discount > 0)
-                        _row('Discount', '-₹${_invoice.discount.toStringAsFixed(2)}'),
-                      _row('Tax (${_invoice.taxRate.toStringAsFixed(1)}%)', '₹${_invoice.taxAmount.toStringAsFixed(2)}'),
+                        _row('Discount',
+                            '-₹${_invoice.discount.toStringAsFixed(2)}'),
+                      _row('Tax (${_invoice.taxRate.toStringAsFixed(1)}%)',
+                          '₹${_invoice.taxAmount.toStringAsFixed(2)}'),
 
                       const SizedBox(height: 10),
 
@@ -355,18 +368,20 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         ),
                         child: Column(
                           children: [
-                            _row('Payment Method', _getPaymentMethodName(_invoice.paymentMethod)),
+                            _row('Payment Method',
+                                _getPaymentMethodName(_invoice.paymentMethod)),
                             if (isPaid)
-                              _row('Paid', '₹${_invoice.total.toStringAsFixed(2)}'),
-                            if (!isPaid)
-                              _row('Status', 'Pending'),
+                              _row('Paid',
+                                  '₹${_invoice.total.toStringAsFixed(2)}'),
+                            if (!isPaid) _row('Status', 'Pending'),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 18),
 
-                      if (_shopSettings?.thankYouNote != null && _shopSettings!.thankYouNote!.isNotEmpty)
+                      if (_shopSettings?.thankYouNote != null &&
+                          _shopSettings!.thankYouNote!.isNotEmpty)
                         Text(
                           _shopSettings!.thankYouNote!,
                           style: const TextStyle(color: Colors.black54),
@@ -374,10 +389,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
                       const SizedBox(height: 8),
 
-                      if (_invoice.notes != null && _invoice.notes!.isNotEmpty) ...[
+                      if (_invoice.notes != null &&
+                          _invoice.notes!.isNotEmpty) ...[
                         Text(
                           'Note: ${_invoice.notes}',
-                          style: const TextStyle(color: Colors.black54, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: 12),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -408,8 +425,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _isMarkingPaid ? null : _markAsPaid,
-                  icon: _isMarkingPaid 
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  icon: _isMarkingPaid
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.check_circle),
                   label: Text(_isMarkingPaid ? 'Marking...' : 'Mark as Paid'),
                   style: OutlinedButton.styleFrom(
@@ -455,7 +475,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.black),
                       )
                     else
                       const Icon(Icons.print),
@@ -473,13 +494,20 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
   String _getPaymentMethodName(PaymentMethod method) {
     switch (method) {
-      case PaymentMethod.cash: return 'Cash';
-      case PaymentMethod.card: return 'Card';
-      case PaymentMethod.upi: return 'UPI';
-      case PaymentMethod.bankTransfer: return 'Bank Transfer';
-      case PaymentMethod.cheque: return 'Cheque';
-      case PaymentMethod.credit: return 'Credit';
-      case PaymentMethod.other: return 'Other';
+      case PaymentMethod.cash:
+        return 'Cash';
+      case PaymentMethod.card:
+        return 'Card';
+      case PaymentMethod.upi:
+        return 'UPI';
+      case PaymentMethod.bankTransfer:
+        return 'Bank Transfer';
+      case PaymentMethod.cheque:
+        return 'Cheque';
+      case PaymentMethod.credit:
+        return 'Credit';
+      case PaymentMethod.other:
+        return 'Other';
     }
   }
 
@@ -521,7 +549,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold))),
+        Expanded(
+            child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold))),
         Text('Qty', style: TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(width: 12),
         Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -544,7 +573,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: const TextStyle(color: Colors.black)),
-                Text(sub, style: const TextStyle(color: Colors.black45, fontSize: 12)),
+                Text(sub,
+                    style:
+                        const TextStyle(color: Colors.black45, fontSize: 12)),
               ],
             ),
           ),

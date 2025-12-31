@@ -4,7 +4,7 @@ import 'package:billing_app/models/customer_model.dart';
 
 class AddCustomerScreen extends StatefulWidget {
   final CustomerModel? customer;
-  
+
   const AddCustomerScreen({super.key, this.customer});
 
   @override
@@ -78,7 +78,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           name: _nameCtrl.text.trim(),
           phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
           email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-          address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+          address: _addressCtrl.text.trim().isEmpty
+              ? null
+              : _addressCtrl.text.trim(),
           gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           createdAt: widget.customer!.createdAt,
@@ -99,7 +101,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           name: _nameCtrl.text.trim(),
           phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
           email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-          address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+          address: _addressCtrl.text.trim().isEmpty
+              ? null
+              : _addressCtrl.text.trim(),
           gstNumber: _gstCtrl.text.trim().isEmpty ? null : _gstCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           createdAt: DateTime.now(),
@@ -153,11 +157,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withOpacity(0.4),
+                      color: accentColor.withValues(alpha: 0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -236,7 +240,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
-                  shadowColor: accentColor.withOpacity(0.4),
+                  shadowColor: accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
                     ? const SizedBox(
@@ -249,10 +253,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       )
                     : const Icon(Icons.person_add, color: Colors.black),
                 label: Text(
-                  _isLoading 
-                      ? "Saving..." 
-                      : (widget.customer != null ? "Update Customer" : "Add Customer"),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  _isLoading
+                      ? "Saving..."
+                      : (widget.customer != null
+                          ? "Update Customer"
+                          : "Add Customer"),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),
@@ -301,7 +308,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor.withOpacity(0.6)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
       ),
       child: TextField(
         controller: controller,
@@ -313,7 +320,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           hintStyle: const TextStyle(color: textGray),
           prefixIcon: Icon(icon, color: textGray),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: const BorderSide(color: Colors.transparent),
@@ -327,4 +335,3 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     );
   }
 }
-

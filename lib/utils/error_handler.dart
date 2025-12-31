@@ -1,6 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 /// Centralized error handling for the application
 class ErrorHandler {
@@ -25,7 +24,7 @@ class ErrorHandler {
           return 'This account has been disabled';
         case 'operation-not-allowed':
           return 'This operation is not allowed';
-        
+
         // Firestore Errors
         case 'permission-denied':
           return 'You don\'t have permission to access this data';
@@ -53,12 +52,12 @@ class ErrorHandler {
           return 'Data loss detected. Please contact support';
         case 'unauthenticated':
           return 'Please sign in to continue';
-        
+
         default:
           return error.message ?? 'An error occurred: ${error.code}';
       }
     }
-    
+
     if (error is FirebaseAuthException) {
       switch (error.code) {
         case 'network-request-failed':
@@ -71,31 +70,32 @@ class ErrorHandler {
           return error.message ?? 'Authentication error: ${error.code}';
       }
     }
-    
+
     // Generic errors
     if (error is FormatException) {
       return 'Invalid data format: ${error.message}';
     }
-    
+
     if (error is TypeError) {
       return 'Data type error. Please check your input';
     }
-    
+
     return error.toString();
   }
 
   /// Log error for debugging (can be extended to send to analytics)
-  static void logError(dynamic error, StackTrace? stackTrace, {String? context}) {
-    print('═══════════════════════════════════════════════════════');
-    print('ERROR ${context != null ? "in $context" : ""}');
-    print('Time: ${DateTime.now()}');
-    print('Error: $error');
+  static void logError(dynamic error, StackTrace? stackTrace,
+      {String? context}) {
+    debugPrint('═══════════════════════════════════════════════════════');
+    debugPrint('ERROR ${context != null ? "in $context" : ""}');
+    debugPrint('Time: ${DateTime.now()}');
+    debugPrint('Error: $error');
     if (stackTrace != null) {
-      print('Stack Trace:');
-      print(stackTrace);
+      debugPrint('Stack Trace:');
+      debugPrint(stackTrace.toString());
     }
-    print('═══════════════════════════════════════════════════════');
-    
+    debugPrint('═══════════════════════════════════════════════════════');
+
     // TODO: Send to crash analytics (Firebase Crashlytics, Sentry, etc.)
   }
 }
@@ -109,7 +109,7 @@ extension ErrorHandlingExtension on dynamic {
 class ValidationError implements Exception {
   final String message;
   ValidationError(this.message);
-  
+
   @override
   String toString() => message;
 }
@@ -123,12 +123,12 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return 'Email is required';
     }
-    
+
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value.trim())) {
       return 'Please enter a valid email';
     }
-    
+
     return null;
   }
 
@@ -141,7 +141,8 @@ class Validators {
   }
 
   /// Validate number
-  static String? number(String? value, {
+  static String? number(
+    String? value, {
     String fieldName = 'This field',
     double? min,
     double? max,
@@ -149,25 +150,26 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
-    
+
     final number = double.tryParse(value.trim());
     if (number == null) {
       return 'Please enter a valid number';
     }
-    
+
     if (min != null && number < min) {
       return '$fieldName must be at least $min';
     }
-    
+
     if (max != null && number > max) {
       return '$fieldName must not exceed $max';
     }
-    
+
     return null;
   }
 
   /// Validate positive number
-  static String? positiveNumber(String? value, {String fieldName = 'This field'}) {
+  static String? positiveNumber(String? value,
+      {String fieldName = 'This field'}) {
     return number(value, fieldName: fieldName, min: 0);
   }
 
@@ -176,25 +178,26 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return null; // Optional field
     }
-    
+
     final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{10,}$');
     if (!phoneRegex.hasMatch(value.trim())) {
       return 'Please enter a valid phone number';
     }
-    
+
     return null;
   }
 
   /// Validate minimum length
-  static String? minLength(String? value, int length, {String fieldName = 'This field'}) {
+  static String? minLength(String? value, int length,
+      {String fieldName = 'This field'}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
-    
+
     if (value.trim().length < length) {
       return '$fieldName must be at least $length characters';
     }
-    
+
     return null;
   }
 
@@ -203,12 +206,13 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return null; // Optional field
     }
-    
-    final gstRegex = RegExp(r'^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$');
+
+    final gstRegex =
+        RegExp(r'^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$');
     if (!gstRegex.hasMatch(value.trim())) {
       return 'Please enter a valid GST number';
     }
-    
+
     return null;
   }
 }

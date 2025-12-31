@@ -36,7 +36,7 @@ class AboutScreen extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.1),
+                color: accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: accentColor, width: 2),
               ),
@@ -72,7 +72,7 @@ class AboutScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: surfaceColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withOpacity(0.6)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
               ),
               child: const Text(
                 'A comprehensive billing and invoice management solution designed to help businesses streamline their sales process, manage inventory, track customers, and generate professional invoices.',
@@ -145,7 +145,7 @@ class AboutScreen extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: accentColor, size: 20),
@@ -177,7 +177,7 @@ class AboutScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withOpacity(0.6)),
+          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -185,7 +185,7 @@ class AboutScreen extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.1),
+                color: accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: accentColor, size: 24),
@@ -227,7 +227,7 @@ class AboutScreen extends StatelessWidget {
       path: 'support@billingapp.com',
       query: 'subject=Bug Report - Billing App',
     );
-    
+
     if (await canLaunchUrl(emailUri)) {
       await launchUrl(emailUri);
     }

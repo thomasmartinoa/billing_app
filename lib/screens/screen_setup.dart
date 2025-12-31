@@ -173,14 +173,13 @@ class _ScreenSetupState extends State<ScreenSetup> {
               _step == 1
                   ? "Step 1: Choose Your Shop Type"
                   : _step == 2
-                  ? "Step 2: Basic Information"
-                  : "Step 3: Business Settings",
+                      ? "Step 2: Basic Information"
+                      : "Step 3: Business Settings",
               style: const TextStyle(fontSize: 14, color: primary),
             ),
             const SizedBox(height: 8),
             _StepIndicator(currentStep: _step),
             const SizedBox(height: 12),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -190,7 +189,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
                 child: _buildStepContent(),
               ),
             ),
-
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -290,7 +288,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
           style: TextStyle(fontSize: 12, color: Color(0xFF8A8F98)),
         ),
         const SizedBox(height: 12),
-
         LayoutBuilder(
           builder: (context, constraints) {
             final double width = constraints.maxWidth;
@@ -341,14 +338,12 @@ class _ScreenSetupState extends State<ScreenSetup> {
             );
           },
         ),
-
         const SizedBox(height: 20),
         const Text(
           "Choose an icon",
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -430,7 +425,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
           style: TextStyle(fontSize: 12, color: Color(0xFF8A8F98)),
         ),
         const SizedBox(height: 12),
-
         TextField(
           controller: _nameCtrl,
           decoration: const InputDecoration(
@@ -510,7 +504,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const SizedBox(height: 12),
         const Text("Currency", style: TextStyle(fontSize: 13)),
         const SizedBox(height: 4),
-
         DropdownButtonFormField<String>(
           value: _currency,
           decoration: const InputDecoration(
@@ -523,7 +516,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
           ],
           onChanged: (val) => setState(() => _currency = val ?? "INR"),
         ),
-
         const SizedBox(height: 10),
         Row(
           children: [
@@ -552,7 +544,6 @@ class _ScreenSetupState extends State<ScreenSetup> {
           ],
         ),
         const SizedBox(height: 12),
-
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -586,11 +577,9 @@ class _ScreenSetupState extends State<ScreenSetup> {
             ],
           ),
         ),
-
         const SizedBox(height: 18),
         const Text("Invoice Settings", style: TextStyle(fontSize: 13)),
         const SizedBox(height: 8),
-
         TextField(
           controller: _termsCtrl,
           maxLines: 3,

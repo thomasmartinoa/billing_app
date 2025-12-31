@@ -8,28 +8,28 @@ class AppColors {
   // Primary Colors
   static const Color accent = Color(0xFF00C59E);
   static const Color primary = Color(0xFF17F1C5);
-  
+
   // Background Colors
   static const Color background = Color(0xFF050608);
   static const Color surface = Color(0x14181818);
   static const Color surfaceOpaque = Color(0xFF1A1A1A);
   static const Color cardBackground = Color(0xFF1B1E22);
-  
+
   // Border Colors
   static const Color border = Color(0xFF12332D);
   static const Color borderLight = Color(0xFF252A30);
-  
+
   // Text Colors
   static const Color textWhite = Colors.white;
   static const Color textGray = Color(0xFF757575);
   static const Color textBlack = Colors.black;
-  
+
   // Status Colors
   static const Color success = Color(0xFF00C59E);
   static const Color error = Colors.red;
   static const Color warning = Colors.orange;
   static const Color info = Colors.blue;
-  
+
   // Drawer Colors
   static const Color drawerHeader = Color(0xFF0A0A0A);
   static const Color drawerBackground = Color(0xFF0A0A0A);
@@ -46,7 +46,7 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.dark,
       ),
-      
+
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -72,9 +72,10 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         labelStyle: const TextStyle(fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      
+
       // App Bar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -86,7 +87,7 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
       ),
-      
+
       // Card Theme
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -95,7 +96,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -108,7 +109,7 @@ class AppTheme {
           elevation: 2,
         ),
       ),
-      
+
       // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -120,7 +121,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -128,27 +129,27 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
-      
+
       // Floating Action Button Theme
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.accent,
         foregroundColor: AppColors.textBlack,
         elevation: 4,
       ),
-      
+
       // Progress Indicator Theme
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.accent,
         circularTrackColor: AppColors.surface,
       ),
-      
+
       // Divider Theme
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
-      
+
       // Icon Theme
       iconTheme: const IconThemeData(
         color: AppColors.textWhite,
@@ -168,60 +169,60 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     color: AppColors.textWhite,
   );
-  
+
   static const TextStyle h2 = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: AppColors.textWhite,
   );
-  
+
   static const TextStyle h3 = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: AppColors.textWhite,
   );
-  
+
   static const TextStyle h4 = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textWhite,
   );
-  
+
   // Body Text
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     color: AppColors.textWhite,
   );
-  
+
   static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     color: AppColors.textWhite,
   );
-  
+
   static const TextStyle bodySmall = TextStyle(
     fontSize: 12,
     color: AppColors.textWhite,
   );
-  
+
   // Labels
   static const TextStyle label = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textGray,
   );
-  
+
   // Button Text
   static const TextStyle button = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
   );
-  
+
   // Caption
   static const TextStyle caption = TextStyle(
     fontSize: 11,
     color: AppColors.textGray,
   );
-  
+
   // Accent Text
   static const TextStyle accent = TextStyle(
     fontSize: 14,
@@ -250,7 +251,7 @@ class AppRadius {
   static const double md = 12.0;
   static const double lg = 16.0;
   static const double xl = 20.0;
-  
+
   static BorderRadius get small => BorderRadius.circular(sm);
   static BorderRadius get medium => BorderRadius.circular(md);
   static BorderRadius get large => BorderRadius.circular(lg);

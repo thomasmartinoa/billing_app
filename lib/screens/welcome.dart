@@ -13,7 +13,6 @@ class WelcomePage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           ..._buildFloatingIcons(primary),
-
           SafeArea(
             child: Column(
               children: [
@@ -32,23 +31,22 @@ class WelcomePage extends StatelessWidget {
                                 height: 120,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: primary.withOpacity(0.1),
+                                  color: primary.withValues(alpha: 0.1),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: primary.withOpacity(0.2),
+                                      color: primary.withValues(alpha: 0.2),
                                       blurRadius: 30,
                                       spreadRadius: 5,
                                     ),
                                   ],
                                 ),
                               ),
-
                               Container(
                                 width: 70,
                                 height: 70,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: primary.withOpacity(0.15),
+                                  color: primary.withValues(alpha: 0.15),
                                 ),
                                 child: const Icon(
                                   Icons.receipt_long,
@@ -56,7 +54,6 @@ class WelcomePage extends StatelessWidget {
                                   color: Color(0xFF17F1C5),
                                 ),
                               ),
-
                               Positioned(
                                 top: 0,
                                 right: 10,
@@ -84,7 +81,6 @@ class WelcomePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 24),
-
                           const Text(
                             'Welcome',
                             textAlign: TextAlign.center,
@@ -100,7 +96,7 @@ class WelcomePage extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 15,
-                              color: Colors.white.withOpacity(0.85),
+                              color: Colors.white.withValues(alpha: 0.85),
                             ),
                           ),
                         ],
@@ -108,7 +104,6 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
@@ -125,7 +120,7 @@ class WelcomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             elevation: 8,
-                            shadowColor: primary.withOpacity(0.5),
+                            shadowColor: primary.withValues(alpha: 0.5),
                           ),
                           onPressed: () => Navigator.push(
                             context,
@@ -174,7 +169,7 @@ List<Widget> _buildFloatingIcons(Color primary) {
       child: Icon(
         data['icon'] as IconData,
         size: 40,
-        color: primary.withOpacity(0.08),
+        color: primary.withValues(alpha: 0.08),
       ),
     );
   }).toList();
@@ -192,8 +187,8 @@ class _SmallIcon extends StatelessWidget {
       height: 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: color.withOpacity(0.2),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        color: color.withValues(alpha: 0.2),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Icon(icon, size: 16, color: color),
     );

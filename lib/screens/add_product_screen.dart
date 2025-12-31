@@ -4,7 +4,7 @@ import 'package:billing_app/models/product_model.dart';
 
 class AddProductScreen extends StatefulWidget {
   final ProductModel? product;
-  
+
   const AddProductScreen({super.key, this.product});
 
   @override
@@ -209,14 +209,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 16),
             _buildTextField(
               controller: _descriptionCtrl,
-              icon: Icons.description, 
-              hint: "Description", 
+              icon: Icons.description,
+              hint: "Description",
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             _buildSelectorField(
               icon: Icons.category,
-              hint: _categoryCtrl.text.isEmpty ? "Select Category" : _categoryCtrl.text,
+              hint: _categoryCtrl.text.isEmpty
+                  ? "Select Category"
+                  : _categoryCtrl.text,
               label: "Category",
               onTap: _showCategoryPicker,
               showDropdownIcon: true,
@@ -231,7 +233,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Expanded(
                   child: _buildTextField(
                     controller: _sellingPriceCtrl,
-                    icon: Icons.attach_money, 
+                    icon: Icons.attach_money,
                     hint: "Selling Price *",
                     inputType: TextInputType.number,
                   ),
@@ -240,7 +242,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Expanded(
                   child: _buildTextField(
                     controller: _costPriceCtrl,
-                    icon: Icons.money_off, 
+                    icon: Icons.money_off,
                     hint: "Cost Price",
                     inputType: TextInputType.number,
                   ),
@@ -265,7 +267,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Expanded(
                   child: _buildTextField(
                     controller: _stockCtrl,
-                    icon: Icons.numbers, 
+                    icon: Icons.numbers,
                     hint: "0",
                     label: "Current Stock",
                     inputType: TextInputType.number,
@@ -285,7 +287,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 16),
             _buildTextField(
               controller: _lowStockAlertCtrl,
-              icon: Icons.warning_amber, 
+              icon: Icons.warning_amber,
               hint: "Low Stock Alert",
               inputType: TextInputType.number,
             ),
@@ -328,7 +330,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
-                  shadowColor: accentColor.withOpacity(0.4),
+                  shadowColor: accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
                     ? const SizedBox(
@@ -341,9 +343,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       )
                     : const Icon(Icons.save, color: Colors.black),
                 label: Text(
-                  _isLoading 
-                      ? "Saving..." 
-                      : (widget.product != null ? "Update Product" : "Save Product"),
+                  _isLoading
+                      ? "Saving..."
+                      : (widget.product != null
+                          ? "Update Product"
+                          : "Save Product"),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -361,13 +365,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void _showCategoryPicker() async {
     try {
       final categories = await _firestoreService.getCategories();
-      
+
       if (!mounted) return;
-      
+
       if (categories.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('No categories available. Add categories from Products screen.'),
+            content: Text(
+                'No categories available. Add categories from Products screen.'),
           ),
         );
         return;
@@ -419,7 +424,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.clear, color: Colors.red),
-                title: const Text('Clear Selection', style: TextStyle(color: Colors.red)),
+                title: const Text('Clear Selection',
+                    style: TextStyle(color: Colors.red)),
                 onTap: () {
                   setState(() => _categoryCtrl.text = '');
                   Navigator.pop(context);
@@ -439,7 +445,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showUnitPicker() {
-    final units = ['pcs', 'kg', 'g', 'l', 'ml', 'box', 'pack', 'dozen', 'm', 'cm'];
+    final units = [
+      'pcs',
+      'kg',
+      'g',
+      'l',
+      'ml',
+      'box',
+      'pack',
+      'dozen',
+      'm',
+      'cm'
+    ];
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1A1A1A),
@@ -515,7 +532,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           decoration: BoxDecoration(
             color: surfaceColor,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: borderColor.withOpacity(0.6)),
+            border: Border.all(color: borderColor.withValues(alpha: 0.6)),
           ),
           child: TextField(
             controller: controller,
@@ -557,7 +574,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             decoration: BoxDecoration(
               color: surfaceColor,
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: borderColor.withOpacity(0.6)),
+              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
             ),
             child: Row(
               children: [
@@ -572,7 +589,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                 ),
                 Icon(
-                  showDropdownIcon ? Icons.arrow_drop_down : Icons.arrow_forward_ios,
+                  showDropdownIcon
+                      ? Icons.arrow_drop_down
+                      : Icons.arrow_forward_ios,
                   color: textGray,
                   size: showDropdownIcon ? 24 : 16,
                 ),
@@ -597,14 +616,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor.withOpacity(0.6)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
       ),
       child: SwitchListTile(
         value: value,
         onChanged: onChanged,
         activeColor: accentColor,
         secondary: Icon(icon, color: textGray),
-        title: Text(title, style: TextStyle(color: textWhite, fontWeight: FontWeight.bold)),
+        title: Text(title,
+            style: TextStyle(color: textWhite, fontWeight: FontWeight.bold)),
         subtitle: Text(subtitle, style: TextStyle(color: textGray)),
       ),
     );

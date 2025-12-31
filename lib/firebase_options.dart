@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'billing-app-c6ec1.firebasestorage.app',
     measurementId: 'G-WF56FQZW01',
   );
-
 }

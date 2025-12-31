@@ -181,5 +181,6 @@ class InvoiceModel {
   }
 
   /// Total items count
-  int get totalItemsCount => items.fold(0, (sum, item) => sum + item.quantity);
+  int get totalItemsCount =>
+      items.fold(0, (total, item) => total + item.quantity);
 }

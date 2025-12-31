@@ -30,7 +30,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _gstController = TextEditingController();
   final TextEditingController _taxRateController = TextEditingController();
-  final TextEditingController _invoicePrefixController = TextEditingController();
+  final TextEditingController _invoicePrefixController =
+      TextEditingController();
   final TextEditingController _termsController = TextEditingController();
   final TextEditingController _footerNoteController = TextEditingController();
 
@@ -283,7 +284,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       decoration: BoxDecoration(
                         color: surfaceColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: borderColor.withOpacity(0.6)),
+                        border: Border.all(
+                            color: borderColor.withValues(alpha: 0.6)),
                       ),
                       child: Row(
                         children: [
@@ -292,7 +294,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Expanded(
                             child: Text(
                               'Include Tax in Price',
-                              style: TextStyle(color: Colors.white, fontSize: 16),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           ),
                           Switch(
@@ -374,11 +377,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+          borderSide: BorderSide(color: borderColor.withValues(alpha: 0.6)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+          borderSide: BorderSide(color: borderColor.withValues(alpha: 0.6)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

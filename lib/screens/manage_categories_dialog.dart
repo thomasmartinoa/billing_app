@@ -57,7 +57,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
       builder: (context) => AlertDialog(
         backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Category', style: TextStyle(color: textWhite)),
+        title:
+            const Text('Delete Category', style: TextStyle(color: textWhite)),
         content: Text(
           'Are you sure you want to delete "$categoryName"?',
           style: const TextStyle(color: textGray),
@@ -136,7 +137,7 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
               decoration: BoxDecoration(
                 color: surfaceColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withOpacity(0.6)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
               ),
               child: Row(
                 children: [
@@ -161,7 +162,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     child: const Text('Add'),
                   ),
@@ -206,7 +208,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.category_outlined, color: textGray, size: 48),
+                          Icon(Icons.category_outlined,
+                              color: textGray, size: 48),
                           const SizedBox(height: 12),
                           const Text(
                             'No categories yet',
@@ -223,15 +226,18 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                       final category = categories[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: surfaceColor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: borderColor.withOpacity(0.6)),
+                          border: Border.all(
+                              color: borderColor.withValues(alpha: 0.6)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.category, color: accentColor, size: 20),
+                            const Icon(Icons.category,
+                                color: accentColor, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -243,7 +249,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.red, size: 20),
                               onPressed: () => _deleteCategory(
                                 category['id'],
                                 category['name'],

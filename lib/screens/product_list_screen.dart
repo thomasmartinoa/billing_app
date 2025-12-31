@@ -86,11 +86,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   prefixIcon: const Icon(Icons.search, color: accentColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                    borderSide:
+                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor.withOpacity(0.6)),
+                    borderSide:
+                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -107,7 +109,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 stream: _firestoreService.streamCategories(),
                 builder: (context, snapshot) {
                   final categories = snapshot.data ?? [];
-                  
+
                   return SizedBox(
                     height: 45,
                     child: ListView(
@@ -119,7 +121,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           child: FilterChip(
                             label: const Text('All'),
                             labelStyle: TextStyle(
-                              color: _selectedCategory == null ? Colors.black : textWhite,
+                              color: _selectedCategory == null
+                                  ? Colors.black
+                                  : textWhite,
                               fontWeight: FontWeight.w500,
                             ),
                             selected: _selectedCategory == null,
@@ -127,7 +131,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             backgroundColor: surfaceColor,
                             checkmarkColor: Colors.black,
                             side: BorderSide(
-                              color: _selectedCategory == null ? accentColor : borderColor,
+                              color: _selectedCategory == null
+                                  ? accentColor
+                                  : borderColor,
                             ),
                             onSelected: (selected) {
                               setState(() {
@@ -140,7 +146,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         ...categories.map((category) {
                           final categoryName = category['name'] as String;
                           final isSelected = _selectedCategory == categoryName;
-                          
+
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: FilterChip(
@@ -158,7 +164,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               ),
                               onSelected: (selected) {
                                 setState(() {
-                                  _selectedCategory = selected ? categoryName : null;
+                                  _selectedCategory =
+                                      selected ? categoryName : null;
                                 });
                               },
                             ),
@@ -169,7 +176,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   );
                 },
               ),
-              
+
               const SizedBox(height: 16),
 
               // --- 4. Product List ---
@@ -195,13 +202,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     final products = snapshot.data ?? [];
                     final filteredProducts = products.where((p) {
                       // Filter by search query
-                      final matchesSearch = p.name.toLowerCase().contains(_searchQuery) ||
-                          (p.description?.toLowerCase().contains(_searchQuery) ?? false);
-                      
+                      final matchesSearch =
+                          p.name.toLowerCase().contains(_searchQuery) ||
+                              (p.description
+                                      ?.toLowerCase()
+                                      .contains(_searchQuery) ??
+                                  false);
+
                       // Filter by category
-                      final matchesCategory = _selectedCategory == null || 
+                      final matchesCategory = _selectedCategory == null ||
                           p.category == _selectedCategory;
-                      
+
                       return matchesSearch && matchesCategory;
                     }).toList();
 
@@ -267,119 +278,119 @@ class _ProductListScreenState extends State<ProductListScreen> {
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withOpacity(0.6)),
+          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                color: accentColor,
+              ),
             ),
-            child: const Icon(
-              Icons.inventory_2_outlined,
-              color: accentColor,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      color: textWhite,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '₹${product.sellingPrice.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: accentColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  product.name,
-                  style: const TextStyle(
-                    color: textWhite,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  'Stock: ${product.currentStock}',
+                  style: TextStyle(
+                    color: product.isLowStock ? Colors.orange : textGray,
+                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '₹${product.sellingPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: accentColor,
-                    fontSize: 14,
+                if (product.isLowStock)
+                  const Text(
+                    'Low Stock!',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 10,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: textGray),
+              color: const Color(0xFF1F1F1F),
+              onSelected: (value) {
+                switch (value) {
+                  case 'edit':
+                    _editProduct(product);
+                    break;
+                  case 'update_stock':
+                    _showUpdateStockDialog(product);
+                    break;
+                  case 'delete':
+                    _deleteProduct(product);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit, color: accentColor, size: 20),
+                      const SizedBox(width: 12),
+                      Text('Edit', style: TextStyle(color: textWhite)),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'update_stock',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.inventory, color: accentColor, size: 20),
+                      const SizedBox(width: 12),
+                      Text('Update Stock', style: TextStyle(color: textWhite)),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete, color: Colors.red, size: 20),
+                      const SizedBox(width: 12),
+                      Text('Delete', style: TextStyle(color: Colors.red)),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'Stock: ${product.currentStock}',
-                style: TextStyle(
-                  color: product.isLowStock ? Colors.orange : textGray,
-                  fontSize: 12,
-                ),
-              ),
-              if (product.isLowStock)
-                const Text(
-                  'Low Stock!',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 10,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: textGray),
-            color: const Color(0xFF1F1F1F),
-            onSelected: (value) {
-              switch (value) {
-                case 'edit':
-                  _editProduct(product);
-                  break;
-                case 'update_stock':
-                  _showUpdateStockDialog(product);
-                  break;
-                case 'delete':
-                  _deleteProduct(product);
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    const Icon(Icons.edit, color: accentColor, size: 20),
-                    const SizedBox(width: 12),
-                    Text('Edit', style: TextStyle(color: textWhite)),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'update_stock',
-                child: Row(
-                  children: [
-                    const Icon(Icons.inventory, color: accentColor, size: 20),
-                    const SizedBox(width: 12),
-                    Text('Update Stock', style: TextStyle(color: textWhite)),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete, color: Colors.red, size: 20),
-                    const SizedBox(width: 12),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -429,7 +440,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               decoration: BoxDecoration(
                 color: surfaceColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withOpacity(0.6)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
               ),
               child: Row(
                 children: [
@@ -532,7 +543,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 if (mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Product deleted successfully')),
+                    const SnackBar(
+                        content: Text('Product deleted successfully')),
                   );
                 }
               } catch (e) {
@@ -568,7 +580,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             decoration: BoxDecoration(
               color: surfaceColor,
               shape: BoxShape.circle,
-              border: Border.all(color: borderColor.withOpacity(0.6)),
+              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
             ),
             child: const Center(
               child: Icon(

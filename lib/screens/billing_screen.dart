@@ -173,7 +173,7 @@ class _BillingScreenState extends State<BillingScreen>
 
   Widget _buildInvoiceCard(InvoiceModel invoice) {
     final dateFormat = DateFormat('dd MMM yyyy');
-    
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -190,7 +190,7 @@ class _BillingScreenState extends State<BillingScreen>
           color: const Color(0x14181818),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF12332D).withOpacity(0.6),
+            color: const Color(0xFF12332D).withValues(alpha: 0.6),
           ),
         ),
         child: Row(
@@ -260,8 +260,8 @@ class _BillingScreenState extends State<BillingScreen>
                   ),
                   decoration: BoxDecoration(
                     color: invoice.status == InvoiceStatus.paid
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.orange.withOpacity(0.2),
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.orange.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -308,9 +308,7 @@ class _EmptyBillingState extends StatelessWidget {
               color: Color(0xFF00C59E),
             ),
           ),
-
           const SizedBox(height: 16),
-
           const Text(
             'No invoices yet',
             style: TextStyle(
@@ -319,16 +317,12 @@ class _EmptyBillingState extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-
           const SizedBox(height: 6),
-
           const Text(
             'Create your first invoice to get started',
             style: TextStyle(color: Colors.white54),
           ),
-
           const SizedBox(height: 16),
-
           ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
