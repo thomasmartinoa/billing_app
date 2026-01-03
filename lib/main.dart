@@ -3,10 +3,15 @@ import 'package:billing_app/screens/screen_setup.dart';
 import 'package:billing_app/screens/welcome.dart';
 import 'package:billing_app/services/auth_service.dart';
 import 'package:billing_app/theme/app_theme.dart';
+import 'package:billing_app/providers/auth_provider.dart' as app_providers;
+import 'package:billing_app/providers/product_provider.dart';
+import 'package:billing_app/providers/customer_provider.dart';
+import 'package:billing_app/providers/invoice_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +33,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Billing App',
-      theme: AppTheme.darkTheme,
-      home: const AuthWrapper(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => app_providers.AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => InvoiceProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Billing App',
+        theme: AppTheme.darkTheme,
+        home: const AuthWrapper(),
+      ),
     );
   }
 }
