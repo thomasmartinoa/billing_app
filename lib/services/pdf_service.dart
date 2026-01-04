@@ -332,54 +332,105 @@ class PdfService {
     pdf.addPage(
       pw.Page(
         pageFormat: const PdfPageFormat(58 * PdfPageFormat.mm, double.infinity),
-        margin: const pw.EdgeInsets.all(8),
+        margin: const pw.EdgeInsets.symmetric(horizontal: 2, vertical: 4),
         build: (context) {
           return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
             children: [
               // Shop Name
-              pw.Text(
-                shopSettings?.shopName ?? 'My Shop',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  shopSettings?.shopName ?? 'My Shop',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                  textAlign: pw.TextAlign.center,
                 ),
-                textAlign: pw.TextAlign.center,
               ),
               if (shopSettings?.tagline != null &&
                   shopSettings!.tagline.isNotEmpty) ...[
                 pw.SizedBox(height: 2),
-                pw.Text(
-                  shopSettings.tagline,
-                  style: const pw.TextStyle(fontSize: 8),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    shopSettings.tagline,
+                    style: const pw.TextStyle(fontSize: 8),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
               if (shopSettings?.address != null &&
                   shopSettings!.address.isNotEmpty) ...[
                 pw.SizedBox(height: 2),
-                pw.Text(
-                  shopSettings.address,
-                  style: const pw.TextStyle(fontSize: 7),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    shopSettings.address,
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
               if (shopSettings?.phone != null &&
                   shopSettings!.phone.isNotEmpty) ...[
                 pw.SizedBox(height: 2),
-                pw.Text(
-                  'Tel: ${shopSettings.phone}',
-                  style: const pw.TextStyle(fontSize: 7),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'Tel: ${shopSettings.phone}',
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
               if (shopSettings?.gstNumber != null &&
                   shopSettings!.gstNumber.isNotEmpty) ...[
                 pw.SizedBox(height: 2),
-                pw.Text(
-                  'GSTIN: ${shopSettings.gstNumber}',
-                  style: const pw.TextStyle(fontSize: 7),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'GSTIN: ${shopSettings.gstNumber}',
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              ],
+              if (shopSettings?.address != null &&
+                  shopSettings!.address.isNotEmpty) ...[
+                pw.SizedBox(height: 2),
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    shopSettings.address,
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              ],
+              if (shopSettings?.phone != null &&
+                  shopSettings!.phone.isNotEmpty) ...[
+                pw.SizedBox(height: 2),
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'Tel: ${shopSettings.phone}',
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              ],
+              if (shopSettings?.gstNumber != null &&
+                  shopSettings!.gstNumber.isNotEmpty) ...[
+                pw.SizedBox(height: 2),
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'GSTIN: ${shopSettings.gstNumber}',
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
 
@@ -388,22 +439,34 @@ class PdfService {
               pw.SizedBox(height: 4),
 
               // Invoice Details
-              pw.Text(
-                'INVOICE #${invoice.invoiceNumber}',
-                style: pw.TextStyle(
-                  fontSize: 10,
-                  fontWeight: pw.FontWeight.bold,
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  'INVOICE #${invoice.invoiceNumber}',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                  textAlign: pw.TextAlign.center,
                 ),
               ),
-              pw.Text(
-                dateFormat.format(invoice.createdAt),
-                style: const pw.TextStyle(fontSize: 8),
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  dateFormat.format(invoice.createdAt),
+                  style: const pw.TextStyle(fontSize: 8),
+                  textAlign: pw.TextAlign.center,
+                ),
               ),
               if (invoice.customerName != null) ...[
                 pw.SizedBox(height: 4),
-                pw.Text(
-                  'Customer: ${invoice.customerName}',
-                  style: const pw.TextStyle(fontSize: 8),
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'Customer: ${invoice.customerName}',
+                    style: const pw.TextStyle(fontSize: 8),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
 
@@ -507,17 +570,25 @@ class PdfService {
               pw.SizedBox(height: 4),
 
               // Payment Info
-              pw.Text(
-                'Payment: ${_getPaymentMethodName(invoice.paymentMethod)}',
-                style: const pw.TextStyle(fontSize: 8),
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  'Payment: ${_getPaymentMethodName(invoice.paymentMethod)}',
+                  style: const pw.TextStyle(fontSize: 8),
+                  textAlign: pw.TextAlign.center,
+                ),
               ),
-              pw.Text(
-                invoice.status == InvoiceStatus.paid
-                    ? 'Status: PAID'
-                    : 'Status: PENDING',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  fontWeight: pw.FontWeight.bold,
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  invoice.status == InvoiceStatus.paid
+                      ? 'Status: PAID'
+                      : 'Status: PENDING',
+                  style: pw.TextStyle(
+                    fontSize: 8,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                  textAlign: pw.TextAlign.center,
                 ),
               ),
 
@@ -526,10 +597,13 @@ class PdfService {
                 pw.SizedBox(height: 4),
                 pw.Divider(thickness: 1),
                 pw.SizedBox(height: 4),
-                pw.Text(
-                  'Note: ${invoice.notes}',
-                  style: const pw.TextStyle(fontSize: 7),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    'Note: ${invoice.notes}',
+                    style: const pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
 
@@ -537,21 +611,28 @@ class PdfService {
               if (shopSettings?.thankYouNote != null &&
                   shopSettings!.thankYouNote!.isNotEmpty) ...[
                 pw.SizedBox(height: 8),
-                pw.Text(
-                  shopSettings.thankYouNote!,
-                  style: const pw.TextStyle(fontSize: 8),
-                  textAlign: pw.TextAlign.center,
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Text(
+                    shopSettings.thankYouNote!,
+                    style: const pw.TextStyle(fontSize: 8),
+                    textAlign: pw.TextAlign.center,
+                  ),
                 ),
               ],
 
               pw.SizedBox(height: 8),
-              pw.Text(
-                invoice.status == InvoiceStatus.paid
-                    ? '*** PAID ***'
-                    : '*** PENDING ***',
-                style: pw.TextStyle(
-                  fontSize: 9,
-                  fontWeight: pw.FontWeight.bold,
+              pw.Container(
+                width: double.infinity,
+                child: pw.Text(
+                  invoice.status == InvoiceStatus.paid
+                      ? '*** PAID ***'
+                      : '*** PENDING ***',
+                  style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                  textAlign: pw.TextAlign.center,
                 ),
               ),
             ],
@@ -583,7 +664,14 @@ class PdfService {
   static Future<void> printThermalReceipt(pw.Document pdf) async {
     await Printing.layoutPdf(
       onLayout: (format) async => pdf.save(),
-      format: const PdfPageFormat(58 * PdfPageFormat.mm, double.infinity),
+      format: const PdfPageFormat(
+        58 * PdfPageFormat.mm,
+        double.infinity,
+        marginLeft: 0,
+        marginRight: 0,
+        marginTop: 0,
+        marginBottom: 0,
+      ),
     );
   }
 
