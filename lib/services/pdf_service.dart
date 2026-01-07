@@ -335,7 +335,7 @@ class PdfService {
         margin: const pw.EdgeInsets.symmetric(horizontal: 2, vertical: 4),
         build: (context) {
           return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
               // Shop Name
               pw.Container(
@@ -357,42 +357,6 @@ class PdfService {
                   child: pw.Text(
                     shopSettings.tagline,
                     style: const pw.TextStyle(fontSize: 8),
-                    textAlign: pw.TextAlign.center,
-                  ),
-                ),
-              ],
-              if (shopSettings?.address != null &&
-                  shopSettings!.address.isNotEmpty) ...[
-                pw.SizedBox(height: 2),
-                pw.Container(
-                  width: double.infinity,
-                  child: pw.Text(
-                    shopSettings.address,
-                    style: const pw.TextStyle(fontSize: 7),
-                    textAlign: pw.TextAlign.center,
-                  ),
-                ),
-              ],
-              if (shopSettings?.phone != null &&
-                  shopSettings!.phone.isNotEmpty) ...[
-                pw.SizedBox(height: 2),
-                pw.Container(
-                  width: double.infinity,
-                  child: pw.Text(
-                    'Tel: ${shopSettings.phone}',
-                    style: const pw.TextStyle(fontSize: 7),
-                    textAlign: pw.TextAlign.center,
-                  ),
-                ),
-              ],
-              if (shopSettings?.gstNumber != null &&
-                  shopSettings!.gstNumber.isNotEmpty) ...[
-                pw.SizedBox(height: 2),
-                pw.Container(
-                  width: double.infinity,
-                  child: pw.Text(
-                    'GSTIN: ${shopSettings.gstNumber}',
-                    style: const pw.TextStyle(fontSize: 7),
                     textAlign: pw.TextAlign.center,
                   ),
                 ),
@@ -475,94 +439,73 @@ class PdfService {
               pw.SizedBox(height: 4),
 
               // Items
-              ...invoice.items.map((item) => pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          item.productName,
-                          style: pw.TextStyle(
-                            fontSize: 9,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                        pw.Row(
-                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                          children: [
-                            pw.Text(
-                              '${item.quantity} ${item.unit} x Rs.${item.price.toStringAsFixed(2)}',
-                              style: const pw.TextStyle(fontSize: 8),
+              pw.Container(
+                width: double.infinity,
+                child: pw.Column(
+                  children: invoice.items
+                      .map((item) => pw.Container(
+                            padding: const pw.EdgeInsets.symmetric(vertical: 3),
+                            width: double.infinity,
+                            child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.center,
+                              children: [
+                                pw.Text(
+                                  item.productName,
+                                  style: pw.TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: pw.FontWeight.bold,
+                                  ),
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                                pw.Text(
+                                  '${item.quantity} ${item.unit} x Rs.${item.price.toStringAsFixed(2)} = Rs.${item.total.toStringAsFixed(2)}',
+                                  style: const pw.TextStyle(fontSize: 8),
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                              ],
                             ),
-                            pw.Text(
-                              'Rs.${item.total.toStringAsFixed(2)}',
-                              style: const pw.TextStyle(fontSize: 9),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )),
+                          ))
+                      .toList(),
+                ),
+              ),
 
               pw.SizedBox(height: 4),
               pw.Divider(thickness: 1),
               pw.SizedBox(height: 4),
 
               // Totals
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text('Subtotal:', style: const pw.TextStyle(fontSize: 8)),
-                  pw.Text(
-                    'Rs.${invoice.subtotal.toStringAsFixed(2)}',
-                    style: const pw.TextStyle(fontSize: 8),
-                  ),
-                ],
-              ),
-              if (invoice.discount > 0)
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              pw.Container(
+                width: double.infinity,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
-                    pw.Text('Discount:',
-                        style: const pw.TextStyle(fontSize: 8)),
                     pw.Text(
-                      '-Rs.${invoice.discount.toStringAsFixed(2)}',
+                      'Subtotal: Rs.${invoice.subtotal.toStringAsFixed(2)}',
                       style: const pw.TextStyle(fontSize: 8),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                    if (invoice.discount > 0)
+                      pw.Text(
+                        'Discount: -Rs.${invoice.discount.toStringAsFixed(2)}',
+                        style: const pw.TextStyle(fontSize: 8),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    pw.Text(
+                      'Tax (${invoice.taxRate.toStringAsFixed(1)}%): Rs.${invoice.taxAmount.toStringAsFixed(2)}',
+                      style: const pw.TextStyle(fontSize: 8),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      'TOTAL: Rs.${invoice.total.toStringAsFixed(2)}',
+                      style: pw.TextStyle(
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.center,
                     ),
                   ],
                 ),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text(
-                    'Tax (${invoice.taxRate.toStringAsFixed(1)}%):',
-                    style: const pw.TextStyle(fontSize: 8),
-                  ),
-                  pw.Text(
-                    'Rs.${invoice.taxAmount.toStringAsFixed(2)}',
-                    style: const pw.TextStyle(fontSize: 8),
-                  ),
-                ],
-              ),
-              pw.SizedBox(height: 4),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text(
-                    'TOTAL:',
-                    style: pw.TextStyle(
-                      fontSize: 11,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                  pw.Text(
-                    'Rs.${invoice.total.toStringAsFixed(2)}',
-                    style: pw.TextStyle(
-                      fontSize: 11,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
-                  ),
-                ],
               ),
 
               pw.SizedBox(height: 4),

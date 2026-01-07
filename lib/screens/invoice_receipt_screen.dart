@@ -4,6 +4,9 @@ import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/services/pdf_service.dart';
+import 'package:billing_app/services/thermal_printer_service.dart';
+import 'package:billing_app/screens/thermal_receipt_preview_screen.dart';
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
 class InvoiceReceiptScreen extends StatefulWidget {
@@ -136,24 +139,218 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   }
 
   Future<void> _printThermalReceipt() async {
-    setState(() => _isPdfLoading = true);
     try {
-      // Generate thermal receipt
-      final pdf =
-          await PdfService.generateThermalReceipt(_invoice, _shopSettings);
+      // Check if printer is connected
+      final isConnected = await ThermalPrinterService.isConnected();
 
-      // Print thermal receipt
-      await PdfService.printThermalReceipt(pdf);
+      if (!isConnected) {
+        // Show device selection dialog
+        await _showPrinterSelectionDialog();
+        return;
+      }
+
+      setState(() => _isPdfLoading = true);
+
+      // Print using connected thermal printer
+      await ThermalPrinterService.printThermalReceipt(_invoice, _shopSettings);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Printing thermal receipt...')),
+          const SnackBar(
+            content: Text('Printing thermal receipt...'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error printing thermal receipt: $e')),
+          SnackBar(
+            content: Text('Error printing: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPdfLoading = false);
+    }
+  }
+
+  Future<void> _showPrinterSelectionDialog() async {
+    try {
+      setState(() => _isPdfLoading = true);
+
+      // Get bonded devices
+      final devices = await ThermalPrinterService.getBondedDevices();
+
+      setState(() => _isPdfLoading = false);
+
+      if (!mounted) return;
+
+      if (devices.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'No Bluetooth printers found. Please pair a printer first.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      // Show device selection dialog
+      final selectedDevice = await showDialog<BluetoothDevice>(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1A1A),
+          title: const Text(
+            'Select Thermal Printer',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: devices.length,
+              itemBuilder: (context, index) {
+                final device = devices[index];
+                return ListTile(
+                  leading: const Icon(Icons.print, color: Colors.blue),
+                  title: Text(
+                    device.name ?? 'Unknown Device',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    device.address ?? '',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  onTap: () => Navigator.pop(context, device),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+
+      if (selectedDevice != null) {
+        await _connectAndPrint(selectedDevice);
+      }
+    } catch (e) {
+      setState(() => _isPdfLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _connectAndPrint(BluetoothDevice device) async {
+    try {
+      setState(() => _isPdfLoading = true);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Connecting to printer...')),
+        );
+      }
+
+      // Connect to printer
+      await ThermalPrinterService.connect(device);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Connected! Printing...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      // Print receipt
+      await ThermalPrinterService.printThermalReceipt(_invoice, _shopSettings);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Print completed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Print failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPdfLoading = false);
+    }
+  }
+
+  void _showThermalPreview() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ThermalReceiptPreviewScreen(
+          invoice: _invoice,
+          shopSettings: _shopSettings,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveThermalToPdf() async {
+    setState(() => _isPdfLoading = true);
+    try {
+      final pdf = await PdfService.generateThermalReceipt(
+        _invoice,
+        _shopSettings,
+      );
+
+      final file = await PdfService.savePdfToFile(
+        pdf,
+        'thermal_receipt_${_invoice.invoiceNumber}',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Saved to: ${file.path}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Share',
+              onPressed: () async {
+                await Share.shareXFiles(
+                  [XFile(file.path)],
+                  subject: 'Thermal Receipt ${_invoice.invoiceNumber}',
+                );
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -175,7 +372,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Choose Print Format',
+              'Thermal Receipt Options',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -184,13 +381,27 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _showThermalPreview();
+              },
+              icon: const Icon(Icons.visibility),
+              label: const Text('Preview & Print'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00C59E),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
-                _printA4Invoice();
+                _printThermalReceipt();
               },
-              icon: const Icon(Icons.description),
-              label: const Text('Print A4 Invoice'),
+              icon: const Icon(Icons.print),
+              label: const Text('Print Directly'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF00C59E),
                 side: const BorderSide(color: Color(0xFF00C59E)),
@@ -198,16 +409,16 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ElevatedButton.icon(
+            OutlinedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
-                _printThermalReceipt();
+                _saveThermalToPdf();
               },
-              icon: const Icon(Icons.receipt),
-              label: const Text('Print Thermal Receipt (58mm)'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00C59E),
-                foregroundColor: Colors.black,
+              icon: const Icon(Icons.save),
+              label: const Text('Save as PDF'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -233,13 +444,15 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         leading: const BackButton(),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.print),
-            tooltip: 'Print',
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'More Options',
             onSelected: (value) {
               if (value == 'a4') {
                 _printA4Invoice();
               } else if (value == 'thermal') {
-                _printThermalReceipt();
+                _showPrintOptions();
+              } else if (value == 'preview') {
+                _showThermalPreview();
               }
             },
             itemBuilder: (context) => [
@@ -249,7 +462,17 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                   children: [
                     Icon(Icons.description, size: 20),
                     SizedBox(width: 8),
-                    Text('Print A4'),
+                    Text('Print A4 Invoice'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'preview',
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility, size: 20),
+                    SizedBox(width: 8),
+                    Text('Preview Thermal'),
                   ],
                 ),
               ),
@@ -259,7 +482,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                   children: [
                     Icon(Icons.receipt, size: 20),
                     SizedBox(width: 8),
-                    Text('Print Thermal Receipt'),
+                    Text('Thermal Options'),
                   ],
                 ),
               ),
