@@ -14,6 +14,8 @@ import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/screens/settings_screen.dart';
 import 'package:billing_app/screens/about_screen.dart';
 import 'package:billing_app/screens/notifications_screen.dart';
+import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -115,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 elevation: 0,
                 leading: Builder(
                   builder: (context) => IconButton(
-                    icon: const Icon(Icons.menu, color: Color(0xFF00C59E)),
+                    icon: Icon(Icons.menu, color: context.accent),
                     onPressed: () {
                       Scaffold.of(context).openDrawer();
                     },
@@ -125,8 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Stack(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none,
-                            color: Color(0xFF00C59E)),
+                        icon: Icon(Icons.notifications_none,
+                            color: context.accent),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -142,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             padding: EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.red,
+                              color: context.errorColor,
                               shape: BoxShape.circle,
                             ),
                             constraints: BoxConstraints(
@@ -154,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? '99+'
                                   : _notificationCount.toString(),
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.textPrimary,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -177,19 +179,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
                   ).then((_) => _loadStats());
                 },
-                backgroundColor: Color(0xFF00C59E),
+                backgroundColor: context.accent,
                 label: Text("New Invoice",
                     style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold)),
-                icon: const Icon(Icons.add, color: Colors.black),
+                        color: context.textPrimary, fontWeight: FontWeight.bold)),
+                icon: Icon(Icons.add, color: context.textPrimary),
               )
             : null,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Color(0xFF0A0A0A),
+            color: context.surfaceColor,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
+                color: context.textPrimary.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: Offset(0, -5),
               ),
@@ -248,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? Color(0xFF00C59E).withValues(alpha: 0.15)
+              ? context.accent.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -257,14 +259,14 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Color(0xFF00C59E) : Colors.white54,
+              color: isSelected ? context.accent : context.textSecondary.withValues(alpha: 0.6),
               size: isSelected ? 26 : 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Color(0xFF00C59E) : Colors.white54,
+                color: isSelected ? context.accent : context.textSecondary.withValues(alpha: 0.6),
                 fontSize: isSelected ? 12 : 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
@@ -279,31 +281,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF1A1A1A),
+        backgroundColor: context.cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: Row(
           children: [
-            const Icon(Icons.exit_to_app, color: Color(0xFF00C59E)),
+            Icon(Icons.exit_to_app, color: context.accent),
             const SizedBox(width: 12),
             Text(
               'Exit App',
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  TextStyle(color: context.textPrimary, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to exit the application?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: context.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: context.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -312,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SystemNavigator.pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF00C59E),
+              backgroundColor: context.accent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -330,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: Color(0xFF0D0D0D),
+      backgroundColor: Theme.of(context).drawerTheme.backgroundColor ?? context.backgroundColor,
       child: Column(
         children: [
           // Drawer Header - Dark Theme
@@ -338,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
             decoration: BoxDecoration(
-              color: Color(0xFF0A0A0A),
+              color: context.surfaceColor,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,10 +349,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: Color(0xFF141618),
+                    color: context.cardColor,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Color(0xFF00C59E).withValues(alpha: 0.3),
+                      color: context.accent.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -358,12 +360,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Icon(
                           IconData(_shopSettings!.iconCodePoint,
                               fontFamily: 'MaterialIcons'),
-                          color: Color(0xFF00C59E),
+                          color: context.accent,
                           size: 35,
                         )
-                      : const Icon(
+                      : Icon(
                           Icons.store,
-                          color: Color(0xFF00C59E),
+                          color: context.accent,
                           size: 35,
                         ),
                 ),
@@ -371,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   _shopSettings?.name ?? 'Billing App',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -384,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     _shopSettings!.tagline,
                     style: TextStyle(
-                      color: Colors.white54,
+                      color: context.textSecondary,
                       fontSize: 13,
                     ),
                     maxLines: 1,
@@ -426,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           // Sign Out at Bottom
           Divider(
-            color: Color(0xFF12332D),
+            color: context.accent.withValues(alpha: 0.2),
             thickness: 1,
             height: 1,
           ),
@@ -443,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => Center(
-                  child: CircularProgressIndicator(color: Color(0xFF00C59E)),
+                  child: CircularProgressIndicator(color: context.accent),
                 ),
               );
 
@@ -482,21 +484,21 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 40,
         decoration: BoxDecoration(
           color: isDestructive
-              ? Colors.red.withValues(alpha: 0.1)
-              : Color(0xFF00C59E).withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+              ? context.errorBackground
+              : context.accent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Icon(
           icon,
-          color: isDestructive ? Colors.red : Color(0xFF00C59E),
+          color: isDestructive ? context.errorColor : context.accent,
           size: 20,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: isDestructive ? Colors.red : Colors.white,
-          fontSize: 16,
+          color: isDestructive ? context.errorColor : context.textPrimary,
+          fontSize: AppFontSize.xl,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -505,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      hoverColor: Color(0xFF00C59E).withValues(alpha: 0.05),
+      hoverColor: context.accent.withValues(alpha: 0.05),
     );
   }
 
@@ -513,7 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: _loadStats,
-        color: Color(0xFF00C59E),
+        color: context.accent,
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.all(16),
@@ -525,10 +527,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0x14181818),
+                    color: context.cardColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+                        color: context.accent.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     children: [
@@ -536,19 +538,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Color(0xFF00C59E).withValues(alpha: 0.1),
+                          color: context.accent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: _shopSettings != null
                             ? Icon(
                                 IconData(_shopSettings!.iconCodePoint,
                                     fontFamily: 'MaterialIcons'),
-                                color: Color(0xFF00C59E),
+                                color: context.accent,
                                 size: 32,
                               )
-                            : const Icon(
+                            : Icon(
                                 Icons.store,
-                                color: Color(0xFF00C59E),
+                                color: context.accent,
                                 size: 32,
                               ),
                       ),
@@ -560,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Text(
                               _shopSettings!.name,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.textPrimary,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -570,7 +572,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 _shopSettings!.tagline,
                                 style: TextStyle(
-                                  color: Colors.white54,
+                                  color: context.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -579,13 +581,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.phone,
-                                      size: 12, color: Color(0xFF00C59E)),
+                                  Icon(Icons.phone,
+                                      size: 12, color: context.accent),
                                   const SizedBox(width: 4),
                                   Text(
                                     _shopSettings!.phone,
                                     style: TextStyle(
-                                      color: Colors.white70,
+                                      color: context.textSecondary,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -649,7 +651,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 "Quick Actions",
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.textSecondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -708,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     "Recent Invoices",
                     style: TextStyle(
-                        color: Colors.white70,
+                        color: context.textSecondary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600),
                   ),
@@ -716,7 +718,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => _onNavTap(2),
                     child: Text(
                       "View All",
-                      style: TextStyle(color: Color(0xFF00C59E)),
+                      style: TextStyle(color: context.accent),
                     ),
                   )
                 ],
@@ -728,19 +730,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? Container(
                       padding: const EdgeInsets.symmetric(vertical: 30),
                       decoration: BoxDecoration(
-                        color: const Color(0x14181818),
+                        color: context.cardColor,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                             color:
-                                const Color(0xFF12332D).withValues(alpha: 0.6)),
+                                context.accent.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         children: [
-                          const Icon(Icons.receipt_long,
-                              color: Colors.white24, size: 45),
+                          Icon(Icons.receipt_long,
+                              color: context.textSecondary.withValues(alpha: 0.4), size: 45),
                           const SizedBox(height: 10),
                           Text("No invoices yet",
-                              style: TextStyle(color: Colors.white60)),
+                              style: TextStyle(color: context.textSecondary)),
                           const SizedBox(height: 10),
                           TextButton.icon(
                             onPressed: () {
@@ -751,9 +753,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ).then((_) => _loadStats());
                             },
                             icon:
-                                const Icon(Icons.add, color: Color(0xFF00C59E)),
+                                Icon(Icons.add, color: context.accent),
                             label: Text("Create First Invoice",
-                                style: TextStyle(color: Color(0xFF00C59E))),
+                                style: TextStyle(color: context.accent)),
                           ),
                         ],
                       ),
@@ -789,10 +791,10 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0x14181818),
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(14),
           border:
-              Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+              Border.all(color: context.accent.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -801,13 +803,13 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 50,
               decoration: BoxDecoration(
                 color: isPaid
-                    ? Color(0xFF00C59E).withValues(alpha: 0.1)
-                    : Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                    ? context.successBackground
+                    : context.warningBackground,
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: Icon(
                 isPaid ? Icons.check_circle : Icons.pending,
-                color: isPaid ? Color(0xFF00C59E) : Colors.orange,
+                color: isPaid ? context.successColor : context.warningColor,
               ),
             ),
             SizedBox(width: 16),
@@ -818,7 +820,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     invoice.invoiceNumber,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -827,7 +829,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     invoice.customerName ?? 'Walk-in Customer',
                     style: TextStyle(
-                      color: Colors.white54,
+                      color: context.textSecondary,
                       fontSize: 13,
                     ),
                   ),
@@ -835,7 +837,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     dateFormat.format(invoice.createdAt),
                     style: TextStyle(
-                      color: Colors.white38,
+                      color: context.textSecondary.withValues(alpha: 0.7),
                       fontSize: 11,
                     ),
                   ),
@@ -848,7 +850,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   '₹${invoice.total.toStringAsFixed(2)}',
                   style: TextStyle(
-                    color: Color(0xFF00C59E),
+                    color: context.accent,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -858,14 +860,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: isPaid
-                        ? Color(0xFF00C59E).withValues(alpha: 0.2)
-                        : Colors.orange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                        ? context.successBackground
+                        : context.warningBackground,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: Text(
                     isPaid ? 'Paid' : 'Pending',
                     style: TextStyle(
-                      color: isPaid ? Color(0xFF00C59E) : Colors.orange,
+                      color: isPaid ? context.successColor : context.warningColor,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -895,10 +897,10 @@ class DashboardCard extends StatelessWidget {
       height: 120,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0x14181818),
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(14),
         border:
-            Border.all(color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+            Border.all(color: context.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -906,10 +908,10 @@ class DashboardCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Color(0xFF1B1B1B),
+              color: context.surfaceColor,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Color(0xFF00C59E)),
+            child: Icon(icon, color: context.accent),
           ),
           SizedBox(width: 12),
           Expanded(
@@ -919,13 +921,13 @@ class DashboardCard extends StatelessWidget {
               children: [
                 Text(value,
                     style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 SizedBox(height: 4),
                 Text(
                   title,
-                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                  style: TextStyle(color: context.textSecondary, fontSize: 13),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
@@ -960,19 +962,19 @@ class QuickButton extends StatelessWidget {
         child: Container(
           height: 80,
           decoration: BoxDecoration(
-            color: const Color(0x14181818),
+            color: context.cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: const Color(0xFF12332D).withValues(alpha: 0.6)),
+                color: context.accent.withValues(alpha: 0.2)),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: const Color(0xFF00C59E), size: 28),
+              Icon(icon, color: context.accent, size: 28),
               const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: context.textSecondary, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ],

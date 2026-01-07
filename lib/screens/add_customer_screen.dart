@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class AddCustomerScreen extends StatefulWidget {
   final CustomerModel? customer;
@@ -22,14 +23,6 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   final _addressCtrl = TextEditingController();
   final _gstCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
-
-  // --- Design Colors from Image ---
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Color(0xFF757575);
 
   @override
   void initState() {
@@ -133,17 +126,17 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: accentColor),
+          icon: Icon(Icons.arrow_back, color: context.accentColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.customer != null ? "Edit Customer" : "Add Customer",
-          style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -157,27 +150,28 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
+                  color: context.accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: accentColor.withValues(alpha: 0.4),
+                      color: context.accentColor.withValues(alpha: 0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Icon(Icons.person_add, color: accentColor, size: 40),
+                child: Center(
+                  child: Icon(Icons.person_add, color: context.accentColor, size: 40),
                 ),
               ),
             ),
             const SizedBox(height: 30),
 
             // --- 2. Contact Information Section ---
-            _buildSectionHeader(accentColor, "Contact Information"),
+            _buildSectionHeader(context, "Contact Information"),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _nameCtrl,
               icon: Icons.person,
               hint: "Customer Name *",
@@ -185,6 +179,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             ),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _phoneCtrl,
               icon: Icons.phone,
               hint: "Phone Number",
@@ -192,6 +187,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             ),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _emailCtrl,
               icon: Icons.email,
               hint: "Email Address",
@@ -200,9 +196,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             const SizedBox(height: 30),
 
             // --- 3. Address Section ---
-            _buildSectionHeader(accentColor, "Address"),
+            _buildSectionHeader(context, "Address"),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _addressCtrl,
               icon: Icons.location_on,
               hint: "Address",
@@ -211,15 +208,17 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             const SizedBox(height: 30),
 
             // --- 4. Business Information Section ---
-            _buildSectionHeader(accentColor, "Business Information"),
+            _buildSectionHeader(context, "Business Information"),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _gstCtrl,
               icon: Icons.receipt,
               hint: "GST Number",
             ),
             const SizedBox(height: 16),
             _buildTextField(
+              context: context,
               controller: _notesCtrl,
               icon: Icons.note,
               hint: "Notes",
@@ -234,13 +233,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _saveCustomer,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
+                  backgroundColor: context.accentColor,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
-                  shadowColor: accentColor.withValues(alpha: 0.4),
+                  shadowColor: context.accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
                     ? const SizedBox(
@@ -271,14 +270,14 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   }
 
   // --- Helper Widget: Section Header with Vertical Bar ---
-  Widget _buildSectionHeader(Color accentColor, String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Row(
       children: [
         Container(
           height: 20,
           width: 4,
           decoration: BoxDecoration(
-            color: accentColor,
+            color: context.accentColor,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -286,7 +285,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         Text(
           title,
           style: TextStyle(
-            color: accentColor,
+            color: context.accentColor,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -297,6 +296,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
   // --- Helper Widget: Custom Text Field ---
   Widget _buildTextField({
+    required BuildContext context,
     TextEditingController? controller,
     required IconData icon,
     required String hint,
@@ -306,19 +306,19 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+        border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: context.textWhite),
         keyboardType: inputType,
         maxLines: maxLines,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: textGray),
-          prefixIcon: Icon(icon, color: textGray),
+          hintStyle: TextStyle(color: context.textGray),
+          prefixIcon: Icon(icon, color: context.textGray),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -328,7 +328,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: accentColor, width: 2),
+            borderSide: BorderSide(color: context.accentColor, width: 2),
           ),
         ),
       ),

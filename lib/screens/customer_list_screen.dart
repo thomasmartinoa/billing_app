@@ -3,6 +3,7 @@ import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/screens/add_customer_screen.dart';
 import 'package:billing_app/screens/customer_details_screen.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class CustomerListScreen extends StatefulWidget {
   const CustomerListScreen({super.key});
@@ -20,14 +21,6 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   String _sortBy = 'name_asc'; // name_asc, name_desc, date_new, date_old
   String _filterBy = 'all'; // all, recent_30, recent_60, recent_90
 
-  // Design Colors
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Colors.grey;
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -37,7 +30,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   void _showFilterBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Color(0xFF1A1A1A),
+      backgroundColor: context.surfaceColor,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -63,7 +56,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       Text(
                         'Sort & Filter',
                         style: TextStyle(
-                          color: textWhite,
+                          color: context.primaryTextColor,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -78,7 +71,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                         },
                         child: Text(
                           'Reset',
-                          style: TextStyle(color: accentColor),
+                          style: TextStyle(color: context.accentColor),
                         ),
                       ),
                     ],
@@ -89,7 +82,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   Text(
                     'Sort By',
                     style: TextStyle(
-                      color: accentColor,
+                      color: context.accentColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -133,14 +126,14 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   ),
 
                   const SizedBox(height: 20),
-                  Divider(color: borderColor),
+                  Divider(color: context.borderColor),
                   const SizedBox(height: 20),
 
                   // Filter Section
                   Text(
                     'Filter By Activity',
                     style: TextStyle(
-                      color: accentColor,
+                      color: context.accentColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -191,7 +184,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: accentColor,
+                        backgroundColor: context.accentColor,
                         padding: EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -200,7 +193,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       child: Text(
                         'Apply',
                         style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -230,11 +223,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isSelected ? accentColor.withValues(alpha: 0.1) : surfaceColor,
+          color: isSelected ? context.accentColor.withValues(alpha: 0.1) : context.cardColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color:
-                isSelected ? accentColor : borderColor.withValues(alpha: 0.6),
+                isSelected ? context.accentColor : context.borderColor.withValues(alpha: 0.6),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -244,14 +237,14 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               isSelected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: isSelected ? accentColor : textGray,
+              color: isSelected ? context.accentColor : context.secondaryTextColor,
               size: 20,
             ),
             SizedBox(width: 12),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? accentColor : textWhite,
+                color: isSelected ? context.accentColor : context.primaryTextColor,
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
@@ -265,7 +258,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -276,10 +269,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Customers",
                     style: TextStyle(
-                      color: textWhite,
+                      color: context.primaryTextColor,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
@@ -287,7 +280,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   IconButton(
                     icon: Icon(
                       Icons.filter_list,
-                      color: accentColor,
+                      color: context.accentColor,
                       size: 28,
                     ),
                     onPressed: () => _showFilterBottomSheet(),
@@ -299,29 +292,29 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               // --- 2. Search Bar ---
               TextField(
                 controller: _searchController,
-                style: const TextStyle(color: textWhite),
+                style: TextStyle(color: context.primaryTextColor),
                 onChanged: (value) {
                   setState(() => _searchQuery = value.toLowerCase());
                 },
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: surfaceColor,
+                  fillColor: context.cardColor,
                   hintText: "Search customers...",
-                  hintStyle: const TextStyle(color: textGray),
-                  prefixIcon: const Icon(Icons.search, color: accentColor),
+                  hintStyle: TextStyle(color: context.secondaryTextColor),
+                  prefixIcon: Icon(Icons.search, color: context.accentColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
+                        BorderSide(color: context.borderColor.withValues(alpha: 0.6)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
+                        BorderSide(color: context.borderColor.withValues(alpha: 0.6)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: accentColor),
+                    borderSide: BorderSide(color: context.accentColor),
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -335,8 +328,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   stream: _firestoreService.streamCustomers(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: accentColor),
+                      return Center(
+                        child: CircularProgressIndicator(color: context.accentColor),
                       );
                     }
 
@@ -344,7 +337,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       return Center(
                         child: Text(
                           'Error: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       );
                     }
@@ -401,7 +394,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       return Center(
                         child: Text(
                           'No customers matching "$_searchQuery"',
-                          style: const TextStyle(color: textGray),
+                          style: TextStyle(color: context.secondaryTextColor),
                         ),
                       );
                     }
@@ -429,11 +422,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
           );
         },
-        backgroundColor: accentColor,
-        icon: const Icon(Icons.add, color: Colors.black),
-        label: const Text(
+        backgroundColor: context.accentColor,
+        icon: Icon(Icons.add, color: Colors.white),
+        label: Text(
           'Add Customer',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -453,9 +446,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: context.cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+          border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -463,7 +456,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
+                color: context.accentColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Center(
@@ -471,8 +464,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   customer.name.isNotEmpty
                       ? customer.name[0].toUpperCase()
                       : '?',
-                  style: const TextStyle(
-                    color: accentColor,
+                  style: TextStyle(
+                    color: context.accentColor,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -486,8 +479,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 children: [
                   Text(
                     customer.name,
-                    style: const TextStyle(
-                      color: textWhite,
+                    style: TextStyle(
+                      color: context.primaryTextColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -496,8 +489,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     const SizedBox(height: 4),
                     Text(
                       customer.phone!,
-                      style: const TextStyle(
-                        color: textGray,
+                      style: TextStyle(
+                        color: context.secondaryTextColor,
                         fontSize: 14,
                       ),
                     ),
@@ -506,8 +499,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               ),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: textGray),
-              color: const Color(0xFF1F1F1F),
+              icon: Icon(Icons.more_vert, color: context.secondaryTextColor),
+              color: context.surfaceColor,
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
@@ -528,33 +521,33 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
                   child: Row(
                     children: [
-                      const Icon(Icons.edit, color: accentColor, size: 20),
+                      Icon(Icons.edit, color: context.accentColor, size: 20),
                       const SizedBox(width: 12),
-                      Text('Edit', style: TextStyle(color: textWhite)),
+                      Text('Edit', style: TextStyle(color: context.primaryTextColor)),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'view_history',
                   child: Row(
                     children: [
-                      const Icon(Icons.history, color: accentColor, size: 20),
+                      Icon(Icons.history, color: context.accentColor, size: 20),
                       const SizedBox(width: 12),
-                      Text('View History', style: TextStyle(color: textWhite)),
+                      Text('View History', style: TextStyle(color: context.primaryTextColor)),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
                   child: Row(
                     children: [
-                      const Icon(Icons.delete, color: Colors.red, size: 20),
+                      Icon(Icons.delete, color: Theme.of(context).colorScheme.error, size: 20),
                       const SizedBox(width: 12),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
+                      Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                     ],
                   ),
                 ),
@@ -579,22 +572,22 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1F1F1F),
+        backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Delete Customer',
-          style: TextStyle(color: textWhite),
+          style: TextStyle(color: context.primaryTextColor),
         ),
         content: Text(
           'Are you sure you want to delete "${customer.name}"? This action cannot be undone.',
-          style: const TextStyle(color: textGray),
+          style: TextStyle(color: context.secondaryTextColor),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: textGray),
+              style: TextStyle(color: context.secondaryTextColor),
             ),
           ),
           ElevatedButton(
@@ -617,8 +610,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: context.primaryTextColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -639,32 +632,32 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             height: 100,
             width: 100,
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: context.cardColor,
               shape: BoxShape.circle,
-              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+              border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.person_outline,
                 size: 48,
-                color: accentColor,
+                color: context.accentColor,
               ),
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             "No customers yet",
             style: TextStyle(
-              color: textWhite,
+              color: context.primaryTextColor,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             "Add your first customer to get started",
             style: TextStyle(
-              color: textGray,
+              color: context.secondaryTextColor,
               fontSize: 14,
             ),
           ),
@@ -679,17 +672,17 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
                 );
               },
-              icon: const Icon(Icons.add, color: Colors.black),
-              label: const Text(
+              icon: Icon(Icons.add, color: Colors.white),
+              label: Text(
                 "Add Customer",
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
+                backgroundColor: context.accentColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),

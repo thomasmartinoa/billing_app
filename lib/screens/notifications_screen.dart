@@ -15,10 +15,6 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final FirestoreService _firestoreService = FirestoreService();
 
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-
   bool _isLoading = true;
   List<ProductModel> _lowStockProducts = [];
   List<InvoiceModel> _unpaidInvoices = [];
@@ -58,8 +54,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -73,12 +72,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: accentColor))
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : RefreshIndicator(
-              color: accentColor,
+              color: colorScheme.primary,
               onRefresh: _loadNotifications,
               child: totalNotifications == 0
-                  ? _buildEmptyState()
+                  ? _buildEmptyState(colorScheme)
                   : SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
@@ -91,13 +90,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  accentColor.withValues(alpha: 0.2),
-                                  accentColor.withValues(alpha: 0.1),
+                                  colorScheme.primary.withValues(alpha: 0.2),
+                                  colorScheme.primary.withValues(alpha: 0.1),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: accentColor.withValues(alpha: 0.3)),
+                                  color: colorScheme.primary.withValues(alpha: 0.3)),
                             ),
                             child: Row(
                               children: [
@@ -105,12 +104,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: accentColor.withValues(alpha: 0.2),
+                                    color: colorScheme.primary.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.notifications_active,
-                                    color: accentColor,
+                                    color: colorScheme.primary,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -155,7 +154,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                             const SizedBox(height: 12),
                             ..._lowStockProducts
-                                .map((product) => _buildLowStockCard(product)),
+                                .map((product) => _buildLowStockCard(product, colorScheme)),
                             const SizedBox(height: 24),
                           ],
 
@@ -169,7 +168,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                             const SizedBox(height: 12),
                             ..._unpaidInvoices.map(
-                                (invoice) => _buildUnpaidInvoiceCard(invoice)),
+                                (invoice) => _buildUnpaidInvoiceCard(invoice, colorScheme)),
                           ],
                         ],
                       ),
@@ -225,7 +224,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildLowStockCard(ProductModel product) {
+  Widget _buildLowStockCard(ProductModel product, ColorScheme colorScheme) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -239,7 +238,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
         ),
@@ -307,7 +306,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildUnpaidInvoiceCard(InvoiceModel invoice) {
+  Widget _buildUnpaidInvoiceCard(InvoiceModel invoice, ColorScheme colorScheme) {
     final daysOld = DateTime.now().difference(invoice.createdAt).inDays;
 
     return InkWell(
@@ -323,7 +322,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: daysOld > 7
@@ -428,7 +427,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ColorScheme colorScheme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -437,13 +436,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_off_outlined,
               size: 50,
-              color: accentColor,
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: 24),

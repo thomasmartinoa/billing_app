@@ -6,7 +6,8 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Scaffold(
       body: Stack(
@@ -48,10 +49,10 @@ class WelcomePage extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   color: primary.withValues(alpha: 0.15),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.receipt_long,
                                   size: 36,
-                                  color: Color(0xFF17F1C5),
+                                  color: primary,
                                 ),
                               ),
                               Positioned(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/product_model.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class AddProductScreen extends StatefulWidget {
   final ProductModel? product;
@@ -28,14 +29,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _lowStockAlertCtrl = TextEditingController();
   final _skuCtrl = TextEditingController();
   final _barcodeCtrl = TextEditingController();
-
-  // --- Design Colors ---
-  final Color backgroundColor = const Color(0xFF050608);
-  final Color surfaceColor = const Color(0x14181818);
-  final Color accentColor = const Color(0xFF00C59E);
-  final Color borderColor = const Color(0xFF12332D);
-  final Color textWhite = Colors.white;
-  final Color textGray = const Color(0xFF757575);
 
   @override
   void initState() {
@@ -180,17 +173,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: accentColor),
+          icon: Icon(Icons.arrow_back, color: context.accentColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.product != null ? "Edit Product" : "Add Product",
-          style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -324,13 +317,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _saveProduct,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
+                  backgroundColor: context.accentColor,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
-                  shadowColor: accentColor.withValues(alpha: 0.4),
+                  shadowColor: context.accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
                     ? const SizedBox(
@@ -380,7 +373,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       showModalBottomSheet(
         context: context,
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: context.surfaceColor,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -393,7 +386,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Text(
                   'Select Category',
                   style: TextStyle(
-                    color: textWhite,
+                    color: context.textWhite,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -409,10 +402,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return ListTile(
                       title: Text(
                         category,
-                        style: TextStyle(color: textWhite),
+                        style: TextStyle(color: context.textWhite),
                       ),
                       trailing: isSelected
-                          ? Icon(Icons.check, color: accentColor)
+                          ? Icon(Icons.check, color: context.accentColor)
                           : null,
                       onTap: () {
                         setState(() => _categoryCtrl.text = category);
@@ -459,7 +452,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     ];
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: context.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -471,10 +464,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
             return ListTile(
               title: Text(
                 units[index],
-                style: TextStyle(color: textWhite),
+                style: TextStyle(color: context.textWhite),
               ),
               trailing: selectedUnit == units[index]
-                  ? Icon(Icons.check, color: accentColor)
+                  ? Icon(Icons.check, color: context.accentColor)
                   : null,
               onTap: () {
                 setState(() => selectedUnit = units[index]);
@@ -495,7 +488,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           height: 20,
           width: 4,
           decoration: BoxDecoration(
-            color: accentColor,
+            color: context.accentColor,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -503,7 +496,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         Text(
           title,
           style: TextStyle(
-            color: accentColor,
+            color: context.accentColor,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -525,24 +518,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label, style: TextStyle(color: textGray, fontSize: 12)),
+          Text(label, style: TextStyle(color: context.textGray, fontSize: 12)),
           const SizedBox(height: 8),
         ],
         Container(
           decoration: BoxDecoration(
-            color: surfaceColor,
+            color: context.surfaceColor,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+            border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
           ),
           child: TextField(
             controller: controller,
-            style: TextStyle(color: textWhite),
+            style: TextStyle(color: context.textWhite),
             keyboardType: inputType,
             maxLines: maxLines,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: textGray),
-              prefixIcon: Icon(icon, color: textGray),
+              hintStyle: TextStyle(color: context.textGray),
+              prefixIcon: Icon(icon, color: context.textGray),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(20),
             ),
@@ -564,7 +557,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label, style: TextStyle(color: textGray, fontSize: 12)),
+          Text(label, style: TextStyle(color: context.textGray, fontSize: 12)),
           const SizedBox(height: 8),
         ],
         GestureDetector(
@@ -572,27 +565,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: context.surfaceColor,
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+              border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
             ),
             child: Row(
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: textGray),
+                  Icon(icon, color: context.textGray),
                   const SizedBox(width: 12),
                 ],
                 Expanded(
                   child: Text(
                     hint,
-                    style: TextStyle(color: textWhite),
+                    style: TextStyle(color: context.textWhite),
                   ),
                 ),
                 Icon(
                   showDropdownIcon
                       ? Icons.arrow_drop_down
                       : Icons.arrow_forward_ios,
-                  color: textGray,
+                  color: context.textGray,
                   size: showDropdownIcon ? 24 : 16,
                 ),
               ],
@@ -614,18 +607,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+        border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
       ),
       child: SwitchListTile(
         value: value,
         onChanged: onChanged,
-        activeColor: accentColor,
-        secondary: Icon(icon, color: textGray),
+        activeColor: context.accentColor,
+        secondary: Icon(icon, color: context.textGray),
         title: Text(title,
-            style: TextStyle(color: textWhite, fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: TextStyle(color: textGray)),
+            style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: TextStyle(color: context.textGray)),
       ),
     );
   }

@@ -137,7 +137,7 @@ class _ThermalReceiptPreviewScreenState
       final selectedDevice = await showDialog<BluetoothDevice>(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF1A1A1A),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           title: const Text(
             'Select Printer',
             style: TextStyle(color: Colors.white),
@@ -227,9 +227,9 @@ class _ThermalReceiptPreviewScreenState
     final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Theme.of(context).dialogBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2A2A2A),
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text(
           'Thermal Receipt Preview',
           style: TextStyle(color: Colors.white),
@@ -515,7 +515,7 @@ class _ThermalReceiptPreviewScreenState
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2A2A),
+              color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -545,7 +545,7 @@ class _ThermalReceiptPreviewScreenState
                     icon: const Icon(Icons.print),
                     label: const Text('Print'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00C59E),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),

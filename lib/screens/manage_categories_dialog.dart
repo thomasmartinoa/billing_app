@@ -12,13 +12,6 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
   final _firestoreService = FirestoreService();
   final _categoryController = TextEditingController();
 
-  static const Color backgroundColor = Color(0xFF1F1F1F);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Colors.grey;
-
   @override
   void dispose() {
     _categoryController.dispose();
@@ -52,21 +45,22 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
   }
 
   Future<void> _deleteCategory(String categoryId, String categoryName) async {
+    final theme = Theme.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.dialogBackgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title:
-            const Text('Delete Category', style: TextStyle(color: textWhite)),
+            Text('Delete Category', style: TextStyle(color: theme.colorScheme.onSurface)),
         content: Text(
           'Are you sure you want to delete "$categoryName"?',
-          style: const TextStyle(color: textGray),
+          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: textGray)),
+            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -100,8 +94,9 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Dialog(
-      backgroundColor: backgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.9,
@@ -115,16 +110,16 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Manage Categories',
                   style: TextStyle(
-                    color: textWhite,
+                    color: theme.colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: textGray),
+                  icon: Icon(Icons.close, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -135,19 +130,19 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: theme.dividerColor.withValues(alpha: 0.6)),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _categoryController,
-                      style: const TextStyle(color: textWhite),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: theme.colorScheme.onSurface),
+                      decoration: InputDecoration(
                         hintText: 'Enter category name',
-                        hintStyle: TextStyle(color: textGray),
+                        hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                         border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _addCategory(),
@@ -157,7 +152,7 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                   ElevatedButton(
                     onPressed: _addCategory,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
+                      backgroundColor: theme.colorScheme.secondary,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -173,10 +168,10 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
             const SizedBox(height: 16),
 
             // Categories List
-            const Text(
+            Text(
               'Categories',
               style: TextStyle(
-                color: textGray,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -187,8 +182,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                 stream: _firestoreService.streamCategories(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: accentColor),
+                    return Center(
+                      child: CircularProgressIndicator(color: theme.colorScheme.secondary),
                     );
                   }
 
@@ -209,11 +204,11 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.category_outlined,
-                              color: textGray, size: 48),
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6), size: 48),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'No categories yet',
-                            style: TextStyle(color: textGray),
+                            style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                           ),
                         ],
                       ),
@@ -229,21 +224,21 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: surfaceColor,
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: borderColor.withValues(alpha: 0.6)),
+                              color: theme.dividerColor.withValues(alpha: 0.6)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.category,
-                                color: accentColor, size: 20),
+                            Icon(Icons.category,
+                                color: theme.colorScheme.secondary, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 category['name'],
-                                style: const TextStyle(
-                                  color: textWhite,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface,
                                   fontSize: 14,
                                 ),
                               ),

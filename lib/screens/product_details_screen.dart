@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/screens/add_product_screen.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 import 'package:intl/intl.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   final ProductModel product;
 
   const ProductDetailsScreen({super.key, required this.product});
-
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Colors.grey;
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +20,21 @@ class ProductDetailsScreen extends StatelessWidget {
         : null;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: accentColor),
+          icon: Icon(Icons.arrow_back, color: context.accent),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Product Details',
-          style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: accentColor),
+            icon: Icon(Icons.edit, color: context.accent),
             onPressed: () {
               Navigator.push(
                 context,
@@ -61,9 +55,9 @@ class ProductDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
               ),
               child: Column(
                 children: [
@@ -71,20 +65,20 @@ class ProductDetailsScreen extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.1),
+                      color: context.accent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.inventory_2_outlined,
-                      color: accentColor,
+                      color: context.accent,
                       size: 40,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     product.name,
-                    style: const TextStyle(
-                      color: textWhite,
+                    style: TextStyle(
+                      color: context.textWhite,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -95,8 +89,8 @@ class ProductDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       product.description!,
-                      style: const TextStyle(
-                        color: textGray,
+                      style: TextStyle(
+                        color: context.textGray,
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -109,13 +103,13 @@ class ProductDetailsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.1),
+                        color: context.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         product.category!,
-                        style: const TextStyle(
-                          color: accentColor,
+                        style: TextStyle(
+                          color: context.accent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -133,19 +127,21 @@ class ProductDetailsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildInfoCard(
+                    context,
                     icon: Icons.currency_rupee,
                     title: 'Selling Price',
                     value: '\u20b9${product.sellingPrice.toStringAsFixed(2)}',
-                    color: accentColor,
+                    color: context.accent,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildInfoCard(
+                    context,
                     icon: Icons.inventory,
                     title: 'Stock',
                     value: '${product.currentStock} ${product.unit}',
-                    color: product.isLowStock ? Colors.orange : accentColor,
+                    color: product.isLowStock ? Colors.orange : context.accent,
                   ),
                 ),
               ],
@@ -157,48 +153,48 @@ class ProductDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Product Information',
                     style: TextStyle(
-                      color: textWhite,
+                      color: context.textWhite,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildDetailRow('Unit', product.unit),
+                  _buildDetailRow(context, 'Unit', product.unit),
                   if (product.costPrice != null)
-                    _buildDetailRow('Cost Price',
+                    _buildDetailRow(context, 'Cost Price',
                         '\u20b9${product.costPrice!.toStringAsFixed(2)}'),
                   if (profit != null)
-                    _buildDetailRow(
+                    _buildDetailRow(context,
                         'Profit per Unit', '\u20b9${profit.toStringAsFixed(2)}',
                         valueColor: Colors.green),
                   if (profitMargin != null)
-                    _buildDetailRow(
+                    _buildDetailRow(context,
                         'Profit Margin', '${profitMargin.toStringAsFixed(1)}%',
                         valueColor: Colors.green),
                   if (product.sku != null && product.sku!.isNotEmpty)
-                    _buildDetailRow('SKU', product.sku!),
+                    _buildDetailRow(context, 'SKU', product.sku!),
                   if (product.barcode != null && product.barcode!.isNotEmpty)
-                    _buildDetailRow('Barcode', product.barcode!),
-                  _buildDetailRow(
+                    _buildDetailRow(context, 'Barcode', product.barcode!),
+                  _buildDetailRow(context,
                       'Track Inventory', product.trackInventory ? 'Yes' : 'No'),
                   if (product.lowStockAlert != null)
-                    _buildDetailRow('Low Stock Alert',
+                    _buildDetailRow(context, 'Low Stock Alert',
                         '${product.lowStockAlert} ${product.unit}',
                         valueColor: product.isLowStock ? Colors.orange : null),
-                  const Divider(color: borderColor, height: 32),
-                  _buildDetailRow(
+                  Divider(color: context.borderColor, height: 32),
+                  _buildDetailRow(context,
                       'Created', dateFormat.format(product.createdAt)),
-                  _buildDetailRow(
+                  _buildDetailRow(context,
                       'Last Updated', dateFormat.format(product.updatedAt)),
                 ],
               ),
@@ -236,7 +232,8 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard({
+  Widget _buildInfoCard(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String value,
@@ -245,9 +242,9 @@ class ProductDetailsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+        border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
       ),
       child: Column(
         children: [
@@ -255,8 +252,8 @@ class ProductDetailsScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(
-              color: textGray,
+            style: TextStyle(
+              color: context.textGray,
               fontSize: 12,
             ),
           ),
@@ -274,7 +271,7 @@ class ProductDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
+  Widget _buildDetailRow(BuildContext context, String label, String value, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -282,15 +279,15 @@ class ProductDetailsScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: textGray,
+            style: TextStyle(
+              color: context.textGray,
               fontSize: 14,
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              color: valueColor ?? textWhite,
+              color: valueColor ?? context.textWhite,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),

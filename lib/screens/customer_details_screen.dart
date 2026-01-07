@@ -3,6 +3,7 @@ import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 import 'package:intl/intl.dart';
 
 class CustomerDetailsScreen extends StatefulWidget {
@@ -18,13 +19,6 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   final _firestoreService = FirestoreService();
   List<InvoiceModel> _customerInvoices = [];
   bool _isLoading = true;
-
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Colors.grey;
 
   @override
   void initState() {
@@ -57,17 +51,17 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     final dateFormat = DateFormat('dd MMM yyyy');
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: context.backgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: accentColor),
+          icon: Icon(Icons.arrow_back, color: context.accent),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Customer Details',
-          style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -79,9 +73,9 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
               ),
               child: Column(
                 children: [
@@ -89,7 +83,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.1),
+                      color: context.accent.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -97,8 +91,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         widget.customer.name.isNotEmpty
                             ? widget.customer.name[0].toUpperCase()
                             : '?',
-                        style: const TextStyle(
-                          color: accentColor,
+                        style: TextStyle(
+                          color: context.accent,
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                         ),
@@ -108,8 +102,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                   const SizedBox(height: 16),
                   Text(
                     widget.customer.name,
-                    style: const TextStyle(
-                      color: textWhite,
+                    style: TextStyle(
+                      color: context.textWhite,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -135,16 +129,16 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: backgroundColor,
+                        color: context.backgroundColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Notes:',
                             style: TextStyle(
-                              color: accentColor,
+                              color: context.accent,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -153,7 +147,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                           Text(
                             widget.customer.notes!,
                             style:
-                                const TextStyle(color: textGray, fontSize: 13),
+                                TextStyle(color: context.textGray, fontSize: 13),
                           ),
                         ],
                       ),
@@ -169,10 +163,10 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Purchase History',
                   style: TextStyle(
-                    color: textWhite,
+                    color: context.textWhite,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -181,13 +175,13 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.1),
+                    color: context.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     '${_customerInvoices.length} ${_customerInvoices.length == 1 ? 'Invoice' : 'Invoices'}',
-                    style: const TextStyle(
-                      color: accentColor,
+                    style: TextStyle(
+                      color: context.accent,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -199,30 +193,30 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             const SizedBox(height: 12),
 
             _isLoading
-                ? const Center(
+                ? Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(color: accentColor),
+                      child: CircularProgressIndicator(color: context.accent),
                     ),
                   )
                 : _customerInvoices.isEmpty
                     ? Container(
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
-                          color: surfaceColor,
+                          color: context.surfaceColor,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                              color: borderColor.withValues(alpha: 0.6)),
+                              color: context.borderColor.withValues(alpha: 0.6)),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Column(
                             children: [
-                              const Icon(Icons.receipt_long,
-                                  color: textGray, size: 48),
+                              Icon(Icons.receipt_long,
+                                  color: context.textGray, size: 48),
                               const SizedBox(height: 12),
                               Text(
                                 'No purchase history',
-                                style: TextStyle(color: textGray),
+                                style: TextStyle(color: context.textGray),
                               ),
                             ],
                           ),
@@ -245,10 +239,10 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: surfaceColor,
+                                color: context.surfaceColor,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                    color: borderColor.withValues(alpha: 0.6)),
+                                    color: context.borderColor.withValues(alpha: 0.6)),
                               ),
                               child: Row(
                                 children: [
@@ -257,7 +251,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                     height: 40,
                                     decoration: BoxDecoration(
                                       color: isPaid
-                                          ? accentColor.withValues(alpha: 0.1)
+                                          ? context.accent.withValues(alpha: 0.1)
                                           : Colors.orange
                                               .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
@@ -267,7 +261,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                           ? Icons.check_circle
                                           : Icons.pending,
                                       color:
-                                          isPaid ? accentColor : Colors.orange,
+                                          isPaid ? context.accent : Colors.orange,
                                       size: 20,
                                     ),
                                   ),
@@ -279,8 +273,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                       children: [
                                         Text(
                                           invoice.invoiceNumber,
-                                          style: const TextStyle(
-                                            color: textWhite,
+                                          style: TextStyle(
+                                            color: context.textWhite,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -288,8 +282,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           dateFormat.format(invoice.createdAt),
-                                          style: const TextStyle(
-                                            color: textGray,
+                                          style: TextStyle(
+                                            color: context.textGray,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -301,8 +295,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                     children: [
                                       Text(
                                         '\u20b9${invoice.total.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          color: accentColor,
+                                        style: TextStyle(
+                                          color: context.accent,
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -315,7 +309,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: isPaid
-                                              ? accentColor.withValues(
+                                              ? context.accent.withValues(
                                                   alpha: 0.2)
                                               : Colors.orange
                                                   .withValues(alpha: 0.2),
@@ -326,7 +320,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                           isPaid ? 'Paid' : 'Pending',
                                           style: TextStyle(
                                             color: isPaid
-                                                ? accentColor
+                                                ? context.accent
                                                 : Colors.orange,
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
@@ -352,13 +346,13 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, color: accentColor, size: 18),
+          Icon(icon, color: context.accent, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                color: textGray,
+              style: TextStyle(
+                color: context.textGray,
                 fontSize: 14,
               ),
             ),

@@ -76,9 +76,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
     return Scaffold(
-      backgroundColor: const Color(0xFF050608),
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -86,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Card(
-                color: const Color(0xFF141618),
+                color: theme.cardColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -286,7 +287,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create account')),
@@ -297,7 +299,7 @@ class _SignupPageState extends State<SignupPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Card(
-                color: const Color(0xFF141618),
+                color: theme.cardColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

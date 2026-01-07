@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/user_model.dart';
+import 'package:billing_app/providers/theme_provider.dart';
+import 'package:billing_app/theme/theme_helper.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,12 +17,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = true;
   bool _isSaving = false;
-
-  // Define colors
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
 
   // Form controllers
   final TextEditingController _nameController = TextEditingController();
@@ -127,9 +124,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Settings saved successfully'),
-            backgroundColor: accentColor,
+          SnackBar(
+            content: const Text('Settings saved successfully'),
+            backgroundColor: context.accent,
           ),
         );
         Navigator.pop(context);
@@ -147,36 +144,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Settings',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Settings'),
         actions: [
           if (!_isLoading)
             TextButton(
               onPressed: _isSaving ? null : _saveSettings,
               child: _isSaving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: accentColor,
+                        color: context.accent,
                       ),
                     )
-                  : const Text(
+                  : Text(
                       'Save',
                       style: TextStyle(
-                        color: accentColor,
+                        color: context.accent,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -185,8 +178,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: accentColor),
+          ? Center(
+              child: CircularProgressIndicator(color: context.accent),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -195,9 +188,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle('Shop Details'),
+                    // Theme Settings Section
+                    _buildSectionTitle(context, 'Appearance'),
+                    const SizedBox(height: 16),
+                    _buildThemeSelector(context, themeProvider),
+                    const SizedBox(height: 32),
+
+                    _buildSectionTitle(context, 'Shop Details'),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _nameController,
                       label: 'Shop Name',
                       icon: Icons.store,
@@ -210,12 +210,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _taglineController,
                       label: 'Tagline',
                       icon: Icons.text_fields,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _addressController,
                       label: 'Address',
                       icon: Icons.location_on,
@@ -229,6 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _phoneController,
                       label: 'Phone Number',
                       icon: Icons.phone,
@@ -242,6 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _emailController,
                       label: 'Email',
                       icon: Icons.email,
@@ -249,21 +253,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _websiteController,
                       label: 'Website',
                       icon: Icons.language,
                       keyboardType: TextInputType.url,
                     ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('Business Information'),
+                    _buildSectionTitle(context, 'Business Information'),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _gstController,
                       label: 'GST Number',
                       icon: Icons.numbers,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _taxRateController,
                       label: 'Tax Rate (%)',
                       icon: Icons.percent,
@@ -282,20 +289,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: surfaceColor,
+                        color: context.cardColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: borderColor.withValues(alpha: 0.6)),
+                        border: Border.all(color: context.borderColor),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calculate, color: accentColor),
+                          Icon(Icons.calculate, color: context.accent),
                           const SizedBox(width: 16),
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               'Include Tax in Price',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                              style: TextStyle(
+                                color: context.textPrimary,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                           Switch(
@@ -303,15 +311,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onChanged: (value) {
                               setState(() => _includeTaxInPrice = value);
                             },
-                            activeColor: accentColor,
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('Invoice Settings'),
+                    _buildSectionTitle(context, 'Invoice Settings'),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _invoicePrefixController,
                       label: 'Invoice Prefix',
                       icon: Icons.receipt,
@@ -324,6 +332,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _termsController,
                       label: 'Terms & Conditions',
                       icon: Icons.description,
@@ -331,6 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
+                      context,
                       controller: _footerNoteController,
                       label: 'Footer Note',
                       icon: Icons.note,
@@ -344,18 +354,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildThemeSelector(
+      BuildContext context, ThemeProvider themeProvider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.borderColor),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(Icons.palette, color: context.accent),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Theme Mode',
+                  style: TextStyle(
+                    color: context.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildThemeOption(
+                  context,
+                  icon: Icons.light_mode,
+                  label: 'Light',
+                  isSelected: themeProvider.isLightMode,
+                  onTap: () => themeProvider.setLightMode(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildThemeOption(
+                  context,
+                  icon: Icons.dark_mode,
+                  label: 'Dark',
+                  isSelected: themeProvider.isDarkMode,
+                  onTap: () => themeProvider.setDarkMode(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildThemeOption(
+                  context,
+                  icon: Icons.settings_suggest,
+                  label: 'System',
+                  isSelected: themeProvider.isSystemMode,
+                  onTap: () => themeProvider.setSystemMode(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color:
+              isSelected ? context.accent.withOpacity(0.2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? context.accent : context.borderColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? context.accent : context.textSecondary,
+              size: 28,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? context.accent : context.textSecondary,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
-      style: const TextStyle(
-        color: accentColor,
+      style: TextStyle(
+        color: context.accent,
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildTextField(
+    BuildContext context, {
     required TextEditingController controller,
     required String label,
     required IconData icon,
@@ -365,32 +485,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: context.textPrimary),
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: Icon(icon, color: accentColor),
-        filled: true,
-        fillColor: surfaceColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor.withValues(alpha: 0.6)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: borderColor.withValues(alpha: 0.6)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: accentColor),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
+        prefixIcon: Icon(icon, color: context.accent),
       ),
     );
   }

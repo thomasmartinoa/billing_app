@@ -4,6 +4,7 @@ import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/screens/add_product_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
 import 'package:billing_app/screens/manage_categories_dialog.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -18,14 +19,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   String _searchQuery = '';
   String? _selectedCategory; // null means "All"
 
-  // Define your specific colors here to match the design
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-  static const Color textWhite = Colors.white;
-  static const Color textGray = Colors.grey;
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -35,7 +28,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: context.backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,18 +39,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Products",
                     style: TextStyle(
-                      color: textWhite,
+                      color: context.textPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.category,
-                      color: accentColor,
+                      color: context.accent,
                       size: 28,
                     ),
                     onPressed: () {
@@ -74,29 +67,29 @@ class _ProductListScreenState extends State<ProductListScreen> {
               // --- 2. Search Bar ---
               TextField(
                 controller: _searchController,
-                style: const TextStyle(color: textWhite),
+                style: TextStyle(color: context.textPrimary),
                 onChanged: (value) {
                   setState(() => _searchQuery = value.toLowerCase());
                 },
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: surfaceColor,
+                  fillColor: context.surfaceColor,
                   hintText: "Search products...",
-                  hintStyle: const TextStyle(color: textGray),
-                  prefixIcon: const Icon(Icons.search, color: accentColor),
+                  hintStyle: TextStyle(color: context.textSecondary),
+                  prefixIcon: Icon(Icons.search, color: context.accent),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
+                        BorderSide(color: context.borderColor.withValues(alpha: 0.6)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: borderColor.withValues(alpha: 0.6)),
+                        BorderSide(color: context.borderColor.withValues(alpha: 0.6)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: accentColor),
+                    borderSide: BorderSide(color: context.accent),
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -123,17 +116,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             labelStyle: TextStyle(
                               color: _selectedCategory == null
                                   ? Colors.black
-                                  : textWhite,
+                                  : context.textPrimary,
                               fontWeight: FontWeight.w500,
                             ),
                             selected: _selectedCategory == null,
-                            selectedColor: accentColor,
-                            backgroundColor: surfaceColor,
+                            selectedColor: context.accent,
+                            backgroundColor: context.surfaceColor,
                             checkmarkColor: Colors.black,
                             side: BorderSide(
                               color: _selectedCategory == null
-                                  ? accentColor
-                                  : borderColor,
+                                  ? context.accent
+                                  : context.borderColor,
                             ),
                             onSelected: (selected) {
                               setState(() {
@@ -152,15 +145,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             child: FilterChip(
                               label: Text(categoryName),
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.black : textWhite,
+                                color: isSelected ? Colors.black : context.textPrimary,
                                 fontWeight: FontWeight.w500,
                               ),
                               selected: isSelected,
-                              selectedColor: accentColor,
-                              backgroundColor: surfaceColor,
+                              selectedColor: context.accent,
+                              backgroundColor: context.surfaceColor,
                               checkmarkColor: Colors.black,
                               side: BorderSide(
-                                color: isSelected ? accentColor : borderColor,
+                                color: isSelected ? context.accent : context.borderColor,
                               ),
                               onSelected: (selected) {
                                 setState(() {
@@ -185,8 +178,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   stream: _firestoreService.streamProducts(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: accentColor),
+                      return Center(
+                        child: CircularProgressIndicator(color: context.accent),
                       );
                     }
 
@@ -224,7 +217,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       return Center(
                         child: Text(
                           'No products matching "$_searchQuery"',
-                          style: const TextStyle(color: textGray),
+                          style: TextStyle(color: context.textSecondary),
                         ),
                       );
                     }
@@ -252,7 +245,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             MaterialPageRoute(builder: (_) => const AddProductScreen()),
           );
         },
-        backgroundColor: accentColor,
+        backgroundColor: context.accent,
         icon: const Icon(Icons.add, color: Colors.black),
         label: const Text(
           'Add Product',
@@ -276,9 +269,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: context.surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+          border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -286,12 +279,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
+                color: context.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.inventory_2_outlined,
-                color: accentColor,
+                color: context.accent,
               ),
             ),
             const SizedBox(width: 16),
@@ -301,8 +294,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(
-                      color: textWhite,
+                    style: TextStyle(
+                      color: context.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -310,8 +303,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   const SizedBox(height: 4),
                   Text(
                     '₹${product.sellingPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: accentColor,
+                    style: TextStyle(
+                      color: context.accent,
                       fontSize: 14,
                     ),
                   ),
@@ -324,7 +317,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 Text(
                   'Stock: ${product.currentStock}',
                   style: TextStyle(
-                    color: product.isLowStock ? Colors.orange : textGray,
+                    color: product.isLowStock ? Colors.orange : context.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -340,8 +333,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
             const SizedBox(width: 8),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: textGray),
-              color: const Color(0xFF1F1F1F),
+              icon: Icon(Icons.more_vert, color: context.textSecondary),
+              color: context.surfaceColor,
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
@@ -356,23 +349,23 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
                   child: Row(
                     children: [
-                      const Icon(Icons.edit, color: accentColor, size: 20),
+                      Icon(Icons.edit, color: context.accent, size: 20),
                       const SizedBox(width: 12),
-                      Text('Edit', style: TextStyle(color: textWhite)),
+                      Text('Edit', style: TextStyle(color: context.textPrimary)),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'update_stock',
                   child: Row(
                     children: [
-                      const Icon(Icons.inventory, color: accentColor, size: 20),
+                      Icon(Icons.inventory, color: context.accent, size: 20),
                       const SizedBox(width: 12),
-                      Text('Update Stock', style: TextStyle(color: textWhite)),
+                      Text('Update Stock', style: TextStyle(color: context.textPrimary)),
                     ],
                   ),
                 ),
@@ -380,8 +373,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   value: 'delete',
                   child: Row(
                     children: [
-                      const Icon(Icons.delete, color: Colors.red, size: 20),
-                      const SizedBox(width: 12),
+                      Icon(Icons.delete, color: Colors.red, size: 20),
+                      SizedBox(width: 12),
                       Text('Delete', style: TextStyle(color: Colors.red)),
                     ],
                   ),
@@ -411,50 +404,50 @@ class _ProductListScreenState extends State<ProductListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1F1F1F),
+        backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Column(
           children: [
             Text(
               'Update Stock - ${product.name}',
-              style: const TextStyle(color: textWhite, fontSize: 18),
+              style: TextStyle(color: context.textPrimary, fontSize: 18),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Current: ${product.currentStock} ${product.unit}',
-              style: const TextStyle(color: textGray, fontSize: 14),
+              style: TextStyle(color: context.textSecondary, fontSize: 14),
             ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'New Quantity',
-              style: TextStyle(color: textGray, fontSize: 14),
+              style: TextStyle(color: context.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: context.backgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.inventory_2_outlined, color: accentColor),
+                  Icon(Icons.inventory_2_outlined, color: context.accent),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       controller: stockController,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(color: textWhite, fontSize: 18),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: context.textPrimary, fontSize: 18),
+                      decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: '0',
-                        hintStyle: TextStyle(color: textGray),
+                        hintStyle: TextStyle(color: context.textSecondary),
                       ),
                     ),
                   ),
@@ -466,9 +459,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: textGray),
+              style: TextStyle(color: context.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -501,7 +494,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: accentColor,
+              backgroundColor: context.accent,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -518,22 +511,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1F1F1F),
+        backgroundColor: context.surfaceColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Delete Product',
-          style: TextStyle(color: textWhite),
+          style: TextStyle(color: context.textPrimary),
         ),
         content: Text(
           'Are you sure you want to delete "${product.name}"? This action cannot be undone.',
-          style: const TextStyle(color: textGray),
+          style: TextStyle(color: context.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: textGray),
+              style: TextStyle(color: context.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -578,32 +571,32 @@ class _ProductListScreenState extends State<ProductListScreen> {
             height: 100,
             width: 100,
             decoration: BoxDecoration(
-              color: surfaceColor,
+              color: context.surfaceColor,
               shape: BoxShape.circle,
-              border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+              border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.inventory_2_outlined,
                 size: 48,
-                color: accentColor,
+                color: context.accent,
               ),
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             "No products yet",
             style: TextStyle(
-              color: textWhite,
+              color: context.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             "Add your first product to get started",
             style: TextStyle(
-              color: textGray,
+              color: context.textSecondary,
               fontSize: 14,
             ),
           ),
@@ -628,7 +621,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
+                backgroundColor: context.accent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),

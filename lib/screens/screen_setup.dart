@@ -157,7 +157,8 @@ class _ScreenSetupState extends State<ScreenSetup> {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Scaffold(
       body: SafeArea(
@@ -175,7 +176,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                   : _step == 2
                       ? "Step 2: Basic Information"
                       : "Step 3: Business Settings",
-              style: const TextStyle(fontSize: 14, color: primary),
+              style: TextStyle(fontSize: 14, color: primary),
             ),
             const SizedBox(height: 8),
             _StepIndicator(currentStep: _step),
@@ -191,9 +192,9 @@ class _ScreenSetupState extends State<ScreenSetup> {
             ),
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF141618),
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
@@ -206,7 +207,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                         onPressed: _isLoading ? null : _goNext,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: Colors.black,
+                          foregroundColor: theme.colorScheme.onPrimary,
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
@@ -219,7 +220,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                           child: OutlinedButton(
                             onPressed: _isLoading ? null : _goBack,
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: primary),
+                              side: BorderSide(color: primary),
                               foregroundColor: primary,
                               shape: const StadiumBorder(),
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -233,17 +234,17 @@ class _ScreenSetupState extends State<ScreenSetup> {
                             onPressed: _isLoading ? null : _goNext,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primary,
-                              foregroundColor: Colors.black,
+                              foregroundColor: theme.colorScheme.onPrimary,
                               shape: const StadiumBorder(),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             child: _isLoading && _step == 3
-                                ? const SizedBox(
+                                ? SizedBox(
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: Colors.black,
+                                      color: theme.colorScheme.onPrimary,
                                     ),
                                   )
                                 : Text(
@@ -273,7 +274,8 @@ class _ScreenSetupState extends State<ScreenSetup> {
   }
 
   Widget _buildStep1() {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,9 +285,9 @@ class _ScreenSetupState extends State<ScreenSetup> {
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           "Select your shop type to customize the app experience",
-          style: TextStyle(fontSize: 12, color: Color(0xFF8A8F98)),
+          style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(height: 12),
         LayoutBuilder(
@@ -311,11 +313,11 @@ class _ScreenSetupState extends State<ScreenSetup> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: selected
-                            ? const Color(0xFF0E3A34)
-                            : const Color(0xFF1B1E22),
+                            ? theme.colorScheme.primary.withOpacity(0.15)
+                            : theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? primary : const Color(0xFF252A30),
+                          color: selected ? primary : theme.colorScheme.outline,
                           width: selected ? 1.5 : 1,
                         ),
                       ),
@@ -327,7 +329,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
-                            color: selected ? primary : const Color(0xFFD5D8DD),
+                            color: selected ? primary : theme.colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -347,7 +349,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF141618),
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
           ),
           child: LayoutBuilder(
@@ -386,17 +388,17 @@ class _ScreenSetupState extends State<ScreenSetup> {
                       height: iconButtonSize,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1B1E22),
+                        color: theme.colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: selected ? primary : const Color(0xFF252A30),
+                          color: selected ? primary : theme.colorScheme.outline,
                           width: selected ? 1.5 : 1,
                         ),
                       ),
                       child: Icon(
                         icon,
                         size: iconButtonSize * 0.45,
-                        color: selected ? primary : const Color(0xFFD5D8DD),
+                        color: selected ? primary : theme.colorScheme.onSurface,
                       ),
                     ),
                   );
@@ -410,7 +412,8 @@ class _ScreenSetupState extends State<ScreenSetup> {
   }
 
   Widget _buildStep2() {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,14 +423,14 @@ class _ScreenSetupState extends State<ScreenSetup> {
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           "This information will appear on your invoices",
-          style: TextStyle(fontSize: 12, color: Color(0xFF8A8F98)),
+          style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _nameCtrl,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.storefront, color: primary),
             labelText: "Shop Name *",
           ),
@@ -435,7 +438,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const SizedBox(height: 10),
         TextField(
           controller: _taglineCtrl,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.format_quote, color: primary),
             labelText: "Tagline / Slogan",
           ),
@@ -443,7 +446,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const SizedBox(height: 10),
         TextField(
           controller: _addressCtrl,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.location_on_outlined, color: primary),
             labelText: "Address *",
           ),
@@ -452,7 +455,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         TextField(
           controller: _phoneCtrl,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.phone, color: primary),
             labelText: "Phone Number *",
           ),
@@ -461,7 +464,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         TextField(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.email_outlined, color: primary),
             labelText: "Email Address",
           ),
@@ -469,7 +472,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const SizedBox(height: 10),
         TextField(
           controller: _websiteCtrl,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.language, color: primary),
             labelText: "Website",
           ),
@@ -477,7 +480,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         const SizedBox(height: 10),
         TextField(
           controller: _gstCtrl,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.receipt_long, color: primary),
             labelText: "GST / Tax Number",
           ),
@@ -487,7 +490,8 @@ class _ScreenSetupState extends State<ScreenSetup> {
   }
 
   Widget _buildStep3() {
-    const primary = Color(0xFF17F1C5);
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,16 +501,16 @@ class _ScreenSetupState extends State<ScreenSetup> {
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           "Configure currency, tax, and invoice settings",
-          style: TextStyle(fontSize: 12, color: Color(0xFF8A8F98)),
+          style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(height: 12),
         const Text("Currency", style: TextStyle(fontSize: 13)),
         const SizedBox(height: 4),
         DropdownButtonFormField<String>(
           value: _currency,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.currency_rupee, color: primary),
           ),
           items: const [
@@ -525,7 +529,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixIcon: Icon(Icons.percent, color: primary),
                   labelText: "Tax Rate (%)",
                 ),
@@ -535,7 +539,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
             Expanded(
               child: TextField(
                 controller: _invoicePrefixCtrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixIcon: Icon(Icons.tag, color: primary),
                   labelText: "Invoice Prefix",
                 ),
@@ -547,25 +551,25 @@ class _ScreenSetupState extends State<ScreenSetup> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFF1B1E22),
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              const Icon(Icons.receipt_long, color: primary),
+              Icon(Icons.receipt_long, color: primary),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Include Tax in Price",
                       style: TextStyle(fontSize: 13),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       "Show prices with tax included",
-                      style: TextStyle(fontSize: 11, color: Color(0xFF8A8F98)),
+                      style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                     ),
                   ],
                 ),
@@ -583,7 +587,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         TextField(
           controller: _termsCtrl,
           maxLines: 3,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.menu_book_outlined, color: primary),
             labelText: "Terms & Conditions",
           ),
@@ -592,7 +596,7 @@ class _ScreenSetupState extends State<ScreenSetup> {
         TextField(
           controller: _footerCtrl,
           maxLines: 2,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.notes, color: primary),
             labelText: "Invoice Footer Note",
           ),
@@ -608,8 +612,9 @@ class _StepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const active = Color(0xFF17F1C5);
-    const inactive = Color(0xFF33363B);
+    final theme = Theme.of(context);
+    final active = theme.colorScheme.primary;
+    final inactive = theme.colorScheme.surfaceContainerHighest;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

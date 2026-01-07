@@ -4,6 +4,7 @@ import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/screens/create_invoice_screen.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
@@ -39,9 +40,9 @@ class _BillingScreenState extends State<BillingScreen>
         title: const Text('Billing'),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFF00C59E),
-          labelColor: const Color(0xFF00C59E),
-          unselectedLabelColor: Colors.white54,
+          indicatorColor: context.accent,
+          labelColor: context.accent,
+          unselectedLabelColor: context.textPrimary.withValues(alpha: 0.54),
           tabs: const [
             Tab(text: 'All'),
             Tab(text: 'Pending'),
@@ -58,12 +59,12 @@ class _BillingScreenState extends State<BillingScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0x14181818),
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, color: Colors.white24),
+                  Icon(Icons.search, color: context.textPrimary.withValues(alpha: 0.24)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -71,12 +72,12 @@ class _BillingScreenState extends State<BillingScreen>
                       onChanged: (value) {
                         setState(() => _searchQuery = value.toLowerCase());
                       },
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search invoices...',
-                        hintStyle: TextStyle(color: Colors.white24),
+                        hintStyle: TextStyle(color: context.textPrimary.withValues(alpha: 0.24)),
                         border: InputBorder.none,
                       ),
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: context.textPrimary),
                     ),
                   ),
                 ],
@@ -106,8 +107,8 @@ class _BillingScreenState extends State<BillingScreen>
             MaterialPageRoute(builder: (_) => CreateInvoiceScreen()),
           );
         },
-        backgroundColor: const Color(0xFF00C59E),
-        foregroundColor: Colors.black,
+        backgroundColor: context.accent,
+        foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
         label: const Text('New Invoice'),
       ),
@@ -126,8 +127,8 @@ class _BillingScreenState extends State<BillingScreen>
       stream: stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF00C59E)),
+          return Center(
+            child: CircularProgressIndicator(color: context.accent),
           );
         }
 
@@ -135,7 +136,7 @@ class _BillingScreenState extends State<BillingScreen>
           return Center(
             child: Text(
               'Error: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           );
         }
@@ -154,7 +155,7 @@ class _BillingScreenState extends State<BillingScreen>
           return Center(
             child: Text(
               'No invoices matching "$_searchQuery"',
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: context.textPrimary.withValues(alpha: 0.54)),
             ),
           );
         }
@@ -187,10 +188,10 @@ class _BillingScreenState extends State<BillingScreen>
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0x14181818),
+          color: context.surfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF12332D).withValues(alpha: 0.6),
+            color: context.accent.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -200,15 +201,15 @@ class _BillingScreenState extends State<BillingScreen>
               height: 48,
               decoration: BoxDecoration(
                 color: invoice.status == InvoiceStatus.paid
-                    ? const Color(0xFF0E5A4A)
-                    : const Color(0xFF5A4A0E),
+                    ? context.accent.withValues(alpha: 0.2)
+                    : context.cardColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.receipt_long,
                 color: invoice.status == InvoiceStatus.paid
-                    ? const Color(0xFF00C59E)
-                    : Colors.orange,
+                    ? context.accent
+                    : context.textSecondary,
               ),
             ),
             const SizedBox(width: 12),
@@ -218,23 +219,23 @@ class _BillingScreenState extends State<BillingScreen>
                 children: [
                   Text(
                     invoice.invoiceNumber,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     invoice.customerName ?? 'Walk-in Customer',
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style: TextStyle(
+                      color: context.textPrimary.withValues(alpha: 0.54),
                       fontSize: 12,
                     ),
                   ),
                   Text(
                     dateFormat.format(invoice.createdAt),
-                    style: const TextStyle(
-                      color: Colors.white38,
+                    style: TextStyle(
+                      color: context.textPrimary.withValues(alpha: 0.38),
                       fontSize: 11,
                     ),
                   ),
@@ -246,8 +247,8 @@ class _BillingScreenState extends State<BillingScreen>
               children: [
                 Text(
                   '₹${invoice.total.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: Color(0xFF00C59E),
+                  style: TextStyle(
+                    color: context.accent,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -260,16 +261,16 @@ class _BillingScreenState extends State<BillingScreen>
                   ),
                   decoration: BoxDecoration(
                     color: invoice.status == InvoiceStatus.paid
-                        ? Colors.green.withValues(alpha: 0.2)
-                        : Colors.orange.withValues(alpha: 0.2),
+                        ? context.accent.withValues(alpha: 0.2)
+                        : context.cardColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     invoice.status == InvoiceStatus.paid ? 'PAID' : 'PENDING',
                     style: TextStyle(
                       color: invoice.status == InvoiceStatus.paid
-                          ? Colors.green
-                          : Colors.orange,
+                          ? context.accent
+                          : context.textSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -298,29 +299,29 @@ class _EmptyBillingState extends StatelessWidget {
           Container(
             width: 72,
             height: 72,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFF0E5A4A),
+              color: context.accent.withValues(alpha: 0.2),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.receipt_long,
               size: 36,
-              color: Color(0xFF00C59E),
+              color: context.accent,
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No invoices yet',
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Create your first invoice to get started',
-            style: TextStyle(color: Colors.white54),
+            style: TextStyle(color: context.textPrimary.withValues(alpha: 0.54)),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -333,8 +334,8 @@ class _EmptyBillingState extends StatelessWidget {
             icon: const Icon(Icons.add),
             label: const Text('Create Invoice'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00C59E),
-              foregroundColor: Colors.black,
+              backgroundColor: context.accent,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(
                 horizontal: 22,
                 vertical: 12,

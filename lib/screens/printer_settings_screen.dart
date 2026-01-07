@@ -150,9 +150,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Theme.of(context).dialogBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2A2A2A),
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         title: const Text(
           'Thermal Printer Settings',
@@ -201,7 +201,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
   Widget _buildConnectionStatusCard() {
     return Card(
-      color: const Color(0xFF2A2A2A),
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -244,7 +244,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
 
   Widget _buildConnectedPrinterCard() {
     return Card(
-      color: const Color(0xFF2A2A2A),
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -334,7 +334,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         const SizedBox(height: 12),
         if (_devices.isEmpty)
           Card(
-            color: const Color(0xFF2A2A2A),
+            color: Theme.of(context).cardColor,
             child: const Padding(
               padding: EdgeInsets.all(24.0),
               child: Center(
@@ -366,7 +366,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
           )
         else
           ..._devices.map((device) => Card(
-                color: const Color(0xFF2A2A2A),
+                color: Theme.of(context).cardColor,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   leading: const Icon(Icons.print, color: Colors.blue),

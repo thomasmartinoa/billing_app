@@ -4,25 +4,23 @@ import 'package:url_launcher/url_launcher.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const Color backgroundColor = Color(0xFF050608);
-  static const Color surfaceColor = Color(0x14181818);
-  static const Color accentColor = Color(0xFF00C59E);
-  static const Color borderColor = Color(0xFF12332D);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'About',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -36,32 +34,32 @@ class AboutScreen extends StatelessWidget {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: accentColor, width: 2),
+                border: Border.all(color: colorScheme.primary, width: 2),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.receipt_long,
-                color: accentColor,
+                color: colorScheme.primary,
                 size: 60,
               ),
             ),
             const SizedBox(height: 20),
             // App Name
-            const Text(
+            Text(
               'Billing App',
               style: TextStyle(
-                color: Colors.white,
+                color: colorScheme.onSurface,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             // Version
-            const Text(
+            Text(
               'Version 1.0.0',
               style: TextStyle(
-                color: Colors.grey,
+                color: colorScheme.onSurface.withOpacity(0.6),
                 fontSize: 16,
               ),
             ),
@@ -70,15 +68,15 @@ class AboutScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: surfaceColor,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
               ),
-              child: const Text(
+              child: Text(
                 'A comprehensive billing and invoice management solution designed to help businesses streamline their sales process, manage inventory, track customers, and generate professional invoices.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: colorScheme.onSurface.withOpacity(0.7),
                   fontSize: 14,
                   height: 1.5,
                 ),
@@ -86,23 +84,24 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             // Features
-            _buildSectionTitle('Features'),
+            _buildSectionTitle('Features', context),
             const SizedBox(height: 16),
-            _buildFeatureItem(Icons.inventory_2, 'Product Management'),
-            _buildFeatureItem(Icons.people, 'Customer Management'),
-            _buildFeatureItem(Icons.receipt, 'Invoice Generation'),
-            _buildFeatureItem(Icons.analytics, 'Sales Analytics'),
-            _buildFeatureItem(Icons.category, 'Category Management'),
-            _buildFeatureItem(Icons.cloud, 'Cloud Sync'),
+            _buildFeatureItem(Icons.inventory_2, 'Product Management', context),
+            _buildFeatureItem(Icons.people, 'Customer Management', context),
+            _buildFeatureItem(Icons.receipt, 'Invoice Generation', context),
+            _buildFeatureItem(Icons.analytics, 'Sales Analytics', context),
+            _buildFeatureItem(Icons.category, 'Category Management', context),
+            _buildFeatureItem(Icons.cloud, 'Cloud Sync', context),
             const SizedBox(height: 30),
             // Support Section
-            _buildSectionTitle('Support'),
+            _buildSectionTitle('Support', context),
             const SizedBox(height: 16),
             _buildSupportCard(
               icon: Icons.bug_report,
               title: 'Report a Bug',
               subtitle: 'Found an issue? Let us know',
               onTap: () => _launchEmail(),
+              context: context,
             ),
             const SizedBox(height: 12),
             _buildSupportCard(
@@ -110,6 +109,7 @@ class AboutScreen extends StatelessWidget {
               title: 'Help & FAQ',
               subtitle: 'Get answers to common questions',
               onTap: () => _showComingSoonDialog(context),
+              context: context,
             ),
             const SizedBox(height: 12),
             _buildSupportCard(
@@ -117,6 +117,7 @@ class AboutScreen extends StatelessWidget {
               title: 'Rate Us',
               subtitle: 'Enjoying the app? Leave a review',
               onTap: () => _showComingSoonDialog(context),
+              context: context,
             ),
             const SizedBox(height: 20),
           ],
@@ -125,18 +126,20 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Text(
       title,
-      style: const TextStyle(
-        color: accentColor,
+      style: TextStyle(
+        color: colorScheme.primary,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String text) {
+  Widget _buildFeatureItem(IconData icon, String text, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -145,16 +148,16 @@ class AboutScreen extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: accentColor, size: 20),
+            child: Icon(icon, color: colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 16),
           Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorScheme.onSurface,
               fontSize: 16,
             ),
           ),
@@ -168,16 +171,18 @@ class AboutScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -185,10 +190,10 @@ class AboutScreen extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: accentColor, size: 24),
+              child: Icon(icon, color: colorScheme.primary, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -197,8 +202,8 @@ class AboutScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -207,14 +212,14 @@ class AboutScreen extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.grey[400],
+                      color: colorScheme.onSurface.withOpacity(0.6),
                       fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
+            Icon(Icons.arrow_forward_ios, color: colorScheme.onSurface.withOpacity(0.4), size: 16),
           ],
         ),
       ),
@@ -234,28 +239,29 @@ class AboutScreen extends StatelessWidget {
   }
 
   void _showComingSoonDialog(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: colorScheme.surfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: borderColor),
+          side: BorderSide(color: colorScheme.outline),
         ),
-        title: const Text(
+        title: Text(
           'Coming Soon',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
         ),
-        content: const Text(
+        content: Text(
           'This feature will be available in a future update.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'OK',
-              style: TextStyle(color: accentColor, fontWeight: FontWeight.bold),
+              style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
             ),
           ),
         ],

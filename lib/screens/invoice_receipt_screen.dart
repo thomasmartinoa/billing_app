@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:billing_app/models/invoice_model.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/services/pdf_service.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:billing_app/screens/thermal_receipt_preview_screen.dart';
+import 'package:billing_app/constants/app_constants.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -156,9 +158,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Printing thermal receipt...'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -167,7 +169,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error printing: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -189,10 +191,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
       if (devices.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
                 'No Bluetooth printers found. Please pair a printer first.'),
-            backgroundColor: Colors.orange,
+            backgroundColor: context.warningColor,
           ),
         );
         return;
@@ -202,10 +204,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       final selectedDevice = await showDialog<BluetoothDevice>(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: const Color(0xFF1A1A1A),
-          title: const Text(
+          backgroundColor: Theme.of(context).dialogBackgroundColor,
+          title: Text(
             'Select Thermal Printer',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -215,14 +217,14 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               itemBuilder: (context, index) {
                 final device = devices[index];
                 return ListTile(
-                  leading: const Icon(Icons.print, color: Colors.blue),
+                  leading: Icon(Icons.print, color: context.accent),
                   title: Text(
                     device.name ?? 'Unknown Device',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   ),
                   subtitle: Text(
                     device.address ?? '',
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                   ),
                   onTap: () => Navigator.pop(context, device),
                 );
@@ -247,7 +249,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -269,9 +271,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Connected! Printing...'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -281,9 +283,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Print completed successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -292,7 +294,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Print failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -361,7 +363,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   void _showPrintOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: Theme.of(context).dialogBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -371,12 +373,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'Thermal Receipt Options',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -389,8 +391,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               icon: const Icon(Icons.visibility),
               label: const Text('Preview & Print'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00C59E),
-                foregroundColor: Colors.black,
+                backgroundColor: context.accent,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -403,8 +405,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               icon: const Icon(Icons.print),
               label: const Text('Print Directly'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF00C59E),
-                side: const BorderSide(color: Color(0xFF00C59E)),
+                foregroundColor: context.accent,
+                side: BorderSide(color: context.accent),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -417,8 +419,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               icon: const Icon(Icons.save),
               label: const Text('Save as PDF'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white),
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                side: BorderSide(color: Theme.of(context).colorScheme.onSurface),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -497,8 +499,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       ),
 
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00C59E)))
+          ? Center(
+              child: CircularProgressIndicator(color: context.accent))
           : Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -607,7 +609,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _shopSettings!.thankYouNote!.isNotEmpty)
                         Text(
                           _shopSettings!.thankYouNote!,
-                          style: const TextStyle(color: Colors.black54),
+                          style: TextStyle(color: context.textSecondary),
                         ),
 
                       const SizedBox(height: 8),
@@ -616,8 +618,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _invoice.notes!.isNotEmpty) ...[
                         Text(
                           'Note: ${_invoice.notes}',
-                          style: const TextStyle(
-                              color: Colors.black54, fontSize: 12),
+                          style: TextStyle(
+                              color: context.textSecondary, fontSize: AppFontSize.md),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -625,7 +627,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       Text(
                         isPaid ? '*** PAID ***' : '*** PENDING ***',
                         style: TextStyle(
-                          color: isPaid ? Colors.green : Colors.orange,
+                          color: isPaid ? context.successColor : context.warningColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -640,7 +642,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 40),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
-          border: const Border(top: BorderSide(color: Colors.white12)),
+          border: Border(top: BorderSide(color: context.borderColor.withOpacity(0.2))),
         ),
         child: Row(
           children: [
@@ -656,8 +658,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       : const Icon(Icons.check_circle),
                   label: Text(_isMarkingPaid ? 'Marking...' : 'Mark as Paid'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF00C59E),
-                    side: const BorderSide(color: Color(0xFF00C59E)),
+                    foregroundColor: context.accent,
+                    side: BorderSide(color: context.accent),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
@@ -676,8 +678,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                     : const Icon(Icons.share),
                 label: Text(_isPdfLoading ? 'Generating...' : 'Share PDF'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00C59E),
-                  side: const BorderSide(color: Color(0xFF00C59E)),
+                  foregroundColor: context.accent,
+                  side: BorderSide(color: context.accent),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
@@ -687,19 +689,19 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               child: ElevatedButton(
                 onPressed: _isPdfLoading ? null : _showPrintOptions,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00C59E),
-                  foregroundColor: Colors.black,
+                  backgroundColor: context.accent,
+                  foregroundColor: context.textPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (_isPdfLoading)
-                      const SizedBox(
+                      SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.black),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     else
                       const Icon(Icons.print),
