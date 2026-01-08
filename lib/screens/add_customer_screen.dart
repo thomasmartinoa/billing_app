@@ -234,7 +234,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 onPressed: _isLoading ? null : _saveCustomer,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.accentColor,
-                  foregroundColor: Colors.black,
+                  foregroundColor: context.textPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -242,15 +242,15 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   shadowColor: context.accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black,
+                          color: context.textPrimary,
                         ),
                       )
-                    : const Icon(Icons.person_add, color: Colors.black),
+                    : Icon(Icons.person_add, color: context.textPrimary),
                 label: Text(
                   _isLoading
                       ? "Saving..."

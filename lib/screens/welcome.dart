@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/screens/login.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -97,7 +98,7 @@ class WelcomePage extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 15,
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: context.textPrimary.withValues(alpha: 0.85),
                             ),
                           ),
                         ],
@@ -115,7 +116,7 @@ class WelcomePage extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primary,
-                            foregroundColor: Colors.black,
+                            foregroundColor: context.textPrimary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

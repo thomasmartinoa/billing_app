@@ -318,7 +318,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 onPressed: _isLoading ? null : _saveProduct,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.accentColor,
-                  foregroundColor: Colors.black,
+                  foregroundColor: context.textPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -326,15 +326,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   shadowColor: context.accentColor.withValues(alpha: 0.4),
                 ),
                 icon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black,
+                          color: context.textPrimary,
                         ),
                       )
-                    : const Icon(Icons.save, color: Colors.black),
+                    : Icon(Icons.save, color: context.textPrimary),
                 label: Text(
                   _isLoading
                       ? "Saving..."
@@ -416,9 +416,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.clear, color: Colors.red),
-                title: const Text('Clear Selection',
-                    style: TextStyle(color: Colors.red)),
+                leading: Icon(Icons.clear, color: context.errorColor),
+                title: Text('Clear Selection',
+                    style: TextStyle(color: context.errorColor)),
                 onTap: () {
                   setState(() => _categoryCtrl.text = '');
                   Navigator.pop(context);

@@ -193,7 +193,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                       child: Text(
                         'Apply',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -423,10 +423,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           );
         },
         backgroundColor: context.accentColor,
-        icon: Icon(Icons.add, color: Colors.white),
+        icon: Icon(Icons.add, color: context.textPrimary),
         label: Text(
           'Add Customer',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -672,11 +672,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                   MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
                 );
               },
-              icon: Icon(Icons.add, color: Colors.white),
+              icon: Icon(Icons.add, color: context.textPrimary),
               label: Text(
                 "Add Customer",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

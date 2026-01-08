@@ -89,7 +89,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         SnackBar(
           content: Text(
               'Cannot add more. Only ${product.currentStock} ${product.unit} available in stock'),
-          backgroundColor: Colors.red,
+          backgroundColor: context.errorColor,
         ),
       );
       return;
@@ -135,7 +135,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         SnackBar(
           content: Text(
               'Cannot add more. Only ${cartItem.product.currentStock} ${cartItem.product.unit} available in stock'),
-          backgroundColor: Colors.red,
+          backgroundColor: context.errorColor,
         ),
       );
       return;
@@ -186,7 +186,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           SnackBar(
             content: Text(
                 'Insufficient stock for ${cartItem.product.name}. Only ${cartItem.product.currentStock} available.'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
         return;
@@ -556,8 +556,8 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                         color: context.accent)),
                                 const SizedBox(height: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.redAccent),
+                                  icon: Icon(Icons.delete,
+                                      color: context.errorColor),
                                   onPressed: () => removeFromCart(c.product.id),
                                 ),
                               ],
@@ -718,7 +718,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                     const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: context.textPrimary.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -787,13 +787,13 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
+                                  strokeWidth: 2, color: context.textPrimary))
                           : const Icon(Icons.receipt_long),
                       label: Text(_isSaving ? 'Creating...' : 'Create Invoice',
                           style: const TextStyle(fontSize: 16)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.accent,
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.textPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),

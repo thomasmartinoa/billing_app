@@ -4,6 +4,7 @@ import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:billing_app/services/pdf_service.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -43,9 +44,9 @@ class _ThermalReceiptPreviewScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Printing...'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Printing...'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -54,7 +55,7 @@ class _ThermalReceiptPreviewScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Print error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -80,7 +81,7 @@ class _ThermalReceiptPreviewScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Saved to: ${file.path}'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
               label: 'Share',
@@ -94,7 +95,7 @@ class _ThermalReceiptPreviewScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Save error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -126,9 +127,9 @@ class _ThermalReceiptPreviewScreenState
 
       if (devices.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No Bluetooth printers found. Please pair first.'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('No Bluetooth printers found. Please pair first.'),
+            backgroundColor: context.warningColor,
           ),
         );
         return;
@@ -138,9 +139,9 @@ class _ThermalReceiptPreviewScreenState
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          title: const Text(
+          title: Text(
             'Select Printer',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -150,14 +151,14 @@ class _ThermalReceiptPreviewScreenState
               itemBuilder: (context, index) {
                 final device = devices[index];
                 return ListTile(
-                  leading: const Icon(Icons.print, color: Colors.blue),
+                  leading: Icon(Icons.print, color: context.infoColor),
                   title: Text(
                     device.name ?? 'Unknown Device',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: context.textPrimary),
                   ),
                   subtitle: Text(
                     device.address ?? '',
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(color: context.textSecondary),
                   ),
                   onTap: () => Navigator.pop(context, device),
                 );
@@ -179,7 +180,10 @@ class _ThermalReceiptPreviewScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: context.errorColor,
+          ),
         );
       }
     }
@@ -202,9 +206,9 @@ class _ThermalReceiptPreviewScreenState
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Printed successfully!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Printed successfully!'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -213,7 +217,7 @@ class _ThermalReceiptPreviewScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -230,22 +234,22 @@ class _ThermalReceiptPreviewScreenState
       backgroundColor: Theme.of(context).dialogBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).cardColor,
-        title: const Text(
+        title: Text(
           'Thermal Receipt Preview',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: context.textPrimary),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: context.textPrimary),
         actions: [
           if (_isLoading)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: context.textPrimary,
                   ),
                 ),
               ),
@@ -518,7 +522,7 @@ class _ThermalReceiptPreviewScreenState
               color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: context.textPrimary.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -532,8 +536,8 @@ class _ThermalReceiptPreviewScreenState
                     icon: const Icon(Icons.save),
                     label: const Text('Save PDF'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white),
+                      foregroundColor: context.textPrimary,
+                      side: BorderSide(color: context.textPrimary),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
@@ -546,7 +550,7 @@ class _ThermalReceiptPreviewScreenState
                     label: const Text('Print'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
-                      foregroundColor: Colors.black,
+                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class ManageCategoriesDialog extends StatefulWidget {
   const ManageCategoriesDialog({super.key});
@@ -65,8 +66,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: context.errorColor,
+              foregroundColor: context.textPrimary,
             ),
             child: const Text('Delete'),
           ),
@@ -153,7 +154,7 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                     onPressed: _addCategory,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.secondary,
-                      foregroundColor: Colors.black,
+                      foregroundColor: context.textPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -191,7 +192,7 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                     return Center(
                       child: Text(
                         'Error: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: context.errorColor),
                       ),
                     );
                   }
@@ -244,8 +245,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: Colors.red, size: 20),
+                              icon: Icon(Icons.delete,
+                                  color: context.errorColor, size: 20),
                               onPressed: () => _deleteCategory(
                                 category['id'],
                                 category['name'],

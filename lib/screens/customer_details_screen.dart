@@ -252,7 +252,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                     decoration: BoxDecoration(
                                       color: isPaid
                                           ? context.accent.withValues(alpha: 0.1)
-                                          : Colors.orange
+                                          : context.warningColor
                                               .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -261,7 +261,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                           ? Icons.check_circle
                                           : Icons.pending,
                                       color:
-                                          isPaid ? context.accent : Colors.orange,
+                                          isPaid ? context.accent : context.warningColor,
                                       size: 20,
                                     ),
                                   ),
@@ -311,7 +311,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                           color: isPaid
                                               ? context.accent.withValues(
                                                   alpha: 0.2)
-                                              : Colors.orange
+                                              : context.warningColor
                                                   .withValues(alpha: 0.2),
                                           borderRadius:
                                               BorderRadius.circular(6),
@@ -321,7 +321,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                           style: TextStyle(
                                             color: isPaid
                                                 ? context.accent
-                                                : Colors.orange,
+                                                : context.warningColor,
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
                                           ),

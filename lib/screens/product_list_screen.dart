@@ -5,6 +5,7 @@ import 'package:billing_app/screens/add_product_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
 import 'package:billing_app/screens/manage_categories_dialog.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -31,7 +32,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       backgroundColor: context.backgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -115,14 +116,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             label: const Text('All'),
                             labelStyle: TextStyle(
                               color: _selectedCategory == null
-                                  ? Colors.black
+                                  ? context.textPrimary
                                   : context.textPrimary,
                               fontWeight: FontWeight.w500,
                             ),
                             selected: _selectedCategory == null,
                             selectedColor: context.accent,
                             backgroundColor: context.surfaceColor,
-                            checkmarkColor: Colors.black,
+                            checkmarkColor: context.textPrimary,
                             side: BorderSide(
                               color: _selectedCategory == null
                                   ? context.accent
@@ -145,13 +146,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             child: FilterChip(
                               label: Text(categoryName),
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.black : context.textPrimary,
+                                color: isSelected ? context.textPrimary : context.textPrimary,
                                 fontWeight: FontWeight.w500,
                               ),
                               selected: isSelected,
                               selectedColor: context.accent,
                               backgroundColor: context.surfaceColor,
-                              checkmarkColor: Colors.black,
+                              checkmarkColor: context.textPrimary,
                               side: BorderSide(
                                 color: isSelected ? context.accent : context.borderColor,
                               ),
@@ -187,7 +188,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       return Center(
                         child: Text(
                           'Error: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red),
+                          style: TextStyle(color: context.errorColor),
                         ),
                       );
                     }
@@ -246,10 +247,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
           );
         },
         backgroundColor: context.accent,
-        icon: const Icon(Icons.add, color: Colors.black),
-        label: const Text(
+        icon: Icon(Icons.add, color: context.textPrimary),
+        label: Text(
           'Add Product',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.textPrimary, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -266,11 +267,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: context.surfaceColor,
-          borderRadius: BorderRadius.circular(12),
+          color: context.cardColor,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
@@ -317,15 +318,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 Text(
                   'Stock: ${product.currentStock}',
                   style: TextStyle(
-                    color: product.isLowStock ? Colors.orange : context.textSecondary,
+                    color: product.isLowStock ? context.warningColor : context.textSecondary,
                     fontSize: 12,
                   ),
                 ),
                 if (product.isLowStock)
-                  const Text(
+                  Text(
                     'Low Stock!',
                     style: TextStyle(
-                      color: Colors.orange,
+                      color: context.warningColor,
                       fontSize: 10,
                     ),
                   ),
@@ -371,13 +372,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
                 const PopupMenuItem(
                   value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete, color: Colors.red, size: 20),
-                      SizedBox(width: 12),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
+                  child: _DeleteMenuItem(),
                 ),
               ],
             ),
@@ -495,7 +490,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: context.accent,
-              foregroundColor: Colors.black,
+              foregroundColor: context.textPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -549,8 +544,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: context.errorColor,
+              foregroundColor: context.textPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -611,11 +606,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   MaterialPageRoute(builder: (_) => const AddProductScreen()),
                 );
               },
-              icon: const Icon(Icons.add, color: Colors.black),
-              label: const Text(
+              icon: Icon(Icons.add, color: context.textPrimary),
+              label: Text(
                 "Add Product",
                 style: TextStyle(
-                  color: Colors.black,
+                  color: context.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -630,6 +625,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+// Helper widget for delete menu item to avoid const issues
+class _DeleteMenuItem extends StatelessWidget {
+  const _DeleteMenuItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.delete, color: context.errorColor, size: 20),
+        const SizedBox(width: 12),
+        Text('Delete', style: TextStyle(color: context.errorColor)),
+      ],
     );
   }
 }

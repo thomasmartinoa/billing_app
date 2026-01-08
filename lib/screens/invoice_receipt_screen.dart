@@ -332,7 +332,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Saved to: ${file.path}'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
               label: 'Share',
@@ -351,7 +351,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving PDF: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -392,7 +392,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               label: const Text('Preview & Print'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.accent,
-                foregroundColor: Colors.white,
+                foregroundColor: context.textPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -701,7 +701,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2, color: context.textPrimary),
                       )
                     else
                       const Icon(Icons.print),

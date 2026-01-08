@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               'Exit',
               style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  TextStyle(color: context.textPrimary, fontWeight: FontWeight.bold),
             ),
           ),
         ],

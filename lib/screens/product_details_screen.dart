@@ -141,7 +141,7 @@ class ProductDetailsScreen extends StatelessWidget {
                     icon: Icons.inventory,
                     title: 'Stock',
                     value: '${product.currentStock} ${product.unit}',
-                    color: product.isLowStock ? Colors.orange : context.accent,
+                    color: product.isLowStock ? context.warningColor : context.accent,
                   ),
                 ),
               ],
@@ -176,11 +176,11 @@ class ProductDetailsScreen extends StatelessWidget {
                   if (profit != null)
                     _buildDetailRow(context,
                         'Profit per Unit', '\u20b9${profit.toStringAsFixed(2)}',
-                        valueColor: Colors.green),
+                        valueColor: context.successColor),
                   if (profitMargin != null)
                     _buildDetailRow(context,
                         'Profit Margin', '${profitMargin.toStringAsFixed(1)}%',
-                        valueColor: Colors.green),
+                        valueColor: context.successColor),
                   if (product.sku != null && product.sku!.isNotEmpty)
                     _buildDetailRow(context, 'SKU', product.sku!),
                   if (product.barcode != null && product.barcode!.isNotEmpty)
@@ -190,7 +190,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   if (product.lowStockAlert != null)
                     _buildDetailRow(context, 'Low Stock Alert',
                         '${product.lowStockAlert} ${product.unit}',
-                        valueColor: product.isLowStock ? Colors.orange : null),
+                        valueColor: product.isLowStock ? context.warningColor : null),
                   Divider(color: context.borderColor, height: 32),
                   _buildDetailRow(context,
                       'Created', dateFormat.format(product.createdAt)),
@@ -207,20 +207,20 @@ class ProductDetailsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: context.warningBackground,
                   borderRadius: BorderRadius.circular(12),
                   border:
-                      Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                      Border.all(color: context.warningColor.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded,
-                        color: Colors.orange),
+                    Icon(Icons.warning_amber_rounded,
+                        color: context.warningColor),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Low stock alert! Consider restocking soon.',
-                        style: TextStyle(color: Colors.orange, fontSize: 14),
+                        style: TextStyle(color: context.warningColor, fontSize: 14),
                       ),
                     ),
                   ],

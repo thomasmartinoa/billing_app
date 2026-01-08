@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 
@@ -49,7 +50,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error getting devices: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -69,7 +70,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Connected to ${device.name}'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -79,7 +80,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Connection failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -97,9 +98,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Disconnected from printer'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('Disconnected from printer'),
+            backgroundColor: context.warningColor,
           ),
         );
       }
@@ -109,7 +110,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Disconnect failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -128,9 +129,9 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Test print sent successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Test print sent successfully'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -140,7 +141,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Test print failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -154,15 +155,15 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Thermal Printer Settings',
           style: TextStyle(
-            color: Colors.white,
+            color: context.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: context.textPrimary),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -172,8 +173,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.blue),
+          ? Center(
+              child: CircularProgressIndicator(color: context.accent),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -208,7 +209,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
           children: [
             Icon(
               _isConnected ? Icons.check_circle : Icons.cancel,
-              color: _isConnected ? Colors.green : Colors.red,
+              color: _isConnected ? context.successColor : context.errorColor,
               size: 32,
             ),
             const SizedBox(width: 12),
@@ -218,8 +219,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                 children: [
                   Text(
                     _isConnected ? 'Connected' : 'Not Connected',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -228,8 +229,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                     _isConnected
                         ? 'Printer is ready to print'
                         : 'No printer connected',
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: context.textSecondary,
                       fontSize: 14,
                     ),
                   ),
@@ -250,10 +251,10 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Connected Printer',
               style: TextStyle(
-                color: Colors.white,
+                color: context.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -261,18 +262,18 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
             const SizedBox(height: 12),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.print, color: Colors.blue, size: 32),
+              leading: Icon(Icons.print, color: context.accent, size: 32),
               title: Text(
                 _connectedDevice?.name ?? 'Unknown Device',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
                 _connectedDevice?.address ?? '',
-                style: const TextStyle(color: Colors.grey),
+                style: TextStyle(color: context.textSecondary),
               ),
             ),
             const SizedBox(height: 12),
@@ -284,8 +285,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                     icon: const Icon(Icons.print_outlined),
                     label: const Text('Test Print'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
+                      backgroundColor: context.accent,
+                      foregroundColor: context.textPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
@@ -297,8 +298,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                     icon: const Icon(Icons.link_off),
                     label: const Text('Disconnect'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                      backgroundColor: context.errorColor,
+                      foregroundColor: context.textPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
@@ -315,19 +316,19 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Available Bluetooth Printers',
           style: TextStyle(
-            color: Colors.white,
+            color: context.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Select a paired Bluetooth printer to connect',
           style: TextStyle(
-            color: Colors.grey,
+            color: context.textSecondary,
             fontSize: 14,
           ),
         ),
@@ -335,26 +336,26 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         if (_devices.isEmpty)
           Card(
             color: Theme.of(context).cardColor,
-            child: const Padding(
-              padding: EdgeInsets.all(24.0),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Center(
                 child: Column(
                   children: [
                     Icon(Icons.bluetooth_disabled,
-                        color: Colors.grey, size: 48),
-                    SizedBox(height: 12),
+                        color: context.textSecondary, size: 48),
+                    const SizedBox(height: 12),
                     Text(
                       'No paired printers found',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.textPrimary,
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Please pair a Bluetooth printer in your device settings',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: context.textSecondary,
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -369,21 +370,21 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                 color: Theme.of(context).cardColor,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
-                  leading: const Icon(Icons.print, color: Colors.blue),
+                  leading: Icon(Icons.print, color: context.accent),
                   title: Text(
                     device.name ?? 'Unknown Device',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: Text(
                     device.address ?? '',
-                    style: const TextStyle(color: Colors.grey),
+                    style: TextStyle(color: context.textSecondary),
                   ),
                   trailing: _connectedDevice?.address == device.address
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : const Icon(Icons.chevron_right, color: Colors.grey),
+                      ? Icon(Icons.check_circle, color: context.successColor)
+                      : Icon(Icons.chevron_right, color: context.textSecondary),
                   onTap: _connectedDevice?.address == device.address
                       ? null
                       : () => _connectToDevice(device),

@@ -5,6 +5,7 @@ import 'package:billing_app/screens/create_invoice_screen.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
@@ -55,17 +56,17 @@ class _BillingScreenState extends State<BillingScreen>
         children: [
           // SEARCH BAR
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               decoration: BoxDecoration(
                 color: context.surfaceColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
               child: Row(
                 children: [
                   Icon(Icons.search, color: context.textPrimary.withValues(alpha: 0.24)),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
@@ -108,7 +109,7 @@ class _BillingScreenState extends State<BillingScreen>
           );
         },
         backgroundColor: context.accent,
-        foregroundColor: Colors.white,
+        foregroundColor: context.textPrimary,
         icon: const Icon(Icons.add),
         label: const Text('New Invoice'),
       ),
@@ -185,11 +186,11 @@ class _BillingScreenState extends State<BillingScreen>
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           color: context.surfaceColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
             color: context.accent.withValues(alpha: 0.2),
           ),
@@ -203,7 +204,7 @@ class _BillingScreenState extends State<BillingScreen>
                 color: invoice.status == InvoiceStatus.paid
                     ? context.accent.withValues(alpha: 0.2)
                     : context.cardColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: Icon(
                 Icons.receipt_long,
@@ -212,7 +213,7 @@ class _BillingScreenState extends State<BillingScreen>
                     : context.textSecondary,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,17 +254,17 @@ class _BillingScreenState extends State<BillingScreen>
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: AppSpacing.sm,
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: invoice.status == InvoiceStatus.paid
                         ? context.accent.withValues(alpha: 0.2)
                         : context.cardColor,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
                   ),
                   child: Text(
                     invoice.status == InvoiceStatus.paid ? 'PAID' : 'PENDING',
@@ -309,7 +310,7 @@ class _EmptyBillingState extends StatelessWidget {
               color: context.accent,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Text(
             'No invoices yet',
             style: TextStyle(
@@ -335,13 +336,13 @@ class _EmptyBillingState extends StatelessWidget {
             label: const Text('Create Invoice'),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.accent,
-              foregroundColor: Colors.white,
+              foregroundColor: context.textPrimary,
               padding: const EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 12,
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.md,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
             ),
           ),

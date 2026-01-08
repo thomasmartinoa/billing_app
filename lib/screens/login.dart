@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/auth_service.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -110,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Sign in to continue',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[400]),
+                        style: TextStyle(color: context.textSecondary),
                       ),
                       const SizedBox(height: 18),
                       TextField(
@@ -130,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: Colors.black,
+                          foregroundColor: context.textPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -138,12 +139,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         onPressed: _isLoading ? null : _tryLogin,
                         child: _isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.black,
+                                  color: context.textPrimary,
                                 ),
                               )
                             : const Text('Login'),
@@ -151,28 +152,28 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: Divider(color: Colors.white24)),
+                          Expanded(child: Divider(color: context.borderColor)),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               'OR',
-                              style: TextStyle(color: Colors.white70),
+                              style: TextStyle(color: context.textSecondary),
                             ),
                           ),
-                          Expanded(child: Divider(color: Colors.white24)),
+                          Expanded(child: Divider(color: context.borderColor)),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Center(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
+                            foregroundColor: context.textPrimary,
                             backgroundColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(
                               vertical: 12,
                               horizontal: 16,
                             ),
-                            side: const BorderSide(color: Colors.white70),
+                            side: BorderSide(color: context.borderColor),
                           ),
                           onPressed: _isLoading ? null : _googleSignIn,
                           child: Row(
@@ -186,9 +187,9 @@ class _LoginPageState extends State<LoginPage> {
                                 fit: BoxFit.contain,
                               ),
                               const SizedBox(width: 10),
-                              const Text(
+                              Text(
                                 'Continue with Google',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: context.textPrimary),
                               ),
                             ],
                           ),
@@ -198,9 +199,9 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             "Don't have an account?",
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(color: context.textSecondary),
                           ),
                           TextButton(
                             onPressed: _isLoading
@@ -361,7 +362,7 @@ class _SignupPageState extends State<SignupPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: Colors.black,
+                          foregroundColor: context.textPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: _isLoading
@@ -373,12 +374,12 @@ class _SignupPageState extends State<SignupPage> {
                                 ? _createAccount
                                 : null,
                         child: _isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.black,
+                                  color: context.textPrimary,
                                 ),
                               )
                             : const Text('Create account'),
