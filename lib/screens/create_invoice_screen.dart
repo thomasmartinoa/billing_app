@@ -193,6 +193,10 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       }
     }
 
+    // Show confirmation dialog before creating invoice
+    final confirmed = await _showConfirmationDialog();
+    if (confirmed != true) return;
+
     setState(() => _isSaving = true);
 
     try {
@@ -262,6 +266,47 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       default:
         return PaymentMethod.other;
     }
+  }
+
+  Future<bool?> _showConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Invoice'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Items: ${cart.length}'),
+            Text('Customer: ${selectedCustomer?.name ?? 'Walk-in Customer'}'),
+            Text('Subtotal: ₹${subTotal.toStringAsFixed(2)}'),
+            Text('Tax (${taxRate.toStringAsFixed(1)}%): ₹${tax.toStringAsFixed(2)}'),
+            const Divider(),
+            Text(
+              'Total: ₹${total.toStringAsFixed(2)}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Status: ${markAsPaid ? 'Paid' : 'Pending'}',
+              style: TextStyle(
+                color: markAsPaid ? context.successColor : context.warningColor,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Create Invoice'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

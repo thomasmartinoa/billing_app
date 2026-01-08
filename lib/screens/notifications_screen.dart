@@ -4,6 +4,7 @@ import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
+import 'package:billing_app/theme/theme_helper.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -54,8 +55,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -65,6 +65,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
+          tooltip: 'Go back',
         ),
         title: Text(
           'Notifications',
@@ -77,7 +78,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               color: colorScheme.primary,
               onRefresh: _loadNotifications,
               child: totalNotifications == 0
-                  ? _buildEmptyState(colorScheme)
+                  ? _buildEmptyState(context)
                   : SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
@@ -120,8 +121,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     children: [
                                       Text(
                                         '$totalNotifications Alert${totalNotifications != 1 ? 's' : ''}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: context.textPrimary,
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -130,8 +131,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       Text(
                                         'Requires your attention',
                                         style: TextStyle(
-                                          color: Colors.white
-                                              .withValues(alpha: 0.7),
+                                          color: context.textSecondary,
                                           fontSize: 14,
                                         ),
                                       ),
@@ -147,28 +147,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           // Low Stock Section
                           if (_lowStockProducts.isNotEmpty) ...[
                             _buildSectionHeader(
+                              context: context,
                               icon: Icons.inventory_2,
                               title: 'Low Stock Products',
                               count: _lowStockProducts.length,
-                              color: Colors.orange,
+                              color: context.warningColor,
                             ),
                             const SizedBox(height: 12),
                             ..._lowStockProducts
-                                .map((product) => _buildLowStockCard(product, colorScheme)),
+                                .map((product) => _buildLowStockCard(context, product)),
                             const SizedBox(height: 24),
                           ],
 
                           // Unpaid Invoices Section
                           if (_unpaidInvoices.isNotEmpty) ...[
                             _buildSectionHeader(
+                              context: context,
                               icon: Icons.receipt_long,
                               title: 'Pending Payments',
                               count: _unpaidInvoices.length,
-                              color: Colors.red,
+                              color: context.errorColor,
                             ),
                             const SizedBox(height: 12),
                             ..._unpaidInvoices.map(
-                                (invoice) => _buildUnpaidInvoiceCard(invoice, colorScheme)),
+                                (invoice) => _buildUnpaidInvoiceCard(context, invoice)),
                           ],
                         ],
                       ),
@@ -178,6 +180,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildSectionHeader({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required int count,
@@ -197,8 +200,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         const SizedBox(width: 12),
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -224,7 +227,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildLowStockCard(ProductModel product, ColorScheme colorScheme) {
+  Widget _buildLowStockCard(BuildContext context, ProductModel product) {
+    final warningColor = context.warningColor;
+    
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -238,9 +243,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
+          color: context.surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+          border: Border.all(color: warningColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -248,12 +253,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
+                color: warningColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.warning_amber_rounded,
-                color: Colors.orange,
+                color: warningColor,
               ),
             ),
             const SizedBox(width: 16),
@@ -263,8 +268,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -275,18 +280,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Text(
                         'Current Stock: ${product.currentStock} ${product.unit}',
                         style: TextStyle(
-                          color: Colors.orange.shade300,
+                          color: warningColor,
                           fontSize: 13,
                         ),
                       ),
-                      const Text(
+                      Text(
                         ' • ',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: context.textSecondary),
                       ),
                       Text(
                         'Min: ${product.lowStockAlert ?? 'N/A'}',
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: TextStyle(
+                          color: context.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -295,9 +300,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios,
-              color: Colors.grey,
+              color: context.textSecondary,
               size: 16,
             ),
           ],
@@ -306,8 +311,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildUnpaidInvoiceCard(InvoiceModel invoice, ColorScheme colorScheme) {
+  Widget _buildUnpaidInvoiceCard(BuildContext context, InvoiceModel invoice) {
     final daysOld = DateTime.now().difference(invoice.createdAt).inDays;
+    final isOverdue = daysOld > 7;
+    final statusColor = isOverdue ? context.errorColor : context.warningColor;
 
     return InkWell(
       onTap: () {
@@ -322,12 +329,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
+          color: context.surfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: daysOld > 7
-                ? Colors.red.withValues(alpha: 0.5)
-                : Colors.orange.withValues(alpha: 0.3),
+            color: statusColor.withValues(alpha: isOverdue ? 0.5 : 0.3),
           ),
         ),
         child: Row(
@@ -336,13 +341,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: (daysOld > 7 ? Colors.red : Colors.orange)
-                    .withValues(alpha: 0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                daysOld > 7 ? Icons.error_outline : Icons.schedule,
-                color: daysOld > 7 ? Colors.red : Colors.orange,
+                isOverdue ? Icons.error_outline : Icons.schedule,
+                color: statusColor,
               ),
             ),
             const SizedBox(width: 16),
@@ -354,8 +358,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         invoice.invoiceNumber,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -365,13 +369,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.2),
+                          color: context.warningColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           'Pending',
                           style: TextStyle(
-                            color: Colors.orange,
+                            color: context.warningColor,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -382,8 +386,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     invoice.customerName ?? 'Walk-in Customer',
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: context.textSecondary,
                       fontSize: 13,
                     ),
                   ),
@@ -393,20 +397,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Text(
                         '₹${invoice.total.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: daysOld > 7
-                              ? Colors.red.shade300
-                              : Colors.orange.shade300,
+                          color: statusColor,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       if (daysOld > 0) ...[
-                        const Text(' • ', style: TextStyle(color: Colors.grey)),
+                        Text(' • ', style: TextStyle(color: context.textSecondary)),
                         Text(
                           '$daysOld day${daysOld != 1 ? 's' : ''} old',
                           style: TextStyle(
-                            color:
-                                daysOld > 7 ? Colors.red.shade300 : Colors.grey,
+                            color: isOverdue ? statusColor : context.textSecondary,
                             fontSize: 12,
                           ),
                         ),
@@ -416,9 +417,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios,
-              color: Colors.grey,
+              color: context.textSecondary,
               size: 16,
             ),
           ],
@@ -427,7 +428,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildEmptyState(ColorScheme colorScheme) {
+  Widget _buildEmptyState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -446,10 +449,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'No Notifications',
             style: TextStyle(
-              color: Colors.white,
+              color: context.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -458,7 +461,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Text(
             'All caught up! No alerts at the moment.',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: context.textSecondary,
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

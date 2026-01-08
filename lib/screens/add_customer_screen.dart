@@ -53,10 +53,40 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     super.dispose();
   }
 
+  // Validate email format
+  bool _isValidEmail(String email) {
+    if (email.isEmpty) return true; // Optional field
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  // Validate phone format (basic validation)
+  bool _isValidPhone(String phone) {
+    if (phone.isEmpty) return true; // Optional field
+    final phoneRegex = RegExp(r'^[0-9+\-\s()]{7,15}$');
+    return phoneRegex.hasMatch(phone);
+  }
+
   Future<void> _saveCustomer() async {
     if (_nameCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter customer name')),
+      );
+      return;
+    }
+
+    // Validate email format
+    if (!_isValidEmail(_emailCtrl.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      return;
+    }
+
+    // Validate phone format
+    if (!_isValidPhone(_phoneCtrl.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid phone number')),
       );
       return;
     }

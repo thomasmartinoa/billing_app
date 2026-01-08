@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:billing_app/services/auth_service.dart';
@@ -5,6 +6,7 @@ import 'package:billing_app/models/user_model.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  StreamSubscription<User?>? _authSubscription;
   
   User? _user;
   UserModel? _userModel;
@@ -20,7 +22,7 @@ class AuthProvider with ChangeNotifier {
 
   AuthProvider() {
     // Listen to auth state changes
-    _authService.authStateChanges.listen((User? user) {
+    _authSubscription = _authService.authStateChanges.listen((User? user) {
       _user = user;
       if (user != null) {
         _loadUserModel(user.uid);
@@ -29,6 +31,12 @@ class AuthProvider with ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 
   // Load user model from Firestore

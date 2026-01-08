@@ -82,6 +82,59 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
+    final sellingPrice = double.tryParse(_sellingPriceCtrl.text) ?? 0;
+    final costPrice = _costPriceCtrl.text.trim().isEmpty
+        ? null
+        : double.tryParse(_costPriceCtrl.text);
+    final stock = int.tryParse(_stockCtrl.text) ?? 0;
+
+    // Validate selling price is positive
+    if (sellingPrice <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selling price must be greater than 0')),
+      );
+      return;
+    }
+
+    // Validate cost price if provided
+    if (costPrice != null && costPrice < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cost price cannot be negative')),
+      );
+      return;
+    }
+
+    // Warn if cost price is greater than selling price
+    if (costPrice != null && costPrice > sellingPrice) {
+      final shouldProceed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Warning'),
+          content: const Text(
+              'Cost price is greater than selling price. This product will result in a loss. Continue anyway?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      );
+      if (shouldProceed != true) return;
+    }
+
+    // Validate stock is not negative
+    if (stock < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Stock cannot be negative')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {

@@ -202,22 +202,51 @@ class FirestoreService {
     return '$prefix-${nextNumber.toString().padLeft(5, '0')}';
   }
 
-  /// Add a new invoice
+  /// Add a new invoice with atomic stock updates using a transaction
   Future<String> addInvoice(InvoiceModel invoice) async {
-    final doc = await _invoicesCollection.add(invoice.toMap());
-
-    // Update product stock if tracking inventory
-    for (final item in invoice.items) {
-      final product = await getProduct(item.productId);
-      if (product != null && product.trackInventory) {
-        await updateProductStock(
-          item.productId,
-          product.currentStock - item.quantity,
-        );
+    String? docId;
+    
+    await _firestore.runTransaction((transaction) async {
+      // First, verify and reserve stock for all items
+      final stockUpdates = <String, int>{};
+      
+      for (final item in invoice.items) {
+        final productDoc = _productsCollection.doc(item.productId);
+        final productSnapshot = await transaction.get(productDoc);
+        
+        if (!productSnapshot.exists) {
+          throw Exception('Product ${item.productName} no longer exists');
+        }
+        
+        final productData = productSnapshot.data()!;
+        final trackInventory = productData['trackInventory'] ?? true;
+        
+        if (trackInventory) {
+          final currentStock = productData['currentStock'] ?? 0;
+          if (currentStock < item.quantity) {
+            throw Exception(
+                'Insufficient stock for ${item.productName}. Available: $currentStock, Requested: ${item.quantity}');
+          }
+          stockUpdates[item.productId] = currentStock - item.quantity;
+        }
       }
-    }
-
-    return doc.id;
+      
+      // Create the invoice
+      final invoiceDoc = _invoicesCollection.doc();
+      docId = invoiceDoc.id;
+      transaction.set(invoiceDoc, invoice.toMap());
+      
+      // Update all stock levels atomically
+      for (final entry in stockUpdates.entries) {
+        final productDoc = _productsCollection.doc(entry.key);
+        transaction.update(productDoc, {
+          'currentStock': entry.value,
+          'updatedAt': Timestamp.now(),
+        });
+      }
+    });
+    
+    return docId!;
   }
 
   /// Update an invoice (full update)
