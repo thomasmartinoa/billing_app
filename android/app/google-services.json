@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1067478327362",
+    "project_id": "billing-app-c6ec1",
+    "storage_bucket": "billing-app-c6ec1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067478327362:android:6a5a34005ffe2cbe654ddb",
+        "android_client_info": {
+          "package_name": "com.example.billing_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1067478327362-4usm409dqahekdemvd1te05lhaj80i17.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.billing_app",
+            "certificate_hash": "e3284f382d71769d9acd3efecb44ab473be1ddbf"
+          }
+        },
+        {
+          "client_id": "1067478327362-0p8jcilr2egnoed8i5psceh32dnsil0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5qJysFenn1xxi7pppthSAOKe0_cbLyNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067478327362-0p8jcilr2egnoed8i5psceh32dnsil0t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1067478327362-rr5c2tgrc6oq9q2hjt3bs03sb4kmajo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.billingApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
