@@ -136,14 +136,14 @@ class ThermalPrinterService {
 
       // Items
       for (var item in invoice.items) {
-        // Product name
+        // Product name (centered)
         _bluetooth.printCustom(
           item.productName,
           Size.medium.val,
-          Align.left.val,
+          Align.center.val,
         );
 
-        // Quantity x Price = Total
+        // Quantity x Price = Total (left-right aligned)
         final itemLine =
             '${item.quantity} ${item.unit} x Rs.${item.price.toStringAsFixed(2)}';
         final totalLine = 'Rs.${item.total.toStringAsFixed(2)}';
