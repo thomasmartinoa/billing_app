@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class ShopSettings {
   final String shopType;
@@ -28,8 +29,8 @@ class ShopSettings {
     this.website = '',
     this.gstNumber = '',
     this.currency = 'INR',
-    this.taxRate = 18.0,
-    this.invoicePrefix = 'INV',
+    this.taxRate = BusinessConstants.defaultTaxRate,
+    this.invoicePrefix = BusinessConstants.defaultInvoicePrefix,
     this.includeTaxInPrice = false,
     this.termsAndConditions = '',
     this.footerNote = '',
@@ -66,9 +67,9 @@ class ShopSettings {
       email: map['email'] ?? '',
       website: map['website'] ?? '',
       gstNumber: map['gstNumber'] ?? '',
-      currency: map['currency'] ?? 'INR',
-      taxRate: (map['taxRate'] ?? 18.0).toDouble(),
-      invoicePrefix: map['invoicePrefix'] ?? 'INV',
+      currency: map['currency'] ?? BusinessConstants.defaultCurrency,
+      taxRate: (map['taxRate'] ?? BusinessConstants.defaultTaxRate).toDouble(),
+      invoicePrefix: map['invoicePrefix'] ?? BusinessConstants.defaultInvoicePrefix,
       includeTaxInPrice: map['includeTaxInPrice'] ?? false,
       termsAndConditions: map['termsAndConditions'] ?? '',
       footerNote: map['footerNote'] ?? '',

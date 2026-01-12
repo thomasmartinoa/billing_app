@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
+import 'package:billing_app/utils/search_helper.dart';
 
 class CustomerProvider with ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
@@ -91,14 +92,15 @@ class CustomerProvider with ChangeNotifier {
 
   // Search customers
   List<CustomerModel> searchCustomers(String query) {
-    if (query.isEmpty) return _customers;
-    
-    final lowerQuery = query.toLowerCase();
-    return _customers.where((customer) {
-      return customer.name.toLowerCase().contains(lowerQuery) ||
-             (customer.email?.toLowerCase().contains(lowerQuery) ?? false) ||
-             (customer.phone?.toLowerCase().contains(lowerQuery) ?? false);
-    }).toList();
+    return SearchHelper.search(
+      items: _customers,
+      query: query,
+      searchFields: [
+        (c) => c.name,
+        (c) => c.email ?? '',
+        (c) => c.phone ?? '',
+      ],
+    );
   }
 
   void _setLoading(bool value) {
