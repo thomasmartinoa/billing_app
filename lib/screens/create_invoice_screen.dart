@@ -8,6 +8,7 @@ import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
   const CreateInvoiceScreen({super.key});
@@ -147,7 +148,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     });
   }
 
-  double get taxRate => userData?.shopSettings?.taxRate ?? 15.0;
+  double get taxRate => userData?.shopSettings?.taxRate ?? BusinessConstants.defaultTaxRate;
 
   double get subTotal {
     double s = 0;

@@ -4,6 +4,10 @@ import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
+import 'package:billing_app/constants/firestore_constants.dart';
+import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/app_exceptions.dart';
+import 'package:billing_app/utils/error_handler.dart';
 
 class FirestoreService {
   // Singleton pattern - ensures only one instance exists
@@ -20,16 +24,24 @@ class FirestoreService {
 
   /// Get user document reference
   DocumentReference<Map<String, dynamic>> get _userDoc {
-    if (_userId == null) throw Exception('User not authenticated');
-    return _firestore.collection('users').doc(_userId);
+    final userId = _userId;
+    if (userId == null) {
+      throw AuthenticationException();
+    }
+    return _firestore.collection(FirestoreCollections.users).doc(userId);
   }
 
   /// Get user data
   Future<UserModel?> getUserData() async {
-    if (_userId == null) return null;
-    final doc = await _userDoc.get();
-    if (!doc.exists) return null;
-    return UserModel.fromMap(doc.data()!);
+    try {
+      if (_userId == null) return null;
+      final doc = await _userDoc.get();
+      if (!doc.exists) return null;
+      return UserModel.fromMap(doc.data()!);
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'getUserData');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Update user shop settings
@@ -53,19 +65,32 @@ class FirestoreService {
 
   /// Get customers collection reference
   CollectionReference<Map<String, dynamic>> get _customersCollection {
-    return _userDoc.collection('customers');
+    return _userDoc.collection(FirestoreCollections.customers);
   }
 
   /// Add a new customer
   Future<String> addCustomer(CustomerModel customer) async {
-    final doc = await _customersCollection.add(customer.toMap());
-    return doc.id;
+    try {
+      final doc = await _customersCollection.add(customer.toMap());
+      return doc.id;
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'addCustomer');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Update a customer
   Future<void> updateCustomer(CustomerModel customer) async {
-    if (customer.id == null) throw Exception('Customer ID is required');
-    await _customersCollection.doc(customer.id).update(customer.toMap());
+    try {
+      final customerId = customer.id;
+      if (customerId == null || customerId.isEmpty) {
+        throw MissingFieldException('Customer ID');
+      }
+      await _customersCollection.doc(customerId).update(customer.toMap());
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'updateCustomer');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Delete a customer
@@ -106,19 +131,32 @@ class FirestoreService {
 
   /// Get products collection reference
   CollectionReference<Map<String, dynamic>> get _productsCollection {
-    return _userDoc.collection('products');
+    return _userDoc.collection(FirestoreCollections.products);
   }
 
   /// Add a new product
   Future<String> addProduct(ProductModel product) async {
-    final doc = await _productsCollection.add(product.toMap());
-    return doc.id;
+    try {
+      final doc = await _productsCollection.add(product.toMap());
+      return doc.id;
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'addProduct');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Update a product
   Future<void> updateProduct(ProductModel product) async {
-    if (product.id == null) throw Exception('Product ID is required');
-    await _productsCollection.doc(product.id).update(product.toMap());
+    try {
+      final productId = product.id;
+      if (productId == null || productId.isEmpty) {
+        throw MissingFieldException('Product ID');
+      }
+      await _productsCollection.doc(productId).update(product.toMap());
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'updateProduct');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Delete a product
@@ -173,80 +211,114 @@ class FirestoreService {
 
   /// Get invoices collection reference
   CollectionReference<Map<String, dynamic>> get _invoicesCollection {
-    return _userDoc.collection('invoices');
+    return _userDoc.collection(FirestoreCollections.invoices);
   }
 
   /// Generate next invoice number
   Future<String> generateInvoiceNumber() async {
-    final userData = await getUserData();
-    final prefix = userData?.shopSettings?.invoicePrefix ?? 'INV';
+    try {
+      final userData = await getUserData();
+      final prefix = userData?.shopSettings?.invoicePrefix ?? 
+                     BusinessConstants.defaultInvoicePrefix;
 
-    final snapshot = await _invoicesCollection
-        .orderBy('createdAt', descending: true)
-        .limit(1)
-        .get();
+      final snapshot = await _invoicesCollection
+          .orderBy(FirestoreFields.createdAt, descending: true)
+          .limit(1)
+          .get();
 
-    int nextNumber = 1;
-    if (snapshot.docs.isNotEmpty) {
-      final lastInvoice = InvoiceModel.fromMap(
-        snapshot.docs.first.data(),
-        snapshot.docs.first.id,
-      );
-      // Extract number from last invoice
-      final lastNumber =
-          lastInvoice.invoiceNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      nextNumber = int.tryParse(lastNumber) ?? 0;
-      nextNumber++;
+      int nextNumber = 1;
+      if (snapshot.docs.isNotEmpty) {
+        final lastInvoice = InvoiceModel.fromMap(
+          snapshot.docs.first.data(),
+          snapshot.docs.first.id,
+        );
+        // Extract number from last invoice
+        final lastNumber =
+            lastInvoice.invoiceNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        nextNumber = int.tryParse(lastNumber) ?? 0;
+        nextNumber++;
+      }
+
+      return '$prefix-${nextNumber.toString().padLeft(5, '0')}';
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'generateInvoiceNumber');
+      throw FirestoreException.fromFirebase(e);
     }
-
-    return '$prefix-${nextNumber.toString().padLeft(5, '0')}';
   }
 
   /// Add a new invoice with atomic stock updates using a transaction
+  ///
+  /// Throws:
+  ///   - [ProductNotFoundException] if a product no longer exists
+  ///   - [InsufficientStockException] if stock is insufficient for any item
+  ///   - [FirestoreException] for other Firestore errors
   Future<String> addInvoice(InvoiceModel invoice) async {
-    String? docId;
-    
-    await _firestore.runTransaction((transaction) async {
-      // First, verify and reserve stock for all items
-      final stockUpdates = <String, int>{};
+    try {
+      String? docId;
       
-      for (final item in invoice.items) {
-        final productDoc = _productsCollection.doc(item.productId);
-        final productSnapshot = await transaction.get(productDoc);
+      await _firestore.runTransaction((transaction) async {
+        // First, verify and reserve stock for all items
+        final stockUpdates = <String, int>{};
         
-        if (!productSnapshot.exists) {
-          throw Exception('Product ${item.productName} no longer exists');
-        }
-        
-        final productData = productSnapshot.data()!;
-        final trackInventory = productData['trackInventory'] ?? true;
-        
-        if (trackInventory) {
-          final currentStock = productData['currentStock'] ?? 0;
-          if (currentStock < item.quantity) {
-            throw Exception(
-                'Insufficient stock for ${item.productName}. Available: $currentStock, Requested: ${item.quantity}');
+        for (final item in invoice.items) {
+          final productDoc = _productsCollection.doc(item.productId);
+          final productSnapshot = await transaction.get(productDoc);
+          
+          if (!productSnapshot.exists) {
+            throw ProductNotFoundException(item.productId, item.productName);
           }
-          stockUpdates[item.productId] = currentStock - item.quantity;
+          
+          final productData = productSnapshot.data()!;
+          final trackInventory = productData[FirestoreFields.trackInventory] ?? true;
+          
+          if (trackInventory) {
+            final currentStock = productData[FirestoreFields.currentStock] ?? 0;
+            if (currentStock < item.quantity) {
+              throw InsufficientStockException(
+                item.productName, 
+                currentStock, 
+                item.quantity,
+              );
+            }
+            stockUpdates[item.productId] = currentStock - item.quantity;
+          }
         }
+        
+        // Create the invoice
+        final invoiceDoc = _invoicesCollection.doc();
+        docId = invoiceDoc.id;
+        transaction.set(invoiceDoc, invoice.toMap());
+        
+        // Update all stock levels atomically
+        for (final entry in stockUpdates.entries) {
+          final productDoc = _productsCollection.doc(entry.key);
+          transaction.update(productDoc, {
+            FirestoreFields.currentStock: entry.value,
+            FirestoreFields.updatedAt: Timestamp.now(),
+          });
+        }
+      });
+      
+      // Ensure docId was set - this should always happen but check for safety
+      final generatedId = docId;
+      if (generatedId == null) {
+        throw FirestoreException(
+          code: 'internal',
+          message: 'Failed to generate invoice document ID',
+        );
       }
       
-      // Create the invoice
-      final invoiceDoc = _invoicesCollection.doc();
-      docId = invoiceDoc.id;
-      transaction.set(invoiceDoc, invoice.toMap());
-      
-      // Update all stock levels atomically
-      for (final entry in stockUpdates.entries) {
-        final productDoc = _productsCollection.doc(entry.key);
-        transaction.update(productDoc, {
-          'currentStock': entry.value,
-          'updatedAt': Timestamp.now(),
-        });
-      }
-    });
-    
-    return docId!;
+      return generatedId;
+    } on AppException {
+      // Re-throw our custom exceptions as-is
+      rethrow;
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'addInvoice');
+      throw FirestoreException.fromFirebase(e);
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'addInvoice');
+      rethrow;
+    }
   }
 
   /// Update an invoice (full update)

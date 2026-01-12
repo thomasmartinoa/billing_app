@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/invoice_model.dart';
+import 'package:billing_app/utils/search_helper.dart';
 
 class InvoiceProvider with ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
@@ -132,13 +133,14 @@ class InvoiceProvider with ChangeNotifier {
 
   // Search invoices
   List<InvoiceModel> searchInvoices(String query) {
-    if (query.isEmpty) return _invoices;
-    
-    final lowerQuery = query.toLowerCase();
-    return _invoices.where((invoice) {
-      return invoice.invoiceNumber.toLowerCase().contains(lowerQuery) ||
-             (invoice.customerName?.toLowerCase().contains(lowerQuery) ?? false);
-    }).toList();
+    return SearchHelper.search(
+      items: _invoices,
+      query: query,
+      searchFields: [
+        (i) => i.invoiceNumber,
+        (i) => i.customerName ?? '',
+      ],
+    );
   }
 
   void _setLoading(bool value) {

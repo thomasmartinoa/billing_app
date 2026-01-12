@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/product_model.dart';
+import 'package:billing_app/utils/search_helper.dart';
 
 class ProductProvider with ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
@@ -91,13 +92,15 @@ class ProductProvider with ChangeNotifier {
 
   // Search products
   List<ProductModel> searchProducts(String query) {
-    if (query.isEmpty) return _products;
-    
-    final lowerQuery = query.toLowerCase();
-    return _products.where((product) {
-      return product.name.toLowerCase().contains(lowerQuery) ||
-             (product.category?.toLowerCase().contains(lowerQuery) ?? false);
-    }).toList();
+    return SearchHelper.search(
+      items: _products,
+      query: query,
+      searchFields: [
+        (p) => p.name,
+        (p) => p.category ?? '',
+        (p) => p.sku ?? '',
+      ],
+    );
   }
 
   void _setLoading(bool value) {
