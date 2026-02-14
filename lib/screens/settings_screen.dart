@@ -4,6 +4,8 @@ import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/providers/theme_provider.dart';
 import 'package:billing_app/theme/theme_helper.dart';
 import 'package:provider/provider.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -90,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading settings: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -131,10 +133,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         Navigator.pop(context);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveSettings');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving settings: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -201,12 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       controller: _nameController,
                       label: 'Shop Name',
                       icon: Icons.store,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter shop name';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validators.required(value, fieldName: 'Shop name'),
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -222,12 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: 'Address',
                       icon: Icons.location_on,
                       maxLines: 2,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter address';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validators.required(value, fieldName: 'Address'),
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -236,12 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: 'Phone Number',
                       icon: Icons.phone,
                       keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter phone number';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validators.required(value, fieldName: 'Phone number'),
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -275,15 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: 'Tax Rate (%)',
                       icon: Icons.percent,
                       keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter tax rate';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Please enter valid number';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validators.number(value, fieldName: 'Tax rate', min: BusinessConstants.minTaxRate, max: BusinessConstants.maxTaxRate),
                     ),
                     const SizedBox(height: 16),
                     Container(
@@ -323,12 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       controller: _invoicePrefixController,
                       label: 'Invoice Prefix',
                       icon: Icons.receipt,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter invoice prefix';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validators.required(value, fieldName: 'Invoice prefix'),
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(

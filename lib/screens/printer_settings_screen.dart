@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/theme/theme_helper.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
+import 'package:billing_app/utils/error_handler.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 
 class PrinterSettingsScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error getting devices: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -79,7 +80,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Connection failed: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -109,7 +110,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Disconnect failed: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -140,7 +141,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Test print failed: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );

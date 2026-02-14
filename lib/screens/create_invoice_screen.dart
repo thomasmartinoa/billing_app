@@ -7,8 +7,11 @@ import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/models/user_model.dart';
+import 'package:billing_app/models/cart_item.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
   const CreateInvoiceScreen({super.key});
@@ -60,7 +63,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -150,15 +153,22 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
 
   double get taxRate => userData?.shopSettings?.taxRate ?? BusinessConstants.defaultTaxRate;
 
-  double get subTotal {
+  double get rawSubTotal {
     double s = 0;
     for (final c in cart) {
       s += c.product.sellingPrice * c.qty;
     }
-    final discount = double.tryParse(discountController.text) ?? 0;
-    s -= discount;
-    if (s < 0) s = 0;
     return s;
+  }
+
+  double get discountAmount {
+    final discount = double.tryParse(discountController.text) ?? 0;
+    return discount.clamp(0, rawSubTotal);
+  }
+
+  double get subTotal {
+    final s = rawSubTotal - discountAmount;
+    return s < 0 ? 0 : s;
   }
 
   double get tax => subTotal * (taxRate / 100);
@@ -175,6 +185,18 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     if (cart.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add items to cart')),
+      );
+      return;
+    }
+
+    // Validate discount does not exceed subtotal
+    final enteredDiscount = double.tryParse(discountController.text) ?? 0;
+    if (enteredDiscount > rawSubTotal) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Discount (₹${enteredDiscount.toStringAsFixed(2)}) cannot exceed subtotal (₹${rawSubTotal.toStringAsFixed(2)})'),
+          backgroundColor: context.errorColor,
+        ),
       );
       return;
     }
@@ -217,7 +239,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                 ))
             .toList(),
         subtotal: subTotal,
-        discount: double.tryParse(discountController.text) ?? 0,
+        discount: discountAmount,
         taxRate: taxRate,
         taxAmount: tax,
         total: total,
@@ -239,10 +261,11 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'createInvoice');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating invoice: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -280,11 +303,11 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           children: [
             Text('Items: ${cart.length}'),
             Text('Customer: ${selectedCustomer?.name ?? 'Walk-in Customer'}'),
-            Text('Subtotal: ₹${subTotal.toStringAsFixed(2)}'),
-            Text('Tax (${taxRate.toStringAsFixed(1)}%): ₹${tax.toStringAsFixed(2)}'),
+            Text('Subtotal: ${CurrencyFormatter.format(subTotal)}'),
+            Text('Tax (${taxRate.toStringAsFixed(1)}%): ${CurrencyFormatter.format(tax)}'),
             const Divider(),
             Text(
-              'Total: ₹${total.toStringAsFixed(2)}',
+              'Total: ${CurrencyFormatter.format(total)}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 8),
@@ -505,7 +528,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 6),
-                              Text('₹${p.sellingPrice.toStringAsFixed(0)}',
+                              Text(CurrencyFormatter.formatCompact(p.sellingPrice),
                                   style: TextStyle(
                                       color: context.accent)),
                             ],
@@ -552,7 +575,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                                           color: context.textSecondary)),
                                   const SizedBox(height: 6),
                                   Text(
-                                      '₹${c.product.sellingPrice.toStringAsFixed(2)} × ${c.qty}',
+                                      '${CurrencyFormatter.format(c.product.sellingPrice)} × ${c.qty}',
                                       style: TextStyle(
                                           color: context.textSecondary.withValues(alpha: 0.6), fontSize: 12)),
                                 ],
@@ -597,7 +620,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                    '₹${(c.product.sellingPrice * c.qty).toStringAsFixed(2)}',
+                                    CurrencyFormatter.format(c.product.sellingPrice * c.qty),
                                     style: TextStyle(
                                         color: context.accent)),
                                 const SizedBox(height: 8),
@@ -790,10 +813,10 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('₹${subTotal.toStringAsFixed(2)}',
+                            Text(CurrencyFormatter.format(subTotal),
                                 style: TextStyle(color: context.textPrimary)),
                             const SizedBox(height: 6),
-                            Text('₹${tax.toStringAsFixed(2)}',
+                            Text(CurrencyFormatter.format(tax),
                                 style: TextStyle(color: context.textPrimary)),
                           ]),
                     ],
@@ -813,7 +836,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                           style: TextStyle(
                               color: context.textSecondary,
                               fontWeight: FontWeight.bold)),
-                      Text('₹${total.toStringAsFixed(2)}',
+                      Text(CurrencyFormatter.format(total),
                           style: TextStyle(
                               color: context.accent,
                               fontWeight: FontWeight.bold,
@@ -912,11 +935,4 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
       },
     );
   }
-}
-
-// Cart item class using ProductModel
-class CartItem {
-  final ProductModel product;
-  int qty;
-  CartItem({required this.product, this.qty = 1});
 }

@@ -8,6 +8,8 @@ import 'package:billing_app/services/pdf_service.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:billing_app/screens/thermal_receipt_preview_screen.dart';
 import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -27,6 +29,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   bool _isMarkingPaid = false;
   bool _isPdfLoading = false;
   late InvoiceModel _invoice;
+  static final _dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
 
   @override
   void initState() {
@@ -68,10 +71,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('Invoice marked as paid')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'markAsPaid');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -96,7 +100,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         [XFile(file.path)],
         subject: 'Invoice ${_invoice.invoiceNumber}',
         text:
-            'Please find attached invoice ${_invoice.invoiceNumber} for Rs.${_invoice.total.toStringAsFixed(2)}',
+            'Please find attached invoice ${_invoice.invoiceNumber} for ${CurrencyFormatter.format(_invoice.total)}',
       );
 
       if (mounted) {
@@ -104,10 +108,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('PDF shared successfully')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'sharePdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing PDF: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -129,10 +134,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('Printing...')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'printA4Invoice');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error printing: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -164,11 +170,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'printThermalReceipt');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error printing: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -243,12 +250,13 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       if (selectedDevice != null) {
         await _connectAndPrint(selectedDevice);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'showPrinterSelection');
       setState(() => _isPdfLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -289,11 +297,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'connectAndPrint');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Print failed: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -346,11 +355,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveThermalToPdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving PDF: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -437,7 +447,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
+    final dateFormat = _dateFormat;
     final isPaid = _invoice.status == InvoiceStatus.paid;
 
     return Scaffold(
@@ -557,27 +567,27 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       ..._invoice.items.map((item) => _itemRow(
                             name: item.productName,
                             sub:
-                                '₹${item.price.toStringAsFixed(2)} × ${item.quantity} ${item.unit}',
+                                '${CurrencyFormatter.format(item.price)} × ${item.quantity} ${item.unit}',
                             qty: '${item.quantity}',
-                            amount: '₹${item.total.toStringAsFixed(2)}',
+                            amount: CurrencyFormatter.format(item.total),
                           )),
 
                       const Divider(height: 28),
 
                       // TOTALS
                       _row('Subtotal',
-                          '₹${_invoice.subtotal.toStringAsFixed(2)}'),
+                          CurrencyFormatter.format(_invoice.subtotal)),
                       if (_invoice.discount > 0)
                         _row('Discount',
-                            '-₹${_invoice.discount.toStringAsFixed(2)}'),
+                            '-${CurrencyFormatter.format(_invoice.discount)}'),
                       _row('Tax (${_invoice.taxRate.toStringAsFixed(1)}%)',
-                          '₹${_invoice.taxAmount.toStringAsFixed(2)}'),
+                          CurrencyFormatter.format(_invoice.taxAmount)),
 
                       const SizedBox(height: 10),
 
                       _row(
                         'TOTAL',
-                        '₹${_invoice.total.toStringAsFixed(2)}',
+                        CurrencyFormatter.format(_invoice.total),
                         bold: true,
                         large: true,
                       ),
@@ -597,7 +607,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                                 _getPaymentMethodName(_invoice.paymentMethod)),
                             if (isPaid)
                               _row('Paid',
-                                  '₹${_invoice.total.toStringAsFixed(2)}'),
+                                  CurrencyFormatter.format(_invoice.total)),
                             if (!isPaid) _row('Status', 'Pending'),
                           ],
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/auth_service.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,10 +41,11 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'login');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -64,10 +66,11 @@ class _LoginPageState extends State<LoginPage> {
         // Pop back to AuthWrapper which will rebuild with the new auth state
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'googleSignIn');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google sign-in failed: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -275,10 +278,11 @@ class _SignupPageState extends State<SignupPage> {
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'createAccount');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {

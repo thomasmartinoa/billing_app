@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/constants/app_strings.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class AddCustomerScreen extends StatefulWidget {
   final CustomerModel? customer;
@@ -53,40 +56,27 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     super.dispose();
   }
 
-  // Validate email format
-  bool _isValidEmail(String email) {
-    if (email.isEmpty) return true; // Optional field
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
-  }
-
-  // Validate phone format (basic validation)
-  bool _isValidPhone(String phone) {
-    if (phone.isEmpty) return true; // Optional field
-    final phoneRegex = RegExp(r'^[0-9+\-\s()]{7,15}$');
-    return phoneRegex.hasMatch(phone);
-  }
-
   Future<void> _saveCustomer() async {
-    if (_nameCtrl.text.trim().isEmpty) {
+    final nameError = Validators.required(_nameCtrl.text, fieldName: 'Customer name');
+    if (nameError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter customer name')),
+        SnackBar(content: Text(nameError)),
       );
       return;
     }
 
-    // Validate email format
-    if (!_isValidEmail(_emailCtrl.text.trim())) {
+    final emailError = Validators.email(_emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim());
+    if (_emailCtrl.text.trim().isNotEmpty && emailError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email address')),
+        SnackBar(content: Text(emailError)),
       );
       return;
     }
 
-    // Validate phone format
-    if (!_isValidPhone(_phoneCtrl.text.trim())) {
+    final phoneError = Validators.phone(_phoneCtrl.text.trim());
+    if (phoneError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid phone number')),
+        SnackBar(content: Text(phoneError)),
       );
       return;
     }
@@ -142,10 +132,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           Navigator.pop(context);
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveCustomer');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding customer: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -165,7 +156,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.customer != null ? "Edit Customer" : "Add Customer",
+          widget.customer != null ? AppStrings.editCustomer : AppStrings.addCustomer,
           style: TextStyle(color: context.textWhite, fontWeight: FontWeight.bold),
         ),
       ),
@@ -180,11 +171,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: context.accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: context.accentColor.withValues(alpha: OpacityConstants.light),
+                  borderRadius: BorderRadius.circular(AppRadius.xxxl),
                   boxShadow: [
                     BoxShadow(
-                      color: context.accentColor.withValues(alpha: 0.4),
+                      color: context.accentColor.withValues(alpha: OpacityConstants.high),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -195,11 +186,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: AppSpacing.xxxl),
 
             // --- 2. Contact Information Section ---
             _buildSectionHeader(context, "Contact Information"),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _nameCtrl,
@@ -207,7 +198,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               hint: "Customer Name *",
               isMandatory: true,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _phoneCtrl,
@@ -215,7 +206,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               hint: "Phone Number",
               inputType: TextInputType.phone,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _emailCtrl,
@@ -223,11 +214,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               hint: "Email Address",
               inputType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: AppSpacing.xxxl),
 
             // --- 3. Address Section ---
             _buildSectionHeader(context, "Address"),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _addressCtrl,
@@ -235,18 +226,18 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               hint: "Address",
               maxLines: 3,
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: AppSpacing.xxxl),
 
             // --- 4. Business Information Section ---
             _buildSectionHeader(context, "Business Information"),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _gstCtrl,
               icon: Icons.receipt,
               hint: "GST Number",
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             _buildTextField(
               context: context,
               controller: _notesCtrl,
@@ -266,10 +257,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   backgroundColor: context.accentColor,
                   foregroundColor: context.textPrimary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
                   ),
                   elevation: 5,
-                  shadowColor: context.accentColor.withValues(alpha: 0.4),
+                  shadowColor: context.accentColor.withValues(alpha: OpacityConstants.high),
                 ),
                 icon: _isLoading
                     ? SizedBox(
@@ -337,8 +328,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     return Container(
       decoration: BoxDecoration(
         color: context.surfaceColor,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: context.borderColor.withValues(alpha: OpacityConstants.tertiary)),
       ),
       child: TextField(
         controller: controller,
@@ -353,11 +344,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
             borderSide: const BorderSide(color: Colors.transparent),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
             borderSide: BorderSide(color: context.accentColor, width: 2),
           ),
         ),

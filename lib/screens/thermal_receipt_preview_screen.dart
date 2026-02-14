@@ -5,6 +5,8 @@ import 'package:billing_app/models/user_model.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:billing_app/services/pdf_service.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -26,6 +28,7 @@ class ThermalReceiptPreviewScreen extends StatefulWidget {
 class _ThermalReceiptPreviewScreenState
     extends State<ThermalReceiptPreviewScreen> {
   bool _isLoading = false;
+  static final _dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
 
   Future<void> _printReceipt() async {
     try {
@@ -50,11 +53,12 @@ class _ThermalReceiptPreviewScreenState
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'printReceipt');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Print error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -90,11 +94,12 @@ class _ThermalReceiptPreviewScreenState
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveToPdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Save error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -110,10 +115,11 @@ class _ThermalReceiptPreviewScreenState
         [XFile(path)],
         subject: 'Thermal Receipt ${widget.invoice.invoiceNumber}',
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'sharePdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Share error: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -177,11 +183,12 @@ class _ThermalReceiptPreviewScreenState
       if (selectedDevice != null && mounted) {
         await _connectAndPrint(selectedDevice);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'showPrinterSelection');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -212,11 +219,12 @@ class _ThermalReceiptPreviewScreenState
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'connectAndPrint');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -228,7 +236,7 @@ class _ThermalReceiptPreviewScreenState
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
+    final dateFormat = _dateFormat;
 
     return Scaffold(
       backgroundColor: Theme.of(context).dialogBackgroundColor,
@@ -390,14 +398,14 @@ class _ThermalReceiptPreviewScreenState
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      '${item.quantity} x ₹${item.price.toStringAsFixed(2)}',
+                                      '${item.quantity} x ${CurrencyFormatter.format(item.price)}',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         color: Colors.black87,
                                       ),
                                     ),
                                     Text(
-                                      '₹${(item.quantity * item.price).toStringAsFixed(2)}',
+                                      CurrencyFormatter.format(item.quantity * item.price),
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
@@ -415,15 +423,15 @@ class _ThermalReceiptPreviewScreenState
 
                       // Totals
                       _buildRow('Subtotal:',
-                          '₹${widget.invoice.subtotal.toStringAsFixed(2)}'),
+                          CurrencyFormatter.format(widget.invoice.subtotal)),
 
                       if (widget.invoice.discount > 0)
                         _buildRow('Discount:',
-                            '-₹${widget.invoice.discount.toStringAsFixed(2)}'),
+                            '-${CurrencyFormatter.format(widget.invoice.discount)}'),
 
                       if (widget.invoice.taxAmount > 0)
                         _buildRow('Tax:',
-                            '₹${widget.invoice.taxAmount.toStringAsFixed(2)}'),
+                            CurrencyFormatter.format(widget.invoice.taxAmount)),
 
                       const SizedBox(height: 4),
                       const Divider(color: Colors.black, thickness: 2),
@@ -441,7 +449,7 @@ class _ThermalReceiptPreviewScreenState
                             ),
                           ),
                           Text(
-                            '₹${widget.invoice.total.toStringAsFixed(2)}',
+                            CurrencyFormatter.format(widget.invoice.total),
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
