@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: context.textPrimary,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -142,12 +142,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         onPressed: _isLoading ? null : _tryLogin,
                         child: _isLoading
-                            ? SizedBox(
+                            ? const SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: context.textPrimary,
+                                  color: Colors.white,
                                 ),
                               )
                             : const Text('Login'),
@@ -366,24 +366,17 @@ class _SignupPageState extends State<SignupPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primary,
-                          foregroundColor: context.textPrimary,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: _isLoading
-                            ? null
-                            : (_email.text.trim().isNotEmpty &&
-                                    _pass.text.isNotEmpty &&
-                                    _confirm.text.isNotEmpty &&
-                                    _pass.text == _confirm.text)
-                                ? _createAccount
-                                : null,
+                        onPressed: _isLoading ? null : _createAccount,
                         child: _isLoading
-                            ? SizedBox(
+                            ? const SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: context.textPrimary,
+                                  color: Colors.white,
                                 ),
                               )
                             : const Text('Create account'),

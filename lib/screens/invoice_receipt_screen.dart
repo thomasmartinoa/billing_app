@@ -402,7 +402,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               label: const Text('Preview & Print'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.accent,
-                foregroundColor: context.textPrimary,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -548,7 +548,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         Text('Tel: ${_shopSettings!.phone}',
                             style: const TextStyle(color: Colors.black54)),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // INVOICE META
                       _row('Invoice', _invoice.invoiceNumber),
@@ -556,7 +556,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       if (_invoice.customerName != null)
                         _row('Customer', _invoice.customerName!),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // HEADER
                       _headerRow(),
@@ -572,7 +572,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                             amount: CurrencyFormatter.format(item.total),
                           )),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // TOTALS
                       _row('Subtotal',
@@ -619,7 +619,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _shopSettings!.thankYouNote!.isNotEmpty)
                         Text(
                           _shopSettings!.thankYouNote!,
-                          style: TextStyle(color: context.textSecondary),
+                          style: const TextStyle(color: Colors.black54),
                         ),
 
                       const SizedBox(height: 8),
@@ -628,8 +628,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _invoice.notes!.isNotEmpty) ...[
                         Text(
                           'Note: ${_invoice.notes}',
-                          style: TextStyle(
-                              color: context.textSecondary, fontSize: AppFontSize.md),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: AppFontSize.md),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -700,18 +700,18 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                 onPressed: _isPdfLoading ? null : _showPrintOptions,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.accent,
-                  foregroundColor: context.textPrimary,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (_isPdfLoading)
-                      SizedBox(
+                      const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: context.textPrimary),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     else
                       const Icon(Icons.print),
@@ -785,10 +785,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-            child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold))),
-        Text('Qty', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black))),
+        Text('Qty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
         SizedBox(width: 12),
-        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
       ],
     );
   }
@@ -814,9 +814,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               ],
             ),
           ),
-          Text(qty),
+          Text(qty, style: const TextStyle(color: Colors.black)),
           const SizedBox(width: 16),
-          Text(amount),
+          Text(amount, style: const TextStyle(color: Colors.black)),
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,38 +62,39 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   /// Set theme to light mode
-  Future<void> setLightMode() async {
+  void setLightMode() {
     _themeMode = ThemeMode.light;
-    await _saveThemePreference('light');
     notifyListeners();
+    unawaited(_saveThemePreference('light'));
   }
 
   /// Set theme to dark mode
-  Future<void> setDarkMode() async {
+  void setDarkMode() {
     _themeMode = ThemeMode.dark;
-    await _saveThemePreference('dark');
     notifyListeners();
+    unawaited(_saveThemePreference('dark'));
   }
 
   /// Set theme to system default
-  Future<void> setSystemMode() async {
+  void setSystemMode() {
     _themeMode = ThemeMode.system;
-    await _saveThemePreference('system');
     notifyListeners();
+    unawaited(_saveThemePreference('system'));
   }
 
   /// Toggle between light and dark mode
-  Future<void> toggleTheme() async {
+  void toggleTheme() {
     if (_themeMode == ThemeMode.dark) {
-      await setLightMode();
+      setLightMode();
     } else {
-      await setDarkMode();
+      setDarkMode();
     }
   }
 
   /// Set theme mode directly
-  Future<void> setThemeMode(ThemeMode mode) async {
+  void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
+    notifyListeners();
     String modeString;
     switch (mode) {
       case ThemeMode.light:
@@ -104,7 +107,6 @@ class ThemeProvider extends ChangeNotifier {
         modeString = 'system';
         break;
     }
-    await _saveThemePreference(modeString);
-    notifyListeners();
+    unawaited(_saveThemePreference(modeString));
   }
 }
