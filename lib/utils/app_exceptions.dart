@@ -1,6 +1,4 @@
-/// Custom exception classes for better error handling
-library;
-
+// Custom exception classes for better error handling
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Base class for all application exceptions
@@ -23,16 +21,6 @@ class AuthenticationException extends AppException {
       : super(message ?? 'User is not authenticated. Please log in.');
 }
 
-/// Thrown when user registration fails
-class RegistrationException extends AppException {
-  RegistrationException(String message) : super(message);
-}
-
-/// Thrown when login fails
-class LoginException extends AppException {
-  LoginException(String message) : super(message);
-}
-
 // ==================== Data Validation Exceptions ====================
 
 /// Thrown when data validation fails
@@ -49,21 +37,6 @@ class MissingFieldException extends ValidationException {
 
   MissingFieldException(this.fieldName)
       : super('$fieldName is required', code: 'missing-field');
-}
-
-/// Thrown when field value is invalid
-class InvalidFieldException extends ValidationException {
-  final String fieldName;
-  final String? expectedFormat;
-
-  InvalidFieldException(
-    this.fieldName, {
-    String? message,
-    this.expectedFormat,
-  }) : super(
-          message ?? 'Invalid $fieldName${expectedFormat != null ? ". Expected format: $expectedFormat" : ""}',
-          code: 'invalid-field',
-        );
 }
 
 // ==================== Business Logic Exceptions ====================
@@ -123,18 +96,6 @@ class InsufficientStockException extends AppException {
         );
 }
 
-/// Thrown when trying to create duplicate entry
-class DuplicateEntryException extends AppException {
-  final String entityType;
-  final String identifier;
-
-  DuplicateEntryException(this.entityType, this.identifier)
-      : super(
-          '$entityType with identifier "$identifier" already exists.',
-          code: 'duplicate-entry',
-        );
-}
-
 // ==================== Firestore Exceptions ====================
 
 /// Wrapper for Firestore exceptions with user-friendly messages
@@ -174,73 +135,4 @@ class FirestoreException extends AppException {
         return 'An unexpected error occurred. Please try again.';
     }
   }
-}
-
-// ==================== Network Exceptions ====================
-
-/// Thrown when network operation fails
-class NetworkException extends AppException {
-  NetworkException([String? message])
-      : super(message ?? 'Network error. Please check your internet connection.');
-}
-
-/// Thrown when operation times out
-class TimeoutException extends AppException {
-  TimeoutException([String? message])
-      : super(message ?? 'Operation timed out. Please try again.');
-}
-
-// ==================== Printing Exceptions ====================
-
-/// Thrown when printer operation fails
-class PrinterException extends AppException {
-  PrinterException(String message, {String? code})
-      : super(message, code: code);
-}
-
-/// Thrown when printer is not connected
-class PrinterNotConnectedException extends PrinterException {
-  PrinterNotConnectedException()
-      : super(
-          'Printer is not connected. Please connect a printer first.',
-          code: 'printer-not-connected',
-        );
-}
-
-/// Thrown when printer connection fails
-class PrinterConnectionException extends PrinterException {
-  final String deviceName;
-
-  PrinterConnectionException(this.deviceName)
-      : super(
-          'Failed to connect to printer "$deviceName". Please try again.',
-          code: 'printer-connection-failed',
-        );
-}
-
-// ==================== File Operation Exceptions ====================
-
-/// Thrown when file operation fails
-class FileOperationException extends AppException {
-  final String operation;
-  final String? filePath;
-
-  FileOperationException(
-    this.operation, {
-    this.filePath,
-    String? message,
-  }) : super(
-          message ??
-              'Failed to $operation${filePath != null ? " file: $filePath" : ""}',
-          code: 'file-operation-failed',
-        );
-}
-
-/// Thrown when PDF generation fails
-class PdfGenerationException extends FileOperationException {
-  PdfGenerationException([String? message])
-      : super(
-          'generate PDF',
-          message: message ?? 'Failed to generate PDF document.',
-        );
 }

@@ -1,6 +1,5 @@
-/// Application-wide string constants for UI text
-/// This structure supports easy migration to flutter_localizations in the future
-library;
+// Application-wide string constants for UI text
+// This structure supports easy migration to flutter_localizations in the future
 
 class AppStrings {
   AppStrings._(); // Private constructor to prevent instantiation

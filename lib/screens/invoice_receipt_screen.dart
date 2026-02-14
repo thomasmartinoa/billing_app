@@ -604,7 +604,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         child: Column(
                           children: [
                             _row('Payment Method',
-                                _getPaymentMethodName(_invoice.paymentMethod)),
+                                _invoice.paymentMethod.displayName),
                             if (isPaid)
                               _row('Paid',
                                   CurrencyFormatter.format(_invoice.total)),
@@ -725,25 +725,6 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ),
       ),
     );
-  }
-
-  String _getPaymentMethodName(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash';
-      case PaymentMethod.card:
-        return 'Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-      case PaymentMethod.cheque:
-        return 'Cheque';
-      case PaymentMethod.credit:
-        return 'Credit';
-      case PaymentMethod.other:
-        return 'Other';
-    }
   }
 
   // ----------------- HELPERS -----------------

@@ -3,7 +3,10 @@
     "allow": [
       "Bash(find:*)",
       "Bash(dir:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(sort:*)",
+      "Bash(done)",
+      "Bash(du:*)"
     ]
   }
 }

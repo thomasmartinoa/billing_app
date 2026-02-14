@@ -114,7 +114,7 @@ class SetupChecker extends StatelessWidget {
         final isSetupComplete = snapshot.data ?? false;
 
         if (isSetupComplete) {
-          return HomeScreen();
+          return const HomeScreen();
         } else {
           return const ScreenSetup();
         }

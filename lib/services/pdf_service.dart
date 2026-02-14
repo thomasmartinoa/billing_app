@@ -253,7 +253,7 @@ class PdfService {
                     ),
                     pw.SizedBox(height: 4),
                     _buildInfoRow('Payment Method',
-                        _getPaymentMethodName(invoice.paymentMethod)),
+                        invoice.paymentMethod.displayName),
                     _buildInfoRow(
                       'Status',
                       invoice.status == InvoiceStatus.paid ? 'PAID' : 'PENDING',
@@ -516,7 +516,7 @@ class PdfService {
               pw.Container(
                 width: double.infinity,
                 child: pw.Text(
-                  'Payment: ${_getPaymentMethodName(invoice.paymentMethod)}',
+                  'Payment: ${invoice.paymentMethod.displayName}',
                   style: const pw.TextStyle(fontSize: 8),
                   textAlign: pw.TextAlign.center,
                 ),
@@ -683,22 +683,4 @@ class PdfService {
     );
   }
 
-  static String _getPaymentMethodName(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash';
-      case PaymentMethod.card:
-        return 'Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-      case PaymentMethod.cheque:
-        return 'Cheque';
-      case PaymentMethod.credit:
-        return 'Credit';
-      case PaymentMethod.other:
-        return 'Other';
-    }
-  }
 }

@@ -95,7 +95,12 @@ class FirestoreService {
 
   /// Delete a customer
   Future<void> deleteCustomer(String customerId) async {
-    await _customersCollection.doc(customerId).delete();
+    try {
+      await _customersCollection.doc(customerId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteCustomer');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Get a single customer
@@ -161,7 +166,12 @@ class FirestoreService {
 
   /// Delete a product
   Future<void> deleteProduct(String productId) async {
-    await _productsCollection.doc(productId).delete();
+    try {
+      await _productsCollection.doc(productId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteProduct');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Get a single product
@@ -425,7 +435,12 @@ class FirestoreService {
   /// Update invoice fields (partial update)
   Future<void> updateInvoice(
       String invoiceId, Map<String, dynamic> data) async {
-    await _invoicesCollection.doc(invoiceId).update(data);
+    try {
+      await _invoicesCollection.doc(invoiceId).update(data);
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'updateInvoice');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Delete an invoice and restore stock for all items
@@ -599,6 +614,11 @@ class FirestoreService {
 
   /// Delete category
   Future<void> deleteCategory(String categoryId) async {
-    await _categoriesCollection.doc(categoryId).delete();
+    try {
+      await _categoriesCollection.doc(categoryId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteCategory');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 }
