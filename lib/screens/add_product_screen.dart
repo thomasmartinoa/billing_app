@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/models/product_model.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/constants/app_constants.dart';
 
 class AddProductScreen extends StatefulWidget {
   final ProductModel? product;
@@ -212,10 +214,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
           Navigator.pop(context);
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveProduct');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding product: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -373,10 +376,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   backgroundColor: context.accentColor,
                   foregroundColor: context.textPrimary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
                   ),
                   elevation: 5,
-                  shadowColor: context.accentColor.withValues(alpha: 0.4),
+                  shadowColor: context.accentColor.withValues(alpha: OpacityConstants.high),
                 ),
                 icon: _isLoading
                     ? SizedBox(
@@ -428,7 +431,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         context: context,
         backgroundColor: context.surfaceColor,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxxl)),
         ),
         builder: (context) {
           return Column(
@@ -481,10 +484,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
           );
         },
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'loadCategories');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading categories: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -507,7 +511,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       context: context,
       backgroundColor: context.surfaceColor,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxxl)),
       ),
       builder: (context) {
         return ListView.builder(
@@ -577,8 +581,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         Container(
           decoration: BoxDecoration(
             color: context.surfaceColor,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: Border.all(color: context.borderColor.withValues(alpha: OpacityConstants.tertiary)),
           ),
           child: TextField(
             controller: controller,
@@ -619,8 +623,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: context.surfaceColor,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(color: context.borderColor.withValues(alpha: OpacityConstants.tertiary)),
             ),
             child: Row(
               children: [
@@ -661,8 +665,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: context.surfaceColor,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: context.borderColor.withValues(alpha: 0.6)),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: context.borderColor.withValues(alpha: OpacityConstants.tertiary)),
       ),
       child: SwitchListTile(
         value: value,

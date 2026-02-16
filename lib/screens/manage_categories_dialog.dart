@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:billing_app/services/firestore_service.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
 
 class ManageCategoriesDialog extends StatefulWidget {
   const ManageCategoriesDialog({super.key});
@@ -36,10 +37,11 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
           const SnackBar(content: Text('Category added successfully')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'addCategory');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -83,10 +85,11 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
             const SnackBar(content: Text('Category deleted successfully')),
           );
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        ErrorHandler.logError(e, stackTrace, context: 'deleteCategory');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
+            SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
           );
         }
       }
@@ -191,7 +194,7 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        'Error: ${snapshot.error}',
+                        ErrorHandler.handleFirebaseError(snapshot.error),
                         style: TextStyle(color: context.errorColor),
                       ),
                     );

@@ -6,6 +6,8 @@ import 'package:billing_app/screens/product_details_screen.dart';
 import 'package:billing_app/screens/manage_categories_dialog.dart';
 import 'package:billing_app/theme/theme_helper.dart';
 import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -187,7 +189,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     if (snapshot.hasError) {
                       return Center(
                         child: Text(
-                          'Error: ${snapshot.error}',
+                          ErrorHandler.handleFirebaseError(snapshot.error),
                           style: TextStyle(color: context.errorColor),
                         ),
                       );
@@ -303,7 +305,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '₹${product.sellingPrice.toStringAsFixed(2)}',
+                    CurrencyFormatter.format(product.sellingPrice),
                     style: TextStyle(
                       color: context.accent,
                       fontSize: 14,
@@ -480,10 +482,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     const SnackBar(content: Text('Stock updated successfully')),
                   );
                 }
-              } catch (e) {
+              } catch (e, stackTrace) {
+                ErrorHandler.logError(e, stackTrace, context: 'updateStock');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
                   );
                 }
               }
@@ -535,10 +538,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         content: Text('Product deleted successfully')),
                   );
                 }
-              } catch (e) {
+              } catch (e, stackTrace) {
+                ErrorHandler.logError(e, stackTrace, context: 'deleteProduct');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
                   );
                 }
               }

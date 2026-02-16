@@ -95,7 +95,12 @@ class FirestoreService {
 
   /// Delete a customer
   Future<void> deleteCustomer(String customerId) async {
-    await _customersCollection.doc(customerId).delete();
+    try {
+      await _customersCollection.doc(customerId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteCustomer');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Get a single customer
@@ -161,7 +166,12 @@ class FirestoreService {
 
   /// Delete a product
   Future<void> deleteProduct(String productId) async {
-    await _productsCollection.doc(productId).delete();
+    try {
+      await _productsCollection.doc(productId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteProduct');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
   /// Get a single product
@@ -321,21 +331,168 @@ class FirestoreService {
     }
   }
 
-  /// Update an invoice (full update)
+  /// Update an invoice (full update) with atomic stock adjustment
+  ///
+  /// Uses a transaction to atomically:
+  /// 1. Read old invoice to get original quantities
+  /// 2. Compute delta per product (new qty - old qty)
+  /// 3. Validate sufficient stock for any increases
+  /// 4. Adjust stock and update invoice atomically
   Future<void> updateInvoiceFull(InvoiceModel invoice) async {
-    if (invoice.id == null) throw Exception('Invoice ID is required');
-    await _invoicesCollection.doc(invoice.id).update(invoice.toMap());
+    if (invoice.id == null) throw MissingFieldException('Invoice ID');
+
+    try {
+      await _firestore.runTransaction((transaction) async {
+        // Read the old invoice
+        final invoiceDoc = _invoicesCollection.doc(invoice.id);
+        final oldSnapshot = await transaction.get(invoiceDoc);
+
+        if (!oldSnapshot.exists) {
+          throw InvoiceNotFoundException(invoice.id!);
+        }
+
+        final oldInvoice = InvoiceModel.fromMap(oldSnapshot.data()!, oldSnapshot.id);
+
+        // Build maps of productId -> quantity for old and new invoices
+        final oldQtyMap = <String, int>{};
+        for (final item in oldInvoice.items) {
+          oldQtyMap[item.productId] = (oldQtyMap[item.productId] ?? 0) + item.quantity;
+        }
+
+        final newQtyMap = <String, int>{};
+        for (final item in invoice.items) {
+          newQtyMap[item.productId] = (newQtyMap[item.productId] ?? 0) + item.quantity;
+        }
+
+        // Compute deltas and collect all affected product IDs
+        final allProductIds = {...oldQtyMap.keys, ...newQtyMap.keys};
+        final stockUpdates = <String, int>{};
+
+        for (final productId in allProductIds) {
+          final oldQty = oldQtyMap[productId] ?? 0;
+          final newQty = newQtyMap[productId] ?? 0;
+          final delta = newQty - oldQty;
+
+          if (delta == 0) continue;
+
+          final productDoc = _productsCollection.doc(productId);
+          final productSnapshot = await transaction.get(productDoc);
+
+          if (!productSnapshot.exists) {
+            // Product was deleted; skip stock adjustment for removed items,
+            // but throw if new invoice references a deleted product
+            if (newQty > 0) {
+              final name = invoice.items
+                  .firstWhere((i) => i.productId == productId)
+                  .productName;
+              throw ProductNotFoundException(productId, name);
+            }
+            continue;
+          }
+
+          final productData = productSnapshot.data()!;
+          final trackInventory = productData[FirestoreFields.trackInventory] ?? true;
+
+          if (trackInventory) {
+            final currentStock = productData[FirestoreFields.currentStock] ?? 0;
+            final newStock = currentStock - delta; // delta>0 means more consumed
+
+            if (newStock < 0) {
+              final name = invoice.items
+                  .where((i) => i.productId == productId)
+                  .firstOrNull
+                  ?.productName ?? productId;
+              throw InsufficientStockException(name, currentStock + oldQty, newQty);
+            }
+
+            stockUpdates[productId] = newStock;
+          }
+        }
+
+        // Update the invoice document
+        transaction.update(invoiceDoc, invoice.toMap());
+
+        // Apply all stock updates atomically
+        for (final entry in stockUpdates.entries) {
+          final productDoc = _productsCollection.doc(entry.key);
+          transaction.update(productDoc, {
+            FirestoreFields.currentStock: entry.value,
+            FirestoreFields.updatedAt: Timestamp.now(),
+          });
+        }
+      });
+    } on AppException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'updateInvoiceFull');
+      throw FirestoreException.fromFirebase(e);
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'updateInvoiceFull');
+      rethrow;
+    }
   }
 
   /// Update invoice fields (partial update)
   Future<void> updateInvoice(
       String invoiceId, Map<String, dynamic> data) async {
-    await _invoicesCollection.doc(invoiceId).update(data);
+    try {
+      await _invoicesCollection.doc(invoiceId).update(data);
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'updateInvoice');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 
-  /// Delete an invoice
+  /// Delete an invoice and restore stock for all items
+  ///
+  /// Uses a transaction to atomically:
+  /// 1. Read the invoice to get its items
+  /// 2. Restore stock for each item where the product exists and tracks inventory
+  /// 3. Delete the invoice document
   Future<void> deleteInvoice(String invoiceId) async {
-    await _invoicesCollection.doc(invoiceId).delete();
+    try {
+      await _firestore.runTransaction((transaction) async {
+        // Read the invoice first
+        final invoiceDoc = _invoicesCollection.doc(invoiceId);
+        final invoiceSnapshot = await transaction.get(invoiceDoc);
+
+        if (!invoiceSnapshot.exists) {
+          throw InvoiceNotFoundException(invoiceId);
+        }
+
+        final invoice = InvoiceModel.fromMap(invoiceSnapshot.data()!, invoiceSnapshot.id);
+
+        // Restore stock for each item
+        for (final item in invoice.items) {
+          final productDoc = _productsCollection.doc(item.productId);
+          final productSnapshot = await transaction.get(productDoc);
+
+          if (productSnapshot.exists) {
+            final productData = productSnapshot.data()!;
+            final trackInventory = productData[FirestoreFields.trackInventory] ?? true;
+
+            if (trackInventory) {
+              final currentStock = productData[FirestoreFields.currentStock] ?? 0;
+              transaction.update(productDoc, {
+                FirestoreFields.currentStock: currentStock + item.quantity,
+                FirestoreFields.updatedAt: Timestamp.now(),
+              });
+            }
+          }
+        }
+
+        // Delete the invoice
+        transaction.delete(invoiceDoc);
+      });
+    } on AppException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteInvoice');
+      throw FirestoreException.fromFirebase(e);
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'deleteInvoice');
+      rethrow;
+    }
   }
 
   /// Get a single invoice
@@ -425,7 +582,7 @@ class FirestoreService {
 
   /// Get categories collection reference
   CollectionReference<Map<String, dynamic>> get _categoriesCollection {
-    if (_userId == null) throw Exception('User not authenticated');
+    if (_userId == null) throw AuthenticationException();
     return _userDoc.collection('categories');
   }
 
@@ -457,6 +614,11 @@ class FirestoreService {
 
   /// Delete category
   Future<void> deleteCategory(String categoryId) async {
-    await _categoriesCollection.doc(categoryId).delete();
+    try {
+      await _categoriesCollection.doc(categoryId).delete();
+    } on FirebaseException catch (e) {
+      ErrorHandler.logError(e, StackTrace.current, context: 'deleteCategory');
+      throw FirestoreException.fromFirebase(e);
+    }
   }
 }

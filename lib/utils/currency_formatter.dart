@@ -1,6 +1,4 @@
 /// Currency formatting utilities for consistent currency display
-library;
-
 class CurrencyConstants {
   CurrencyConstants._();
 
@@ -47,47 +45,6 @@ class CurrencyFormatter {
   /// Example: `formatCompact(1234.5)` returns `"₹1,234"`
   static String formatCompact(double amount, {String? currencySymbol}) {
     return format(amount, currencySymbol: currencySymbol, showDecimals: false);
-  }
-
-  /// Format for display in tables/lists (right-aligned)
-  /// 
-  /// Example: `formatForTable(1234.5)` returns `"1,234.50"` (no symbol)
-  static String formatForTable(double amount, {bool showDecimals = true}) {
-    final formatted = showDecimals
-        ? amount.toStringAsFixed(2)
-        : amount.toStringAsFixed(0);
-    return _addThousandSeparators(formatted);
-  }
-
-  /// Format with currency code instead of symbol
-  /// 
-  /// Example: `formatWithCode(1234.5, 'INR')` returns `"INR 1,234.50"`
-  static String formatWithCode(double amount, String currencyCode) {
-    final formatted = amount.toStringAsFixed(2);
-    return '$currencyCode ${_addThousandSeparators(formatted)}';
-  }
-
-  /// Format for thermal receipt printing
-  /// 
-  /// Example: `formatForReceipt(1234.5)` returns `"Rs.1234.50"`
-  static String formatForReceipt(double amount) {
-    return 'Rs.${amount.toStringAsFixed(2)}';
-  }
-
-  /// Get currency symbol from code
-  static String getSymbolFromCode(String currencyCode) {
-    switch (currencyCode.toUpperCase()) {
-      case CurrencyConstants.inr:
-        return CurrencyConstants.rupeeSymbol;
-      case CurrencyConstants.usd:
-        return CurrencyConstants.dollarSymbol;
-      case CurrencyConstants.eur:
-        return CurrencyConstants.euroSymbol;
-      case CurrencyConstants.gbp:
-        return CurrencyConstants.poundSymbol;
-      default:
-        return CurrencyConstants.defaultSymbol;
-    }
   }
 
   /// Add thousand separators to a number string

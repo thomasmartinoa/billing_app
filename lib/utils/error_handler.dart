@@ -100,20 +100,6 @@ class ErrorHandler {
   }
 }
 
-/// Extension for easy error handling in widgets
-extension ErrorHandlingExtension on dynamic {
-  String toUserMessage() => ErrorHandler.handleFirebaseError(this);
-}
-
-/// Validation errors
-class ValidationError implements Exception {
-  final String message;
-  ValidationError(this.message);
-
-  @override
-  String toString() => message;
-}
-
 /// Common validation utilities
 class Validators {
   Validators._();
@@ -167,12 +153,6 @@ class Validators {
     return null;
   }
 
-  /// Validate positive number
-  static String? positiveNumber(String? value,
-      {String fieldName = 'This field'}) {
-    return number(value, fieldName: fieldName, min: 0);
-  }
-
   /// Validate phone number
   static String? phone(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -201,18 +181,4 @@ class Validators {
     return null;
   }
 
-  /// Validate GST number (Indian format)
-  static String? gst(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null; // Optional field
-    }
-
-    final gstRegex =
-        RegExp(r'^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$');
-    if (!gstRegex.hasMatch(value.trim())) {
-      return 'Please enter a valid GST number';
-    }
-
-    return null;
-  }
 }

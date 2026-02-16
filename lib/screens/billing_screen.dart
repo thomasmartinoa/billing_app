@@ -6,6 +6,8 @@ import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:billing_app/theme/theme_helper.dart';
 import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});
@@ -20,6 +22,7 @@ class _BillingScreenState extends State<BillingScreen>
   final _firestoreService = FirestoreService();
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  static final _dateFormat = DateFormat('dd MMM yyyy');
 
   @override
   void initState() {
@@ -136,7 +139,7 @@ class _BillingScreenState extends State<BillingScreen>
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Error: ${snapshot.error}',
+              ErrorHandler.handleFirebaseError(snapshot.error),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           );
@@ -174,7 +177,7 @@ class _BillingScreenState extends State<BillingScreen>
   }
 
   Widget _buildInvoiceCard(InvoiceModel invoice) {
-    final dateFormat = DateFormat('dd MMM yyyy');
+    final dateFormat = _dateFormat;
 
     return GestureDetector(
       onTap: () {
@@ -247,7 +250,7 @@ class _BillingScreenState extends State<BillingScreen>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '₹${invoice.total.toStringAsFixed(2)}',
+                  CurrencyFormatter.format(invoice.total),
                   style: TextStyle(
                     color: context.accent,
                     fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import 'package:billing_app/models/customer_model.dart';
 import 'package:billing_app/screens/add_customer_screen.dart';
 import 'package:billing_app/screens/customer_details_screen.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
 
 class CustomerListScreen extends StatefulWidget {
   const CustomerListScreen({super.key});
@@ -336,7 +337,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                     if (snapshot.hasError) {
                       return Center(
                         child: Text(
-                          'Error: ${snapshot.error}',
+                          ErrorHandler.handleFirebaseError(snapshot.error),
                           style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       );
@@ -604,7 +605,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
                   );
                 }
               }

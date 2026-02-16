@@ -8,6 +8,8 @@ import 'package:billing_app/services/pdf_service.dart';
 import 'package:billing_app/services/thermal_printer_service.dart';
 import 'package:billing_app/screens/thermal_receipt_preview_screen.dart';
 import 'package:billing_app/constants/app_constants.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -27,6 +29,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
   bool _isMarkingPaid = false;
   bool _isPdfLoading = false;
   late InvoiceModel _invoice;
+  static final _dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
 
   @override
   void initState() {
@@ -68,10 +71,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('Invoice marked as paid')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'markAsPaid');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -96,7 +100,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         [XFile(file.path)],
         subject: 'Invoice ${_invoice.invoiceNumber}',
         text:
-            'Please find attached invoice ${_invoice.invoiceNumber} for Rs.${_invoice.total.toStringAsFixed(2)}',
+            'Please find attached invoice ${_invoice.invoiceNumber} for ${CurrencyFormatter.format(_invoice.total)}',
       );
 
       if (mounted) {
@@ -104,10 +108,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('PDF shared successfully')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'sharePdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing PDF: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -129,10 +134,11 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           const SnackBar(content: Text('Printing...')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'printA4Invoice');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error printing: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     } finally {
@@ -164,11 +170,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'printThermalReceipt');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error printing: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -243,12 +250,13 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       if (selectedDevice != null) {
         await _connectAndPrint(selectedDevice);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'showPrinterSelection');
       setState(() => _isPdfLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -289,11 +297,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'connectAndPrint');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Print failed: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -346,11 +355,12 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      ErrorHandler.logError(e, stackTrace, context: 'saveThermalToPdf');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving PDF: $e'),
+            content: Text(ErrorHandler.handleFirebaseError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -392,7 +402,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               label: const Text('Preview & Print'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.accent,
-                foregroundColor: context.textPrimary,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -437,7 +447,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
+    final dateFormat = _dateFormat;
     final isPaid = _invoice.status == InvoiceStatus.paid;
 
     return Scaffold(
@@ -538,7 +548,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         Text('Tel: ${_shopSettings!.phone}',
                             style: const TextStyle(color: Colors.black54)),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // INVOICE META
                       _row('Invoice', _invoice.invoiceNumber),
@@ -546,7 +556,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       if (_invoice.customerName != null)
                         _row('Customer', _invoice.customerName!),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // HEADER
                       _headerRow(),
@@ -557,27 +567,27 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                       ..._invoice.items.map((item) => _itemRow(
                             name: item.productName,
                             sub:
-                                '₹${item.price.toStringAsFixed(2)} × ${item.quantity} ${item.unit}',
+                                '${CurrencyFormatter.format(item.price)} × ${item.quantity} ${item.unit}',
                             qty: '${item.quantity}',
-                            amount: '₹${item.total.toStringAsFixed(2)}',
+                            amount: CurrencyFormatter.format(item.total),
                           )),
 
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: Colors.black26),
 
                       // TOTALS
                       _row('Subtotal',
-                          '₹${_invoice.subtotal.toStringAsFixed(2)}'),
+                          CurrencyFormatter.format(_invoice.subtotal)),
                       if (_invoice.discount > 0)
                         _row('Discount',
-                            '-₹${_invoice.discount.toStringAsFixed(2)}'),
+                            '-${CurrencyFormatter.format(_invoice.discount)}'),
                       _row('Tax (${_invoice.taxRate.toStringAsFixed(1)}%)',
-                          '₹${_invoice.taxAmount.toStringAsFixed(2)}'),
+                          CurrencyFormatter.format(_invoice.taxAmount)),
 
                       const SizedBox(height: 10),
 
                       _row(
                         'TOTAL',
-                        '₹${_invoice.total.toStringAsFixed(2)}',
+                        CurrencyFormatter.format(_invoice.total),
                         bold: true,
                         large: true,
                       ),
@@ -594,10 +604,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                         child: Column(
                           children: [
                             _row('Payment Method',
-                                _getPaymentMethodName(_invoice.paymentMethod)),
+                                _invoice.paymentMethod.displayName),
                             if (isPaid)
                               _row('Paid',
-                                  '₹${_invoice.total.toStringAsFixed(2)}'),
+                                  CurrencyFormatter.format(_invoice.total)),
                             if (!isPaid) _row('Status', 'Pending'),
                           ],
                         ),
@@ -609,7 +619,7 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _shopSettings!.thankYouNote!.isNotEmpty)
                         Text(
                           _shopSettings!.thankYouNote!,
-                          style: TextStyle(color: context.textSecondary),
+                          style: const TextStyle(color: Colors.black54),
                         ),
 
                       const SizedBox(height: 8),
@@ -618,8 +628,8 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                           _invoice.notes!.isNotEmpty) ...[
                         Text(
                           'Note: ${_invoice.notes}',
-                          style: TextStyle(
-                              color: context.textSecondary, fontSize: AppFontSize.md),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: AppFontSize.md),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -690,18 +700,18 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
                 onPressed: _isPdfLoading ? null : _showPrintOptions,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: context.accent,
-                  foregroundColor: context.textPrimary,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (_isPdfLoading)
-                      SizedBox(
+                      const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: context.textPrimary),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     else
                       const Icon(Icons.print),
@@ -715,25 +725,6 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
         ),
       ),
     );
-  }
-
-  String _getPaymentMethodName(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash';
-      case PaymentMethod.card:
-        return 'Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-      case PaymentMethod.cheque:
-        return 'Cheque';
-      case PaymentMethod.credit:
-        return 'Credit';
-      case PaymentMethod.other:
-        return 'Other';
-    }
   }
 
   // ----------------- HELPERS -----------------
@@ -775,10 +766,10 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-            child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold))),
-        Text('Qty', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text('Item', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black))),
+        Text('Qty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
         SizedBox(width: 12),
-        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Amount', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
       ],
     );
   }
@@ -804,9 +795,9 @@ class _InvoiceReceiptScreenState extends State<InvoiceReceiptScreen> {
               ],
             ),
           ),
-          Text(qty),
+          Text(qty, style: const TextStyle(color: Colors.black)),
           const SizedBox(width: 16),
-          Text(amount),
+          Text(amount, style: const TextStyle(color: Colors.black)),
         ],
       ),
     );

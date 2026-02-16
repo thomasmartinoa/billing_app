@@ -199,7 +199,7 @@ class ThermalPrinterService {
 
       // Payment Method
       _bluetooth.printCustom(
-        'Payment: ${_getPaymentMethodName(invoice.paymentMethod)}',
+        'Payment: ${invoice.paymentMethod.displayName}',
         Size.medium.val,
         Align.center.val,
       );
@@ -254,26 +254,6 @@ class ThermalPrinterService {
       _bluetooth.paperCut();
     } catch (e) {
       throw Exception('Failed to print: $e');
-    }
-  }
-
-  /// Get payment method name
-  static String _getPaymentMethodName(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash';
-      case PaymentMethod.card:
-        return 'Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-      case PaymentMethod.cheque:
-        return 'Cheque';
-      case PaymentMethod.credit:
-        return 'Credit';
-      case PaymentMethod.other:
-        return 'Other';
     }
   }
 

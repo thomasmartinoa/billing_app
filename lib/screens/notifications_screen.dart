@@ -5,6 +5,8 @@ import 'package:billing_app/models/invoice_model.dart';
 import 'package:billing_app/screens/invoice_receipt_screen.dart';
 import 'package:billing_app/screens/product_details_screen.dart';
 import 'package:billing_app/theme/theme_helper.dart';
+import 'package:billing_app/utils/error_handler.dart';
+import 'package:billing_app/utils/currency_formatter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -44,7 +46,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading notifications: $e')),
+          SnackBar(content: Text(ErrorHandler.handleFirebaseError(e))),
         );
       }
     }
@@ -395,7 +397,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Row(
                     children: [
                       Text(
-                        '₹${invoice.total.toStringAsFixed(2)}',
+                        CurrencyFormatter.format(invoice.total),
                         style: TextStyle(
                           color: statusColor,
                           fontSize: 14,

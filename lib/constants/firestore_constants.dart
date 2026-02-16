@@ -1,8 +1,7 @@
-/// Firestore collection and field name constants
-///
-/// Centralizes all Firestore collection names to prevent typos and
-/// enable easy refactoring of database structure.
-library;
+// Firestore collection and field name constants
+//
+// Centralizes all Firestore collection names to prevent typos and
+// enable easy refactoring of database structure.
 
 class FirestoreCollections {
   FirestoreCollections._(); // Private constructor to prevent instantiation
